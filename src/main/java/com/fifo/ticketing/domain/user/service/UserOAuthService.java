@@ -1,6 +1,6 @@
 package com.fifo.ticketing.domain.user.service;
 
-import com.fifo.ticketing.domain.user.dto.oauth.MemberOAuthDetails;
+import com.fifo.ticketing.domain.user.dto.oauth.UserOAuthDetails;
 import com.fifo.ticketing.domain.user.entity.User;
 import com.fifo.ticketing.domain.user.repository.UserRepository;
 import com.fifo.ticketing.global.exception.ErrorCode;
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class MemberOAuthService extends DefaultOAuth2UserService {
+public class UserOAuthService extends DefaultOAuth2UserService {
 
   private final UserRepository userRepository;
 
@@ -24,7 +24,7 @@ public class MemberOAuthService extends DefaultOAuth2UserService {
 
     OAuth2User oAuth2User = super.loadUser(userRequest);
     String provider = userRequest.getClientRegistration().getRegistrationId();
-    MemberOAuthDetails memberOAuthDetails = MemberDetailsFactory.memberFormDetails(provider,
+    UserOAuthDetails memberOAuthDetails = UserDetailsFactory.memberFormDetails(provider,
         oAuth2User);
     Optional<User> userOptional = userRepository.findByEmail(memberOAuthDetails.getEmail());
     User user = userOptional.orElseGet(

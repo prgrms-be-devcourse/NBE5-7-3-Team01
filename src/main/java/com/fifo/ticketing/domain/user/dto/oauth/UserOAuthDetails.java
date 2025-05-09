@@ -14,7 +14,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 
 @Getter
 @Accessors(chain = true)
-public class MemberOAuthDetails implements OAuth2User {
+public class UserOAuthDetails implements OAuth2User {
 
   private String name;
   private String email;
@@ -24,7 +24,7 @@ public class MemberOAuthDetails implements OAuth2User {
   private Role role;
 
   @Builder
-  public MemberOAuthDetails(String name, String email, Map<String, Object> attributes, Role role) {
+  public UserOAuthDetails(String name, String email, Map<String, Object> attributes, Role role) {
     this.name = name;
     this.email = email;
     this.attributes = attributes;
