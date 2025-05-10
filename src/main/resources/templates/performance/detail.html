@@ -205,6 +205,10 @@
         if (seat.seatStatus === 'AVAILABLE') {
           seatBtn.classList.add("available");
 
+          if (selectedSeatIds.has(seat.seatId)) {
+            seatBtn.classList.add("selected");
+          }
+
           seatBtn.addEventListener("click", function (event) {
             event.preventDefault();
             toggleSeat(seatBtn, seat);
