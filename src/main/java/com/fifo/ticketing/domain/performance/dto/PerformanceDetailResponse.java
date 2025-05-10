@@ -12,6 +12,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 public class PerformanceDetailResponse {
+
     private Long performanceId;
     private String title;
     private String description;

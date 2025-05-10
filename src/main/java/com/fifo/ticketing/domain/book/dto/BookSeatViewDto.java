@@ -10,6 +10,7 @@ import lombok.Getter;
 @Builder
 @AllArgsConstructor
 public class BookSeatViewDto {
+
     private Long seatId;
     private String seatNumber;
     private Grade grade;

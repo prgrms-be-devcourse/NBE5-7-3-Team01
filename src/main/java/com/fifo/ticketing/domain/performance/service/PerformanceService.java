@@ -32,12 +32,12 @@ public class PerformanceService {
     @Transactional(readOnly = true)
     public PerformanceDetailResponse getPerformanceDetail(Long performanceId) {
         Performance performance = performanceRepository.findById(performanceId)
-                .orElseThrow(() -> new ErrorException(NOT_FOUND_PERFORMANCE));
+            .orElseThrow(() -> new ErrorException(NOT_FOUND_PERFORMANCE));
 
         List<Grade> grades = gradeRepository.findByPlaceId(performance.getPlace().getId());
         List<PerformanceSeatGradeDto> seatGrades = grades.stream()
-                .map(PerformanceMapper::toSeatGradeDto)
-                .toList();
+            .map(PerformanceMapper::toSeatGradeDto)
+            .toList();
 
         return PerformanceMapper.toDetailResponseDto(performance, seatGrades);
     }
@@ -45,7 +45,7 @@ public class PerformanceService {
     @Transactional(readOnly = true)
     public Page<Performance> getPerformancesSortedByLatest(Pageable pageable) {
         Page<Performance> upcomingPerformances = performanceRepository.findUpcomingPerformancesOrderByReservationStartTime(
-                LocalDateTime.now(), pageable);
+            LocalDateTime.now(), pageable);
         if (upcomingPerformances.isEmpty()) {
             throw new ErrorException(NOT_FOUND_PERFORMANCES);
         }
@@ -55,7 +55,7 @@ public class PerformanceService {
     @Transactional(readOnly = true)
     public Page<Performance> getPerformancesSortedByLikes(Pageable pageable) {
         Page<Performance> upcomingPerformances = performanceRepository.findUpcomingPerformancesOrderByLikes(
-                LocalDateTime.now(), pageable);
+            LocalDateTime.now(), pageable);
         if (upcomingPerformances.isEmpty()) {
             throw new ErrorException(NOT_FOUND_PERFORMANCES);
         }
@@ -64,9 +64,9 @@ public class PerformanceService {
 
     @Transactional(readOnly = true)
     public Page<Performance> getPerformancesByReservationPeriod(LocalDateTime start,
-                                                                LocalDateTime end, Pageable pageable) {
+        LocalDateTime end, Pageable pageable) {
         Page<Performance> upcomingPerformances = performanceRepository.findUpcomingPerformancesByReservationPeriod(
-                start, end, pageable);
+            start, end, pageable);
         if (upcomingPerformances.isEmpty()) {
             throw new ErrorException(NOT_FOUND_PERFORMANCES);
         }
@@ -76,7 +76,7 @@ public class PerformanceService {
     @Transactional(readOnly = true)
     public Page<Performance> getPerformancesByCategory(Category category, Pageable pageable) {
         Page<Performance> upcomingPerformances = performanceRepository.findUpcomingPerformancesByCategory(
-                LocalDateTime.now(), category, pageable);
+            LocalDateTime.now(), category, pageable);
         if (upcomingPerformances.isEmpty()) {
             throw new ErrorException(NOT_FOUND_PERFORMANCES);
         }

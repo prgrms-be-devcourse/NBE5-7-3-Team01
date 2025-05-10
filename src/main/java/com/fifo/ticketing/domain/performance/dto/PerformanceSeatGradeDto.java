@@ -8,6 +8,7 @@ import lombok.Getter;
 @Builder
 @AllArgsConstructor
 public class PerformanceSeatGradeDto {
+
     private String grade;
     private int seatCount;
     private int defaultPrice;
