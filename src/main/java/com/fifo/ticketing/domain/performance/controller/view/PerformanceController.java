@@ -2,8 +2,8 @@ package com.fifo.ticketing.domain.performance.controller.view;
 
 import com.fifo.ticketing.domain.book.dto.BookSeatViewDto;
 import com.fifo.ticketing.domain.performance.dto.PerformanceDetailResponse;
+import com.fifo.ticketing.domain.performance.dto.PerformanceResponseDto;
 import com.fifo.ticketing.domain.performance.entity.Category;
-import com.fifo.ticketing.domain.performance.entity.Performance;
 import com.fifo.ticketing.domain.performance.service.PerformanceService;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -35,7 +35,8 @@ public class PerformanceController {
         @RequestParam(value = "size", defaultValue = "10", required = false) int size,
         Model model) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Performance> performances = performanceService.getPerformancesSortedByLatest(pageable);
+        Page<PerformanceResponseDto> performances = performanceService.getPerformancesSortedByLatest(
+            pageable);
         String baseQuery = "?size=" + size;
 
         preparedModel(model, performances, page, baseQuery);
@@ -50,7 +51,7 @@ public class PerformanceController {
         Model model) {
         Pageable pageable = PageRequest.of(page, size);
 
-        Page<Performance> performances = switch (sort) {
+        Page<PerformanceResponseDto> performances = switch (sort) {
             case "likes" -> performanceService.getPerformancesSortedByLikes(pageable);
             default -> performanceService.getPerformancesSortedByLatest(pageable);
         };
@@ -69,7 +70,7 @@ public class PerformanceController {
         Model model
     ) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Performance> performances = performanceService.getPerformancesByReservationPeriod(
+        Page<PerformanceResponseDto> performances = performanceService.getPerformancesByReservationPeriod(
             startDate, endDate, pageable);
         String baseQuery = "?startDate=" + startDate + "&endDate=" + endDate + "&size=" + size;
 
@@ -85,7 +86,8 @@ public class PerformanceController {
         Model model
     ) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Performance> performances = performanceService.getPerformancesByCategory(category,
+        Page<PerformanceResponseDto> performances = performanceService.getPerformancesByCategory(
+            category,
             pageable);
         String baseQuery = "?category=" + category + "&size=" + size;
 
@@ -112,7 +114,7 @@ public class PerformanceController {
         return "performance/detail";
     }
 
-    private void preparedModel(Model model, Page<Performance> performances, int page,
+    private void preparedModel(Model model, Page<PerformanceResponseDto> performances, int page,
         String baseQuery) {
         model.addAttribute("performances", performances.getContent());
         model.addAttribute("categories", Category.values());
