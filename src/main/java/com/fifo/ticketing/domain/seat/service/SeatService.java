@@ -1,7 +1,7 @@
 package com.fifo.ticketing.domain.seat.service;
 
 import com.fifo.ticketing.domain.book.dto.BookSeatViewDto;
-import com.fifo.ticketing.domain.seat.dto.SeatMapper;
+import com.fifo.ticketing.domain.seat.mapper.SeatMapper;
 import com.fifo.ticketing.domain.seat.repository.SeatRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

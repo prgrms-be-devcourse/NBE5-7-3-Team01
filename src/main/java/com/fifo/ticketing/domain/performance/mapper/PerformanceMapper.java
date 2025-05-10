@@ -1,5 +1,7 @@
-package com.fifo.ticketing.domain.performance.dto;
+package com.fifo.ticketing.domain.performance.mapper;
 
+import com.fifo.ticketing.domain.performance.dto.PerformanceDetailResponse;
+import com.fifo.ticketing.domain.performance.dto.PerformanceSeatGradeDto;
 import com.fifo.ticketing.domain.performance.entity.Grade;
 import com.fifo.ticketing.domain.performance.entity.Performance;
 

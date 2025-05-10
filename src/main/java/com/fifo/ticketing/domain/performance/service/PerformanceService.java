@@ -4,7 +4,7 @@ import static com.fifo.ticketing.global.exception.ErrorCode.NOT_FOUND_PERFORMANC
 import static com.fifo.ticketing.global.exception.ErrorCode.NOT_FOUND_PERFORMANCES;
 
 import com.fifo.ticketing.domain.performance.dto.PerformanceDetailResponse;
-import com.fifo.ticketing.domain.performance.dto.PerformanceMapper;
+import com.fifo.ticketing.domain.performance.mapper.PerformanceMapper;
 import com.fifo.ticketing.domain.performance.dto.PerformanceSeatGradeDto;
 import com.fifo.ticketing.domain.performance.entity.Category;
 import com.fifo.ticketing.domain.performance.entity.Grade;
@@ -14,7 +14,6 @@ import com.fifo.ticketing.domain.performance.repository.PerformanceRepository;
 import com.fifo.ticketing.global.exception.ErrorException;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
