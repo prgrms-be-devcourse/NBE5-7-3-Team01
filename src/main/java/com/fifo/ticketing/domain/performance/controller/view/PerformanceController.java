@@ -31,9 +31,9 @@ public class PerformanceController {
 
     @GetMapping
     public String viewPerformances(
-            @RequestParam(value = "page", defaultValue = "0", required = false) int page,
-            @RequestParam(value = "size", defaultValue = "10", required = false) int size,
-            Model model) {
+        @RequestParam(value = "page", defaultValue = "0", required = false) int page,
+        @RequestParam(value = "size", defaultValue = "10", required = false) int size,
+        Model model) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Performance> performances = performanceService.getPerformancesSortedByLatest(pageable);
         String baseQuery = "?size=" + size;
@@ -44,10 +44,10 @@ public class PerformanceController {
 
     @GetMapping(params = {"sort"})
     public String viewPerformancesSortedBy(
-            @RequestParam(value = "sort", defaultValue = "latest", required = false) String sort,
-            @RequestParam(value = "page", defaultValue = "0", required = false) int page,
-            @RequestParam(value = "size", defaultValue = "10", required = false) int size,
-            Model model) {
+        @RequestParam(value = "sort", defaultValue = "latest", required = false) String sort,
+        @RequestParam(value = "page", defaultValue = "0", required = false) int page,
+        @RequestParam(value = "size", defaultValue = "10", required = false) int size,
+        Model model) {
         Pageable pageable = PageRequest.of(page, size);
 
         Page<Performance> performances = switch (sort) {
@@ -62,15 +62,15 @@ public class PerformanceController {
 
     @GetMapping(params = {"startDate", "endDate"})
     public String viewPerformancesWithinPeriod(
-            @RequestParam(value = "startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
-            @RequestParam(value = "endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
-            @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "10") int size,
-            Model model
+        @RequestParam(value = "startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+        @RequestParam(value = "endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
+        @RequestParam(value = "page", defaultValue = "0") int page,
+        @RequestParam(value = "size", defaultValue = "10") int size,
+        Model model
     ) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Performance> performances = performanceService.getPerformancesByReservationPeriod(
-                startDate, endDate, pageable);
+            startDate, endDate, pageable);
         String baseQuery = "?startDate=" + startDate + "&endDate=" + endDate + "&size=" + size;
 
         preparedModel(model, performances, page, baseQuery);
@@ -79,14 +79,14 @@ public class PerformanceController {
 
     @GetMapping(params = "category")
     public String viewPerformancesByCategory(
-            @RequestParam(value = "category") Category category,
-            @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "10") int size,
-            Model model
+        @RequestParam(value = "category") Category category,
+        @RequestParam(value = "page", defaultValue = "0") int page,
+        @RequestParam(value = "size", defaultValue = "10") int size,
+        Model model
     ) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Performance> performances = performanceService.getPerformancesByCategory(category,
-                pageable);
+            pageable);
         String baseQuery = "?category=" + category + "&size=" + size;
 
         preparedModel(model, performances, page, baseQuery);
@@ -95,11 +95,12 @@ public class PerformanceController {
 
     @GetMapping("/{performanceId}")
     public String getPerformanceDetail(
-            @PathVariable Long performanceId,
-            @RequestParam Long userId,
-            Model model
+        @PathVariable Long performanceId,
+        @RequestParam Long userId,
+        Model model
     ) {
-        PerformanceDetailResponse performanceDetail = performanceService.getPerformanceDetail(performanceId);
+        PerformanceDetailResponse performanceDetail = performanceService.getPerformanceDetail(
+            performanceId);
 
         List<BookSeatViewDto> seatViewDtos = seatService.getSeatsForPerformance(performanceId);
 
@@ -112,7 +113,7 @@ public class PerformanceController {
     }
 
     private void preparedModel(Model model, Page<Performance> performances, int page,
-                               String baseQuery) {
+        String baseQuery) {
         model.addAttribute("performances", performances.getContent());
         model.addAttribute("categories", Category.values());
         model.addAttribute("currentPage", page);
