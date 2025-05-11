@@ -1,16 +1,19 @@
 package com.fifo.ticketing.domain.performance.entity;
 
 import com.fifo.ticketing.global.entity.BaseDateEntity;
+import com.fifo.ticketing.global.entity.File;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
+import lombok.*;
+
+import java.time.LocalDateTime;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
 @Entity
 @Getter
-@Table(name = "performance")
+@Builder
+@Table(name = "performances")
 @NoArgsConstructor
 @AllArgsConstructor
 public class Performance extends BaseDateEntity {
@@ -25,7 +28,6 @@ public class Performance extends BaseDateEntity {
     @Column(nullable = false)
     private String description;
 
-    @MapsId("placeId")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "place_id", foreignKey = @ForeignKey(name = "fk_performance_to_place"))
     private Place place;
@@ -44,4 +46,10 @@ public class Performance extends BaseDateEntity {
 
     @Column(nullable = false)
     private LocalDateTime reservationStartTime;
+  
+    @Setter
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "file_id", foreignKey = @ForeignKey(name = "fk_performance_to_file"))
+    private File file;
+
 }
