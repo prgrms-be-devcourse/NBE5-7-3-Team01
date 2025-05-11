@@ -16,9 +16,9 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 @Accessors(chain = true)
 public class UserOAuthDetails implements OAuth2User {
 
-  private String name;
-  private String email;
-  private Map<String, Object> attributes;
+  private final String name;
+  private final String email;
+  private final Map<String, Object> attributes;
 
   @Setter
   private Role role;
