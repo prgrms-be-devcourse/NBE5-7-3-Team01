@@ -38,7 +38,7 @@ public class UserDetailsFactory {
             .build();
       }
       default -> {
-        throw new ErrorException(ErrorCode.WRONG_PROVIDER);
+        throw new ErrorException(ErrorCode.NOT_FOUND_PROVIDER);
       }
     }
   }

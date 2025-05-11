@@ -3,14 +3,13 @@ package com.fifo.ticketing.domain.user.service;
 import com.fifo.ticketing.domain.user.dto.oauth.UserOAuthDetails;
 import com.fifo.ticketing.domain.user.entity.User;
 import com.fifo.ticketing.domain.user.repository.UserRepository;
-import com.fifo.ticketing.global.exception.ErrorCode;
-import com.fifo.ticketing.global.exception.ErrorException;
 import jakarta.transaction.Transactional;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
@@ -39,10 +38,10 @@ public class UserOAuthService extends DefaultOAuth2UserService {
           return userRepository.save(saved);
         }
     );
-    if (user.getProvider().equals(provider)) {
-      return memberOAuthDetails.setRole(user.getRole());
-    } else {
-      throw new ErrorException(ErrorCode.WRONG_PROVIDER);
+    if (user.getProvider() == null || !user.getProvider().equals(provider)) {
+      throw new OAuth2AuthenticationException(new OAuth2Error("invalid_provider"),
+          "이미 가입된 이메일입니다. 일반 로그인 방식으로 로그인 해주세요.");
     }
+    return memberOAuthDetails.setRole(user.getRole());
   }
 }

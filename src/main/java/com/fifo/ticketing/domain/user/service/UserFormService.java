@@ -27,7 +27,7 @@ public class UserFormService implements UserDetailsService {
 
   public void save(SignUpForm signUpForm) {
     if (userRepository.findByEmail(signUpForm.email()).isPresent()) {
-      throw new ErrorException(ErrorCode.EMAIL_EXISTS);
+      throw new ErrorException(ErrorCode.EMAIL_ALREADY_EXISTS);
     }
     User user = User.builder()
         .username(signUpForm.username())
@@ -40,7 +40,7 @@ public class UserFormService implements UserDetailsService {
   @Override
   public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
     Optional<User> userOptional = userRepository.findByEmail(email);
-    User findUser = userOptional.orElseThrow(() -> new ErrorException(ErrorCode.USER_NOT_EXIST)
+    User findUser = userOptional.orElseThrow(() -> new ErrorException(ErrorCode.NOT_FOUND_MEMBER)
     );
     return new UserFormDetails(findUser);
   }
