@@ -26,6 +26,7 @@ public class SeatService {
             .stream()
             .map(SeatMapper::toBookSeatViewDto)
             .collect(Collectors.toList());
+    }
     
 
     @Transactional
