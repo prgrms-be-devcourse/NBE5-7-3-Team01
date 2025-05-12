@@ -12,23 +12,6 @@ jobs:
     permissions:
       contents: read
 
-    env:
-      DB_ID: dummy_user
-      DB_PW: dummy_pw
-      REDIS_HOST: localhost
-      REDIS_PORT: 6379
-      NAVER_CLIENT: dummy_naver_client
-      NAVER_SECRET: dummy_naver_secret
-      KAKAO_CLIENT: dummy_kakao_client
-      KAKAO_SECRET: dummy_kakao_secret
-      GOOGLE_CLIENT: dummy_google_client
-      GOOGLE_SECRET: dummy_google_secret
-      MAIL_HOST: smtp.test.com
-      MAIL_PORT: 465
-      MAIL_EMAIL: test@example.com
-      MAIL_PASSWORD: dummy_password
-      FILE_DIR: /tmp/uploads
-
     steps:
       - uses: actions/checkout@v4
       - name: Set up JDK 21
