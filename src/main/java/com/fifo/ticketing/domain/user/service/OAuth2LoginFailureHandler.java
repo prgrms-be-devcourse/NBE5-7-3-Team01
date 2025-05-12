@@ -13,10 +13,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class OAuth2LoginFailureHandler implements AuthenticationFailureHandler {
 
-  @Override
-  public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
-      AuthenticationException exception) throws IOException, ServletException {
-    String errorMessage = URLEncoder.encode(exception.getMessage(), StandardCharsets.UTF_8);
-    response.sendRedirect("/users/signin?error=" + errorMessage);
-  }
+    @Override
+    public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
+        AuthenticationException exception) throws IOException, ServletException {
+        String errorMessage = URLEncoder.encode(exception.getMessage(), StandardCharsets.UTF_8);
+        response.sendRedirect("/users/signin?error=" + errorMessage);
+    }
 }

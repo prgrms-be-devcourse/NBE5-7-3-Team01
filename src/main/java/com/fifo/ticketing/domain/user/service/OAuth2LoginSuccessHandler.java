@@ -17,19 +17,19 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
-  private final UserRepository userRepository;
+    private final UserRepository userRepository;
 
-  @Override
-  public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
-      Authentication authentication) throws IOException, ServletException {
+    @Override
+    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
+        Authentication authentication) throws IOException, ServletException {
 
-    UserOAuthDetails userDetails = (UserOAuthDetails) authentication.getPrincipal();
+        UserOAuthDetails userDetails = (UserOAuthDetails) authentication.getPrincipal();
 
-    User user = userRepository.findByEmail(userDetails.getEmail()).orElseThrow();
-    request.getSession()
-        .setAttribute("loginUser", new SessionUser(user.getId(), user.getUsername()));
+        User user = userRepository.findByEmail(userDetails.getEmail()).orElseThrow();
+        request.getSession()
+            .setAttribute("loginUser", new SessionUser(user.getId(), user.getUsername()));
 
-    response.sendRedirect("/");
+        response.sendRedirect("/");
 
-  }
+    }
 }

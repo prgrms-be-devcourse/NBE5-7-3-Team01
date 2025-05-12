@@ -18,30 +18,30 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class UserOAuthService extends DefaultOAuth2UserService {
 
-  private final UserRepository userRepository;
+    private final UserRepository userRepository;
 
-  @Override
-  public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
+    @Override
+    public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
 
-    OAuth2User oAuth2User = super.loadUser(userRequest);
-    String provider = userRequest.getClientRegistration().getRegistrationId();
-    UserOAuthDetails memberOAuthDetails = UserDetailsFactory.memberFormDetails(provider,
-        oAuth2User);
-    Optional<User> userOptional = userRepository.findByEmail(memberOAuthDetails.getEmail());
-    User user = userOptional.orElseGet(
-        () -> {
-          User saved = User.builder()
-              .email(memberOAuthDetails.getEmail())
-              .username(memberOAuthDetails.getName())
-              .provider(provider)
-              .build();
-          return userRepository.save(saved);
+        OAuth2User oAuth2User = super.loadUser(userRequest);
+        String provider = userRequest.getClientRegistration().getRegistrationId();
+        UserOAuthDetails memberOAuthDetails = UserDetailsFactory.memberFormDetails(provider,
+            oAuth2User);
+        Optional<User> userOptional = userRepository.findByEmail(memberOAuthDetails.getEmail());
+        User user = userOptional.orElseGet(
+            () -> {
+                User saved = User.builder()
+                    .email(memberOAuthDetails.getEmail())
+                    .username(memberOAuthDetails.getName())
+                    .provider(provider)
+                    .build();
+                return userRepository.save(saved);
+            }
+        );
+        if (user.getProvider() == null || !user.getProvider().equals(provider)) {
+            throw new OAuth2AuthenticationException(new OAuth2Error("invalid_provider"),
+                "이미 가입된 이메일입니다. 일반 로그인 방식으로 로그인 해주세요.");
         }
-    );
-    if (user.getProvider() == null || !user.getProvider().equals(provider)) {
-      throw new OAuth2AuthenticationException(new OAuth2Error("invalid_provider"),
-          "이미 가입된 이메일입니다. 일반 로그인 방식으로 로그인 해주세요.");
+        return memberOAuthDetails.setRole(user.getRole());
     }
-    return memberOAuthDetails.setRole(user.getRole());
-  }
 }

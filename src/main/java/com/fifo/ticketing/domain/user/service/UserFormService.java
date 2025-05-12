@@ -22,26 +22,27 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class UserFormService implements UserDetailsService {
 
-  private final UserRepository userRepository;
-  private final PasswordEncoder passwordEncoder;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-  public void save(SignUpForm signUpForm) {
-    if (userRepository.findByEmail(signUpForm.email()).isPresent()) {
-      throw new ErrorException(ErrorCode.EMAIL_ALREADY_EXISTS);
+    public void save(SignUpForm signUpForm) {
+        if (userRepository.findByEmail(signUpForm.email()).isPresent()) {
+            throw new ErrorException(ErrorCode.EMAIL_ALREADY_EXISTS);
+        }
+        User user = User.builder()
+            .username(signUpForm.username())
+            .password(passwordEncoder.encode(signUpForm.password()))
+            .email(signUpForm.email())
+            .build();
+        userRepository.save(user);
     }
-    User user = User.builder()
-        .username(signUpForm.username())
-        .password(passwordEncoder.encode(signUpForm.password()))
-        .email(signUpForm.email())
-        .build();
-    userRepository.save(user);
-  }
 
-  @Override
-  public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-    Optional<User> userOptional = userRepository.findByEmail(email);
-    User findUser = userOptional.orElseThrow(() -> new ErrorException(ErrorCode.NOT_FOUND_MEMBER)
-    );
-    return new UserFormDetails(findUser);
-  }
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        Optional<User> userOptional = userRepository.findByEmail(email);
+        User findUser = userOptional.orElseThrow(
+            () -> new ErrorException(ErrorCode.NOT_FOUND_MEMBER)
+        );
+        return new UserFormDetails(findUser);
+    }
 }

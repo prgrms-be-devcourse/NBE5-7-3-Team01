@@ -1,7 +1,14 @@
 package com.fifo.ticketing.domain.user.entity;
 
 import com.fifo.ticketing.global.entity.BaseDateEntity;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -36,7 +43,8 @@ public class User extends BaseDateEntity {
     private boolean isBlocked;
 
     @Builder
-    public User(String email, String password, String username, String provider) {
+    public User(Long id, String email, String password, String username, String provider) {
+        this.id = id;
         this.email = email;
         this.password = password;
         this.username = username;

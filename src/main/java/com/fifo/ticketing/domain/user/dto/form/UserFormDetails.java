@@ -11,38 +11,38 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 public class UserFormDetails implements UserDetails {
 
+    //이메일과 비밀번호를 통해 인증을 진행중으로 username에는 email 값 할당
+    private final String username;
+    private final String password;
+    private final Role role;
 
-  private final String username;
-  private final String password;
-  private final Role role;
+    @Getter
+    private final Long id;
 
-  @Getter
-  private final Long id;
+    @Getter
+    private final String name;
 
-  @Getter
-  private final String name;
+    public UserFormDetails(User user) {
+        this.id = user.getId();
+        this.username = user.getEmail();
+        this.password = user.getPassword();
+        this.role = user.getRole();
+        this.name = user.getUsername();
+    }
 
-  public UserFormDetails(User user) {
-    this.id = user.getId();
-    this.username = user.getEmail();
-    this.password = user.getPassword();
-    this.role = user.getRole();
-    this.name = user.getUsername();
-  }
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority(role.name()));
+    }
 
-  @Override
-  public Collection<? extends GrantedAuthority> getAuthorities() {
-    return List.of(new SimpleGrantedAuthority(role.name()));
-  }
+    @Override
+    public String getPassword() {
+        return this.password;
+    }
 
-  @Override
-  public String getPassword() {
-    return this.password;
-  }
-
-  @Override
-  public String getUsername() {
-    return this.username;
-  }
+    @Override
+    public String getUsername() {
+        return this.username;
+    }
 
 }

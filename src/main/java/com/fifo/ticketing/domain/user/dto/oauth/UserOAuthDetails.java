@@ -16,23 +16,23 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 @Accessors(chain = true)
 public class UserOAuthDetails implements OAuth2User {
 
-  private final String name;
-  private final String email;
-  private final Map<String, Object> attributes;
+    private final String name;
+    private final String email;
+    private final Map<String, Object> attributes;
 
-  @Setter
-  private Role role;
+    @Setter
+    private Role role;
 
-  @Builder
-  public UserOAuthDetails(String name, String email, Map<String, Object> attributes, Role role) {
-    this.name = name;
-    this.email = email;
-    this.attributes = attributes;
-    this.role = role;
-  }
+    @Builder
+    public UserOAuthDetails(String name, String email, Map<String, Object> attributes, Role role) {
+        this.name = name;
+        this.email = email;
+        this.attributes = attributes;
+        this.role = role;
+    }
 
-  @Override
-  public Collection<? extends GrantedAuthority> getAuthorities() {
-    return List.of(new SimpleGrantedAuthority(role.name()));
-  }
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority(role.name()));
+    }
 }

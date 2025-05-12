@@ -17,26 +17,26 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/users")
 public class EmailController {
 
-  private final EmailAuthService emailAuthService;
+    private final EmailAuthService emailAuthService;
 
-  @PostMapping("/email/send")
-  public ResponseEntity<?> emailSend(@RequestBody SendEmailRequest sendEmailRequest)
-      throws MessagingException {
-    emailAuthService.sendEmail(sendEmailRequest.email());
-    return ResponseEntity.ok().build();
-  }
-
-  @PostMapping("/email/auth")
-  public ResponseEntity<?> emailAuth(@RequestBody AuthEmailRequest authEmailRequest,
-      HttpSession session) {
-    boolean checked = emailAuthService.checkAuthCode(authEmailRequest.email(),
-        authEmailRequest.authCode(),
-        session);
-    if (checked) {
-      return ResponseEntity.ok().build();
-    } else {
-      return ResponseEntity.notFound().build();
+    @PostMapping("/email/send")
+    public ResponseEntity<?> emailSend(@RequestBody SendEmailRequest sendEmailRequest)
+        throws MessagingException {
+        emailAuthService.sendEmail(sendEmailRequest.email());
+        return ResponseEntity.ok().build();
     }
-  }
+
+    @PostMapping("/email/auth")
+    public ResponseEntity<?> emailAuth(@RequestBody AuthEmailRequest authEmailRequest,
+        HttpSession session) {
+        boolean checked = emailAuthService.checkAuthCode(authEmailRequest.email(),
+            authEmailRequest.authCode(),
+            session);
+        if (checked) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
 }
 

@@ -16,15 +16,16 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class FormLoginSuccessHandler implements AuthenticationSuccessHandler {
 
-  @Override
-  public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
-      Authentication authentication) throws IOException, ServletException {
+    @Override
+    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
+        Authentication authentication) throws IOException, ServletException {
 
-    UserFormDetails userDetails = (UserFormDetails) authentication.getPrincipal();
+        UserFormDetails userDetails = (UserFormDetails) authentication.getPrincipal();
 
-    HttpSession session = request.getSession();
-    session.setAttribute("loginUser", new SessionUser(userDetails.getId(), userDetails.getName()));
+        HttpSession session = request.getSession();
+        session.setAttribute("loginUser",
+            new SessionUser(userDetails.getId(), userDetails.getName()));
 
-    response.sendRedirect("/");
-  }
+        response.sendRedirect("/");
+    }
 }

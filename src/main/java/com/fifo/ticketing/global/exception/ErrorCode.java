@@ -1,9 +1,9 @@
 package com.fifo.ticketing.global.exception;
 
 import static com.fifo.ticketing.global.exception.ErrorStatus.ALREADY_EXISTS;
-import static com.fifo.ticketing.global.exception.ErrorStatus.NOT_FOUND;
 import static com.fifo.ticketing.global.exception.ErrorStatus.CONFLICT;
 import static com.fifo.ticketing.global.exception.ErrorStatus.INTERNAL_SERVER_ERROR;
+import static com.fifo.ticketing.global.exception.ErrorStatus.NOT_FOUND;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,7 +20,7 @@ public enum ErrorCode {
     SEAT_CREATE_FAILED("SEAT-002", "좌석 등록에 실패하였습니다.", INTERNAL_SERVER_ERROR),
     EMAIL_ALREADY_EXISTS("EMAIL-001", "이미 사용하는 이메일입니다.", ALREADY_EXISTS),
     NOT_FOUND_AUTH("AUTH-002", "잘못된 인증번호 입니다.", NOT_FOUND),
-    NOT_FOUND_PROVIDER("PROVIDER-001", "지원하지 않는 플랫폼 서비스입니다.", NOT_FOUND),;
+    NOT_FOUND_PROVIDER("PROVIDER-001", "지원하지 않는 플랫폼 서비스입니다.", NOT_FOUND);
 
     private final String code;
     private final String message;
