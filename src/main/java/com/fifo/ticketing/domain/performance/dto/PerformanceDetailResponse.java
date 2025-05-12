@@ -25,4 +25,5 @@ public class PerformanceDetailResponse {
     private int totalSeats;
     private List<PerformanceSeatGradeDto> seatGrades;
 
+
 }

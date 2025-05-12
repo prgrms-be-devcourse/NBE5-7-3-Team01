@@ -55,7 +55,7 @@ public class PerformanceService {
         Performance performance = performanceRepository.findById(performanceId)
             .orElseThrow(() -> new ErrorException(NOT_FOUND_PERFORMANCE));
 
-        List<Grade> grades = gradeRepository.findByPlaceId(performance.getPlace().getId());
+        List<Grade> grades = gradeRepository.findAllByPlaceId(performance.getPlace().getId());
         List<PerformanceSeatGradeDto> seatGrades = grades.stream()
             .map(PerformanceMapper::toSeatGradeDto)
             .toList();
