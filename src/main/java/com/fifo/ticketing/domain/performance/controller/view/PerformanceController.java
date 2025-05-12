@@ -1,7 +1,11 @@
 package com.fifo.ticketing.domain.performance.controller.view;
 
+
 import com.fifo.ticketing.domain.book.dto.BookSeatViewDto;
 import com.fifo.ticketing.domain.performance.dto.PerformanceDetailResponse;
+import com.fifo.ticketing.domain.performance.dto.PlaceResponseDto;
+import com.fifo.ticketing.domain.performance.entity.Performance;
+import com.fifo.ticketing.domain.performance.entity.Place;
 import com.fifo.ticketing.domain.performance.dto.PerformanceResponseDto;
 import com.fifo.ticketing.domain.performance.entity.Category;
 import com.fifo.ticketing.domain.performance.service.PerformanceService;
@@ -121,5 +125,12 @@ public class PerformanceController {
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPage", performances.getTotalPages());
         model.addAttribute("baseQuery", baseQuery);
+    }
+
+    @GetMapping("/create")
+    public String createPerformance(Model model){
+        List<PlaceResponseDto> places = performanceService.getAllPlaces();
+        model.addAttribute("places", places);
+        return "create_performance";
     }
 }
