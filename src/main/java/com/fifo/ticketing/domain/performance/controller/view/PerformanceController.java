@@ -104,9 +104,11 @@ public class PerformanceController {
     @GetMapping("/{performanceId}")
     public String getPerformanceDetail(
         @PathVariable Long performanceId,
-        @RequestParam Long userId,
+        HttpSession session,
         Model model
     ) {
+        SessionUser loginUser = (SessionUser) session.getAttribute("loginUser");
+
         PerformanceDetailResponse performanceDetail = performanceService.getPerformanceDetail(
             performanceId);
 
@@ -114,7 +116,7 @@ public class PerformanceController {
 
         model.addAttribute("performanceDetail", performanceDetail);
         model.addAttribute("performanceId", performanceId);
-        model.addAttribute("userId", userId);
+        model.addAttribute("userId", loginUser.id());
         model.addAttribute("seats", seatViewDtos);
 
         return "performance/detail";
