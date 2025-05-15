@@ -1,6 +1,7 @@
 package com.fifo.ticketing.domain.performance.service;
 
 import static com.fifo.ticketing.global.exception.ErrorCode.FILE_UPLOAD_FAILED;
+import static com.fifo.ticketing.global.exception.ErrorCode.INVALID_DELETED_PERFORMANCE;
 import static com.fifo.ticketing.global.exception.ErrorCode.NOT_FOUND_GRADE;
 import static com.fifo.ticketing.global.exception.ErrorCode.NOT_FOUND_PERFORMANCE;
 import static com.fifo.ticketing.global.exception.ErrorCode.NOT_FOUND_PLACES;
@@ -137,6 +138,9 @@ public class PerformanceService {
         Performance findPerformance = performanceRepository.findById(id).orElseThrow(
             () -> new ErrorException(NOT_FOUND_PERFORMANCE));
 
+        // 추가. 삭제된 공연에 대해서 예외처리
+        deletedPerformanceCheck(findPerformance);
+
         // 2. Place 조회
         Place newPlace = findPlace(dto.getPlaceId());
 
@@ -175,6 +179,10 @@ public class PerformanceService {
         Performance findPerformance = performanceRepository.findByIdAndDeletedFlagFalse(id)
             .orElseThrow(
                 () -> new ErrorException(NOT_FOUND_PERFORMANCE));
+
+        // 추가. 삭제된 공연에 대해서 예외처리
+        deletedPerformanceCheck(findPerformance);
+
         // 2. 공연 삭제
         // 예약 삭제 / 좌석 삭제에서 영속성 컨텍스트가 초기화 되고, findPerformance가 flush 되지 않고 detach되는 문제 때문에 flush를 호출
         findPerformance.delete();
@@ -190,6 +198,12 @@ public class PerformanceService {
 
         // 후속 절차로 메일 전송을 EventListener로 보낼 예정입니다.
         // 사용 변수는 books 입니다.
+    }
+
+    private void deletedPerformanceCheck(Performance findPerformance) {
+        if (findPerformance.isDeletedFlag()) {
+            throw new ErrorException(INVALID_DELETED_PERFORMANCE);
+        }
     }
 
     private void saveLikeCount(Performance savedPerformance) {

@@ -35,10 +35,15 @@ public class PerformanceMapper {
     public static AdminPerformanceDetailResponse toAdminDetailResponseDto(Performance performance,
         List<PerformanceSeatGradeDto> seatGrades) {
         return AdminPerformanceDetailResponse.builder().performanceId(performance.getId())
-            .title(performance.getTitle()).description(performance.getDescription())
-            .category(performance.getCategory().name()).startTime(performance.getStartTime())
+            .title(performance.getTitle())
+            .description(performance.getDescription())
+            .category(performance.getCategory().name())
+            .startTime(performance.getStartTime())
             .encodedFileName(performance.getFile().getEncodedFileName())
-            .endTime(performance.getEndTime()).placeName(performance.getPlace().getName())
+            .endTime(performance.getEndTime())
+            .performanceStatus(performance.isPerformanceStatus())
+            .deletedFlag(performance.isDeletedFlag())
+            .placeName(performance.getPlace().getName())
             .address(performance.getPlace().getAddress())
             .totalSeats(performance.getPlace().getTotalSeats())
             .seatGrades(seatGrades)
