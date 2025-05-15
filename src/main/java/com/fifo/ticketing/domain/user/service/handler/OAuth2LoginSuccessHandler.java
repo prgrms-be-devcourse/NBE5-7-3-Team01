@@ -1,4 +1,4 @@
-package com.fifo.ticketing.domain.user.service;
+package com.fifo.ticketing.domain.user.service.handler;
 
 import com.fifo.ticketing.domain.user.dto.SessionUser;
 import com.fifo.ticketing.domain.user.dto.oauth.UserOAuthDetails;
