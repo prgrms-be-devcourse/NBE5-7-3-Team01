@@ -22,5 +22,10 @@ public class BookCompleteDto {
     private int quantity;
     @Setter
     private boolean paymentCompleted;
+    private String urlPrefix;
+
+    public String getUrl() {
+        return urlPrefix + encodedFileName;
+    }
 
 }
