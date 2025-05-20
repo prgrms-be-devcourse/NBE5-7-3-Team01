@@ -50,7 +50,7 @@ public class PerformanceController {
             model,
             performanceService.getPerformancesSortedByLatest(pageable),
             page,
-            "?size=" + size
+            "size=" + size
         );
     }
 
@@ -73,7 +73,7 @@ public class PerformanceController {
             model,
             performanceService.searchPerformancesByKeyword(keyword, pageable),
             page,
-            "?search=" + keyword + "&size=" + size
+            "search=" + keyword + "&size=" + size
         );
     }
 
@@ -92,7 +92,7 @@ public class PerformanceController {
             model,
             getPerformancesBySort(sort, pageable),
             page,
-            "?sort=" + sort + "&size=" + size
+            "sort=" + sort + "&size=" + size
         );
     }
 
@@ -120,7 +120,7 @@ public class PerformanceController {
             model,
             performanceService.getPerformancesByReservationPeriod(startDate, endDate, pageable),
             page,
-            "?startDate=" + startDate + "&endDate=" + endDate + "&size=" + size
+            "startDate=" + startDate + "&endDate=" + endDate + "&size=" + size
         );
     }
 
@@ -139,7 +139,7 @@ public class PerformanceController {
             model,
             performanceService.getPerformancesByCategory(category, pageable),
             page,
-            "?category=" + category + "&size=" + size
+            "category=" + category + "&size=" + size
         );
     }
 
@@ -150,15 +150,19 @@ public class PerformanceController {
         Model model
     ) {
         SessionUser loginUser = UserValidator.validateSessionUser(session);
+        Long userId = loginUser.id();
 
         PerformanceDetailResponse performanceDetail = performanceService.getPerformanceDetail(
             performanceId);
 
         List<BookSeatViewDto> seatViewDtos = seatService.getSeatsForPerformance(performanceId);
 
+        List<Long> likedPerformanceIds = likeService.getLikedPerformancesIds(userId);
+
+        model.addAttribute("userId", userId);
+        model.addAttribute("likedPerformanceIds", likedPerformanceIds);
         model.addAttribute("performanceDetail", performanceDetail);
         model.addAttribute("performanceId", performanceId);
-        model.addAttribute("userId", loginUser.id());
         model.addAttribute("seats", seatViewDtos);
 
         return "performance/detail";
