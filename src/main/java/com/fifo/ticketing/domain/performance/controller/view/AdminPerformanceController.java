@@ -17,8 +17,13 @@ import com.fifo.ticketing.domain.user.dto.SessionUser;
 import com.fifo.ticketing.global.util.DateTimeValidator;
 import com.fifo.ticketing.global.util.UserValidator;
 import jakarta.servlet.http.HttpSession;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -168,6 +173,7 @@ public class AdminPerformanceController {
         model.addAttribute("performanceId", performanceId);
         model.addAttribute("userId", loginUser.id());
         model.addAttribute("seats", seatViewDtos);
+        model.addAttribute("showBackButton", true);
 
         return "admin/performance_detail_admin";
     }
@@ -176,6 +182,7 @@ public class AdminPerformanceController {
     public String createPerformance(Model model) {
         List<PlaceResponseDto> places = adminPerformanceService.getAllPlaces();
         model.addAttribute("places", places);
+        model.addAttribute("showBackButton", true);
         return "admin/create_performance";
     }
 
@@ -184,6 +191,7 @@ public class AdminPerformanceController {
         AdminPerformanceResponseDto performance = adminPerformanceService.getPerformanceUpdateForAdmin(
                 id);
         List<PlaceResponseDto> places = adminPerformanceService.getAllPlaces();
+        model.addAttribute("showBackButton", true);
         model.addAttribute("performance", performance);
         model.addAttribute("places", places);
         return "admin/update_performance";
@@ -209,6 +217,7 @@ public class AdminPerformanceController {
         AdminPerformanceBookDetailDto performanceBookDetail = adminPerformanceService.getPerformanceBookDetail(
                 id);
         Page<BookAdminDetailDto> bookAdminList = bookService.getBookAdminList(id, pageable);
+        model.addAttribute("showBackButton", true);
         model.addAttribute("performanceBookDetail", performanceBookDetail);
         model.addAttribute("bookAdminListPage", bookAdminList);
         return "admin/performance_book_detail_admin";
@@ -219,6 +228,7 @@ public class AdminPerformanceController {
             @PathVariable("performanceId") Long performanceId, @PathVariable("bookId") Long bookId,
             Model model) {
         BookUserDetailDto bookUserDetail = bookService.getBookUserDetail(bookId, performanceId);
+        model.addAttribute("showBackButton", true);
         model.addAttribute("bookUserDetail", bookUserDetail);
         return "admin/performance_book_user_detail_admin";
     }
@@ -242,4 +252,5 @@ public class AdminPerformanceController {
 
         return "/admin/view_performances_admin";
     }
+
 }
