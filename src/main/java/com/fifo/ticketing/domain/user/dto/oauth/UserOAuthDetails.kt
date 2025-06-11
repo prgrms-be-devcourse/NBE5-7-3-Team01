@@ -1,25 +1,23 @@
 package com.fifo.ticketing.domain.user.dto.oauth
 
 import com.fifo.ticketing.domain.user.entity.Role
-import lombok.Builder
-import lombok.Getter
-import lombok.Setter
-import lombok.experimental.Accessors
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.oauth2.core.user.OAuth2User
-import java.util.List
 
-@Getter
-@Accessors(chain = true)
-class UserOAuthDetails @Builder constructor(
-    private val name: String,
-    private val email: String,
-    private val attributes: Map<String, Any>,
-    @field:Setter private val role: Role
+class UserOAuthDetails(
+    val username: String,
+    val email: String,
+    private val userAttributes: Map<String, Any>,
+    var role: Role
 ) :
     OAuth2User {
+
+    override fun getName(): String = username
+
+    override fun getAttributes(): Map<String, Any> = userAttributes
+
     override fun getAuthorities(): Collection<GrantedAuthority?> {
-        return List.of(SimpleGrantedAuthority(role.name))
+        return listOf(SimpleGrantedAuthority(role.name))
     }
 }
