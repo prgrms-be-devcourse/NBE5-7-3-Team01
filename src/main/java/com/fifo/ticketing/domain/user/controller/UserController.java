@@ -40,7 +40,7 @@ public class UserController {
         @RequestParam(value = "size", defaultValue = "5", required = false) int size) {
         Pageable pageable = PageRequest.of(page, size);
         SessionUser loginUser = UserValidator.validateSessionUser(session);
-        Long userId = loginUser.id();
+        Long userId = loginUser.id;
         return myPageService.getUserLikedPerformance(
             userId, pageable
         );

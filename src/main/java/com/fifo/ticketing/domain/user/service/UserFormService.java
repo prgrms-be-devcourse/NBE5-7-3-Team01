@@ -26,13 +26,13 @@ public class UserFormService implements UserDetailsService {
     private final PasswordEncoder passwordEncoder;
 
     public void save(SignUpForm signUpForm) {
-        if (userRepository.findByEmail(signUpForm.email()).isPresent()) {
+        if (userRepository.findByEmail(signUpForm.email).isPresent()) {
             throw new ErrorException(ErrorCode.EMAIL_ALREADY_EXISTS);
         }
         User user = User.builder()
-            .username(signUpForm.username())
-            .password(passwordEncoder.encode(signUpForm.password()))
-            .email(signUpForm.email())
+            .username(signUpForm.username)
+            .password(passwordEncoder.encode(signUpForm.password))
+            .email(signUpForm.email)
             .build();
         userRepository.save(user);
     }

@@ -37,8 +37,8 @@ public class ViewController {
     public String homePage(HttpSession session, Model model) {
         SessionUser loginUser = (SessionUser) session.getAttribute("loginUser");
         if (loginUser != null) {
-            model.addAttribute("userRole", loginUser.role());
-            model.addAttribute("username", loginUser.username());
+            model.addAttribute("userRole", loginUser.role);
+            model.addAttribute("username", loginUser.username);
         }
         return "index";
     }
@@ -56,8 +56,8 @@ public class ViewController {
     public String doSignup(SignUpForm signUpForm, HttpSession session, Model model) {
 
         String emailVerified = (String) session.getAttribute("emailVerified");
-        if (emailVerified == null || !emailVerified.equals(signUpForm.email())) {
-            model.addAttribute("emailVerified", signUpForm.email());
+        if (emailVerified == null || !emailVerified.equals(signUpForm.email)) {
+            model.addAttribute("emailVerified", signUpForm.email);
             return "user/sign_up";
         }
 
@@ -92,7 +92,7 @@ public class ViewController {
     ) {
         SessionUser loginUser = UserValidator.validateSessionUser(session);
         PageRequest pageable = PageRequest.of(page, size);
-        Page<BookedView> bookedList = bookService.getBookedList(loginUser.id(), performanceTitle,
+        Page<BookedView> bookedList = bookService.getBookedList(loginUser.id, performanceTitle,
             bookStatus, pageable);
 
         model.addAttribute("bookedList", bookedList);
@@ -104,10 +104,10 @@ public class ViewController {
         @PathVariable Long bookId,
         Model model) {
         SessionUser loginUser = UserValidator.validateSessionUser(session);
-        BookedView bookDetail = bookService.getBookDetail(loginUser.id(), bookId);
+        BookedView bookDetail = bookService.getBookDetail(loginUser.id, bookId);
 
         model.addAttribute("bookDetail", bookDetail);
-        model.addAttribute("userName", loginUser.username());
+        model.addAttribute("userName", loginUser.username);
 
         return "book/detail";
     }
@@ -121,7 +121,7 @@ public class ViewController {
     ) {
         SessionUser loginUser = UserValidator.validateSessionUser(session);
 
-        bookService.cancelBook(bookId, loginUser.id());
+        bookService.cancelBook(bookId, loginUser.id);
 
         BookMailSendDto bookMailInfo = bookService.getBookMailInfo(bookId);
         bookMailService.sendBookCompleteMail(bookMailInfo);
@@ -134,7 +134,7 @@ public class ViewController {
     public String myPage(HttpSession session, Model model) {
         SessionUser loginUser = UserValidator.validateSessionUser(session);
 
-        model.addAttribute("username", loginUser.username());
+        model.addAttribute("username", loginUser.username);
         return "user/my_page";
     }
 

@@ -43,6 +43,7 @@ public class UserOAuthService extends DefaultOAuth2UserService {
             throw OAuth2ExceptionFactory.fromErrorCode(
                 ErrorCode.EMAIL_ALREADY_REGISTERED_WITH_DIFFERENT_PROVIDER);
         }
-        return memberOAuthDetails.setRole(user.getRole());
+        memberOAuthDetails.setRole(user.getRole());
+        return memberOAuthDetails;
     }
 }

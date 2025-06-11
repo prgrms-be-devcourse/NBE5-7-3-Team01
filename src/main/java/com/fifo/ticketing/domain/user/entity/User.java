@@ -15,7 +15,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Getter
 @Table(name = "users")
 @NoArgsConstructor
 @AllArgsConstructor
@@ -54,4 +53,14 @@ public class User extends BaseDateEntity {
     public void updateBlockedState() {
         isBlocked = !isBlocked;
     }
+
+    public String getEmail() { return email; }
+    public String getPassword() { return password; }
+    public String getUsername() { return username; }
+    public Role getRole() { return role; }
+    public Long getId() { return id; }
+    public String getProvider() { return provider; }
+    public boolean isBlocked() { return isBlocked; }
+
+
 }
