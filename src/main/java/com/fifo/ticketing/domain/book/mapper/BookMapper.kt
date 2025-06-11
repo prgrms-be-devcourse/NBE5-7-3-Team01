@@ -2,7 +2,6 @@ package com.fifo.ticketing.domain.book.mapper
 
 import com.fifo.ticketing.domain.book.dto.BookCompleteDto
 import com.fifo.ticketing.domain.book.dto.BookMailSendDto
-import com.fifo.ticketing.domain.book.dto.BookSeatViewDto
 import com.fifo.ticketing.domain.book.dto.BookedView
 import com.fifo.ticketing.domain.book.entity.Book
 import com.fifo.ticketing.domain.book.entity.BookScheduledTask
@@ -15,7 +14,6 @@ import com.fifo.ticketing.domain.user.entity.User
 import org.springframework.data.domain.Page
 import org.springframework.stereotype.Component
 import java.time.LocalDateTime
-import java.util.stream.Collectors
 
 @Component
 object BookMapper {
@@ -23,90 +21,92 @@ object BookMapper {
     private const val MAIL_TITLE_CANCELED = " 예매가 취소되었습니다"
     private const val MAIL_TITLE_DEFAULT = " 예매 상태 안내"
 
+    @JvmStatic
     fun toBookEntity(
-        user: User?, performance: Performance?, totalPrice: Int,
+        user: User, performance: Performance, totalPrice: Int,
         quantity: Int
     ): Book {
         return Book.create(user, performance, totalPrice, quantity)
     }
 
-    fun toBookSeatEntities(book: Book?, seats: List<Seat?>): List<BookSeat> {
-        return seats.stream()
-            .map { seat: Seat? -> BookSeat.of(book, seat) }
-            .collect(Collectors.toList())
+    @JvmStatic
+    fun toBookSeatEntities(book: Book, seats: List<Seat>): List<BookSeat> {
+        return seats.map { BookSeat.of(book, it) }
     }
 
-    fun toBookCompleteDto(book: Book, urlPrefix: String?): BookCompleteDto {
-        return BookCompleteDto.builder()
-            .performanceId(book.performance.id)
-            .performanceTitle(book.performance.title)
-            .performanceStartTime(book.performance.startTime)
-            .performanceEndTime(book.performance.endTime)
-            .placeName(book.performance.place.name)
-            .encodedFileName(book.performance.file.encodedFileName)
-            .seats(book.bookSeats.stream()
-                .map<BookSeatViewDto> { bs: BookSeat -> SeatMapper.toBookSeatViewDto(bs.seat) }
-                .collect(Collectors.toList()))
-            .totalPrice(book.totalPrice)
-            .quantity(book.quantity)
-            .paymentCompleted(false)
-            .urlPrefix(urlPrefix)
-            .build()
+    @JvmStatic
+    fun toBookCompleteDto(book: Book, urlPrefix: String): BookCompleteDto {
+        val performance = book.getPerformance()
+        return BookCompleteDto(
+            performanceId = performance.getId(),
+            performanceTitle = performance.getTitle(),
+            performanceStartTime = performance.getStartTime(),
+            performanceEndTime = performance.getEndTime(),
+            placeName = performance.getPlace().getName(),
+            encodedFileName = performance.getFile().getEncodedFileName(),
+            seats = book.getBookSeats().map { SeatMapper.toBookSeatViewDto(it.getSeat()) },
+            totalPrice = book.getTotalPrice(),
+            quantity = book.getQuantity(),
+            paymentCompleted = false,
+            urlPrefix = urlPrefix
+        )
     }
 
-    fun toBookedViewDto(book: Book, urlPrefix: String?): BookedView {
-        val performance = book.performance
+    @JvmStatic
+    fun toBookedViewDto(book: Book, urlPrefix: String): BookedView {
+        val performance = book.getPerformance()
 
-        return BookedView.builder()
-            .bookId(book.id)
-            .performanceId(performance.id)
-            .performanceTitle(performance.title)
-            .placeName(performance.place.name)
-            .encodedFileName(performance.file.encodedFileName)
-            .seats(book.bookSeats.stream()
-                .map<BookSeatViewDto> { bs: BookSeat -> SeatMapper.toBookSeatViewDto(bs.seat) }
-                .collect(Collectors.toList()))
-            .quantity(book.quantity)
-            .totalPrice(book.totalPrice)
-            .bookStatus(book.bookStatus)
-            .urlPrefix(urlPrefix)
-            .build()
+        return BookedView(
+            bookId = book.getId()!!,
+            performanceId = performance.getId(),
+            performanceTitle = performance.getTitle(),
+            placeName = performance.getPlace().getName(),
+            encodedFileName = performance.getFile().getEncodedFileName(),
+            seats = book.getBookSeats().map { SeatMapper.toBookSeatViewDto(it.getSeat()) },
+            quantity = book.getQuantity(),
+            totalPrice = book.getTotalPrice(),
+            bookStatus = book.getBookStatus(),
+            urlPrefix = urlPrefix
+        )
     }
 
-    fun toBookedViewDtoList(books: Page<Book>, urlPrefix: String?): Page<BookedView> {
-        return books.map { book: Book -> toBookedViewDto(book, urlPrefix) }
+
+    @JvmStatic
+    fun toBookedViewDtoList(books: Page<Book>, urlPrefix: String): Page<BookedView> {
+        return books.map { toBookedViewDto(it, urlPrefix) }
     }
 
+
+    @JvmStatic
     fun toBookScheduledTaskEntity(bookId: Long?, runtime: LocalDateTime?): BookScheduledTask {
         return BookScheduledTask.create(bookId, runtime)
     }
 
+    @JvmStatic
     fun getBookMailInfo(book: Book): BookMailSendDto {
-        val performance = book.performance
-        val user = book.user
+        val performance = book.getPerformance()
+        val user = book.getUser()
 
-        val status = book.bookStatus
+        val status = book.getBookStatus()
 
         val mailTitle = when (status) {
-            BookStatus.PAYED -> performance.title + MAIL_TITLE_PAYED
-            BookStatus.CANCELED -> performance.title + MAIL_TITLE_CANCELED
+            BookStatus.PAYED -> performance.getTitle() + MAIL_TITLE_PAYED
+            BookStatus.CANCELED -> performance.getTitle() + MAIL_TITLE_CANCELED
             else -> MAIL_TITLE_DEFAULT
         }
 
-        return BookMailSendDto.builder()
-            .emailAddr(user.email)
-            .title(mailTitle)
-            .performanceId(performance.id)
-            .performanceTitle(performance.title)
-            .performanceStartTime(performance.startTime)
-            .performanceEndTime(performance.endTime)
-            .placeName(performance.place.name)
-            .seats(book.bookSeats.stream()
-                .map<BookSeatViewDto> { bs: BookSeat -> SeatMapper.toBookSeatViewDto(bs.seat) }
-                .collect(Collectors.toList()))
-            .totalPrice(book.totalPrice)
-            .quantity(book.quantity)
-            .bookStatus(book.bookStatus)
-            .build()
+        return BookMailSendDto(
+            emailAddr = user.getEmail(),
+            title = mailTitle,
+            performanceId = performance.getId(),
+            performanceTitle = performance.getTitle(),
+            performanceStartTime = performance.getStartTime(),
+            performanceEndTime = performance.getEndTime(),
+            placeName = performance.getPlace().getName(),
+            seats = book.getBookSeats().map { SeatMapper.toBookSeatViewDto(it.getSeat()) },
+            totalPrice = book.getTotalPrice(),
+            quantity = book.getQuantity(),
+            bookStatus = book.getBookStatus(),
+        )
     }
 }
