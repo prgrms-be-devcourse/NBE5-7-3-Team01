@@ -1,23 +1,14 @@
-package com.fifo.ticketing.global.exception;
+package com.fifo.ticketing.global.exception
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import lombok.Getter;
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.annotation.JsonInclude.Include
+import com.fasterxml.jackson.annotation.JsonPropertyOrder
 
-@Getter
-@JsonPropertyOrder({"code", "message", "errors"})
-public class ErrorResponse<T> {
-
-    private final String code;
-    private final String message;
+@JsonPropertyOrder("code", "message", "errors")
+data class ErrorResponse<T>(
+    val code: String,
+    val message: String,
 
     @JsonInclude(Include.NON_EMPTY)
-    private final T errors;
-
-    public ErrorResponse(String code, String message) {
-        this.code = code;
-        this.message = message;
-        this.errors = null;
-    }
-}
+    val errors: T? = null
+)

@@ -5,8 +5,19 @@ import com.fifo.ticketing.domain.performance.entity.Performance;
 import com.fifo.ticketing.global.entity.BaseDateEntity;
 import com.fifo.ticketing.global.exception.AlertDetailException;
 import com.fifo.ticketing.global.exception.ErrorCode;
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.ForeignKey;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.BatchSize;
@@ -57,7 +68,7 @@ public class Seat extends BaseDateEntity {
 
     // Version의 경우는 JPA가 Persist 시에 자동으로 생성하기 때문에 생성자에 추가하지 않아도 됩니다!
     public Seat(Long id, Performance performance, String seatNumber, Integer price,
-            Grade grade, SeatStatus seatStatus) {
+        Grade grade, SeatStatus seatStatus) {
         this.id = id;
         this.performance = performance;
         this.seatNumber = seatNumber;
@@ -68,13 +79,13 @@ public class Seat extends BaseDateEntity {
 
     public static Seat of(Performance performance, Grade grade, int number) {
         return new Seat(null, performance, grade.getGrade() + number, grade.getDefaultPrice(),
-                grade, SeatStatus.AVAILABLE);
+            grade, SeatStatus.AVAILABLE);
     }
 
     public void validateAvailable() {
         if (!this.getSeatStatus().equals(SeatStatus.AVAILABLE)) {
-            throw new AlertDetailException(ErrorCode.SEAT_ALREADY_BOOKED,
-                String.format("%d번 좌석은 이미 예약되었습니다.", this.id));
+            throw new AlertDetailException(String.format("%d번 좌석은 이미 예약되었습니다.", this.id),
+                ErrorCode.SEAT_ALREADY_BOOKED);
         }
     }
 }
