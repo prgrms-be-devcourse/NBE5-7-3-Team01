@@ -53,14 +53,15 @@ class OAuthLoginTests {
     @DisplayName("기존에 있는 유저 로그인 성공 테스트")
     void oAuth2LoginSuccessHandler_test_success() throws ServletException, IOException {
 
-        UserOAuthDetails userDetails = UserOAuthDetails.builder()
-            .email("test@test.com")
-            .name("테스트 유저")
-            .attributes(Map.of(
-                "email", "test@test.com",
-                "name", "테스트 유저"))
-            .role(Role.USER)
-            .build();
+        UserOAuthDetails userDetails = new UserOAuthDetails(
+            "테스트 유저",
+            "test@test.com",
+            Map.of(
+                    "email", "test@test.com",
+                    "name", "테스트 유저"),
+            Role.USER
+            );
+
 
         OAuth2AuthenticationToken token = new OAuth2AuthenticationToken(
             userDetails,
