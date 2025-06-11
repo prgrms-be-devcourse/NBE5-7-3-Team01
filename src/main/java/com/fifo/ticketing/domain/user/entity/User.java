@@ -54,4 +54,32 @@ public class User extends BaseDateEntity {
     public void updateBlockedState() {
         isBlocked = !isBlocked;
     }
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getProvider() {
+        return provider;
+    }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public boolean isBlocked() {
+        return isBlocked;
+    }
 }

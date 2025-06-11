@@ -1,69 +1,132 @@
-package com.fifo.ticketing.domain.performance.entity
+package com.fifo.ticketing.domain.performance.entity;
 
-import com.fifo.ticketing.domain.performance.dto.PerformanceRequestDto
-import com.fifo.ticketing.global.entity.BaseDateEntity
-import com.fifo.ticketing.global.entity.File
-import jakarta.persistence.*
-import lombok.*
-import java.time.LocalDateTime
+import com.fifo.ticketing.domain.performance.dto.PerformanceRequestDto;
+import com.fifo.ticketing.global.entity.BaseDateEntity;
+import com.fifo.ticketing.global.entity.File;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.ForeignKey;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import java.time.LocalDateTime;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
+@Getter
+@Builder
 @Table(name = "performances")
-class Performance(
+@NoArgsConstructor
+@AllArgsConstructor
+public class Performance extends BaseDateEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long? = null,
+    private Long id;
 
     @Column(nullable = false)
-    var title: String,
+    private String title;
 
     @Column(nullable = false)
-    var description: String,
+    private String description;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "place_id", foreignKey = ForeignKey(name = "fk_performance_to_place"))
-    var place: Place,
+    @JoinColumn(name = "place_id", foreignKey = @ForeignKey(name = "fk_performance_to_place"))
+    private Place place;
 
     @Column(nullable = false)
-    var startTime: LocalDateTime,
+    private LocalDateTime startTime;
 
     @Column(nullable = false)
-    var endTime: LocalDateTime,
+    private LocalDateTime endTime;
 
     @Enumerated(EnumType.STRING)
-    var category: Category,
+    private Category category;
 
     @Column(nullable = false)
-    var performanceStatus: Boolean = false,
+    private boolean performanceStatus;
 
     @Column(nullable = false)
-    var deletedFlag: Boolean = false,
+    private boolean deletedFlag;
 
     @Column(nullable = false)
-    var reservationStartTime: LocalDateTime? = null,
+    private LocalDateTime reservationStartTime;
 
     @Setter
-    @OneToOne(fetch = FetchType.EAGER, cascade = [CascadeType.PERSIST])
-    @JoinColumn(name = "file_id", foreignKey = ForeignKey(name = "fk_performance_to_file"))
-    val file: File? = null
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "file_id", foreignKey = @ForeignKey(name = "fk_performance_to_file"))
+    private File file;
 
 
-) : BaseDateEntity() {
-
-    fun update(dto: PerformanceRequestDto, place: Place) {
-        this.title = dto.title
-        this.description = dto.description
-        this.place = place
-        this.startTime = dto.startTime
-        this.endTime = dto.endTime
-        this.category = dto.category
-        this.performanceStatus = dto.isPerformanceStatus
-        this.reservationStartTime = dto.reservationStartTime
+    public void update(PerformanceRequestDto dto, Place place) {
+        this.title = dto.getTitle();
+        this.description = dto.getDescription();
+        this.place = place;
+        this.startTime = dto.getStartTime();
+        this.endTime = dto.getEndTime();
+        this.category = dto.getCategory();
+        this.performanceStatus = dto.isPerformanceStatus();
+        this.reservationStartTime = dto.getReservationStartTime();
     }
 
-    fun delete() {
-        this.performanceStatus = false
-        this.deletedFlag = true
+    public void delete() {
+        this.performanceStatus = false;
+        this.deletedFlag = true;
     }
 
+    public Long getId() {
+        return id;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public Place getPlace() {
+        return place;
+    }
+
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+    public LocalDateTime getEndTime() {
+        return endTime;
+    }
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public boolean isPerformanceStatus() {
+        return performanceStatus;
+    }
+
+    public boolean isDeletedFlag() {
+        return deletedFlag;
+    }
+
+    public LocalDateTime getReservationStartTime() {
+        return reservationStartTime;
+    }
+
+    public File getFile() {
+        return file;
+    }
 }

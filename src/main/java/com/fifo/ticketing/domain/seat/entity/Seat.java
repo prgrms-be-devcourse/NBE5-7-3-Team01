@@ -77,4 +77,32 @@ public class Seat extends BaseDateEntity {
                 String.format("%d번 좌석은 이미 예약되었습니다.", this.id));
         }
     }
+
+    public Long getId() {
+        return id;
+    }
+
+    public Performance getPerformance() {
+        return performance;
+    }
+
+    public String getSeatNumber() {
+        return seatNumber;
+    }
+
+    public Integer getPrice() {
+        return price;
+    }
+
+    public Grade getGrade() {
+        return grade;
+    }
+
+    public SeatStatus getSeatStatus() {
+        return seatStatus;
+    }
+
+    public Long getVersion() {
+        return version;
+    }
 }
