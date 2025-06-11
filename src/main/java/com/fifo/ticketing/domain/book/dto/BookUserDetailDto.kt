@@ -3,7 +3,7 @@ package com.fifo.ticketing.domain.book.dto
 import com.fifo.ticketing.domain.book.entity.BookStatus
 import lombok.Setter
 
-data class BookUserDetailDto(
+class BookUserDetailDto constructor(
     val bookId: Long,
     val performanceId: Long,
     val title: String,
@@ -13,8 +13,8 @@ data class BookUserDetailDto(
     val encodedFileName: String,
     val bookStatus: BookStatus,
 
-    var urlPrefix: String,
-
     ) {
+    var urlPrefix: String = ""
+
     fun getUrl(): String = "$urlPrefix$encodedFileName"
 }
