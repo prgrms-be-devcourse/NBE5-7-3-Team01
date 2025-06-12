@@ -29,9 +29,10 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
         UserOAuthDetails userDetails = (UserOAuthDetails) authentication.getPrincipal();
 
-        User user = userRepository.findByEmail(userDetails.getEmail()).orElseThrow();
+        User user = userRepository.findByEmail(userDetails.getEmail());
         request.getSession()
-            .setAttribute("loginUser", new SessionUser(user.getId(), user.getUsername(), user.getRole()));
+            .setAttribute("loginUser",
+                new SessionUser(user.getId(), user.getUsername(), user.getRole()));
 
         SavedRequest savedRequest = requestCache.getRequest(request, response);
         if (savedRequest != null) {

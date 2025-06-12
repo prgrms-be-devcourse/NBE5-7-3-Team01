@@ -6,4 +6,4 @@ import jakarta.validation.constraints.NotEmpty
 @JvmRecord
 data class SendEmailRequest(
     @field:Email @field:NotEmpty(message = "이메일을 입력해주세요")
-    @JvmField val email:String?)
+    @JvmField val email:String)
