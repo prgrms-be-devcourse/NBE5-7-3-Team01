@@ -3,6 +3,7 @@ package com.fifo.ticketing.domain.user.controller;
 import com.fifo.ticketing.domain.book.dto.BookMailSendDto;
 import com.fifo.ticketing.domain.book.dto.BookedView;
 import com.fifo.ticketing.domain.book.entity.BookStatus;
+import com.fifo.ticketing.domain.book.service.BookKtService;
 import com.fifo.ticketing.domain.book.service.BookMailService;
 import com.fifo.ticketing.domain.book.service.BookService;
 import com.fifo.ticketing.domain.user.dto.SessionUser;
@@ -32,6 +33,7 @@ public class ViewController {
 
     private final UserFormService userFormService;
     private final BookService bookService;
+    private final BookKtService bookKtService;
     private final BookMailService bookMailService;
 
     @GetMapping("/")
@@ -105,7 +107,8 @@ public class ViewController {
         @PathVariable Long bookId,
         Model model) {
         SessionUser loginUser = UserValidator.validateSessionUser(session);
-        BookedView bookDetail = bookService.getBookDetail(loginUser.id, bookId);
+
+        BookedView bookDetail = bookKtService.getBookDetail(loginUser.id, bookId);
 
         model.addAttribute("bookDetail", bookDetail);
         model.addAttribute("userName", loginUser.username);
@@ -122,7 +125,7 @@ public class ViewController {
     ) {
         SessionUser loginUser = UserValidator.validateSessionUser(session);
 
-        bookService.cancelBook(bookId, loginUser.id);
+        bookKtService.cancelBook(bookId, loginUser.id);
 
         BookMailSendDto bookMailInfo = bookService.getBookMailInfo(bookId);
         bookMailService.sendBookCompleteMail(bookMailInfo);

@@ -61,6 +61,5 @@ public class User extends BaseDateEntity {
     public Long getId() { return id; }
     public String getProvider() { return provider; }
     public boolean isBlocked() { return isBlocked; }
-
-
+  
 }

@@ -86,4 +86,47 @@ public class Performance extends BaseDateEntity {
         this.deletedFlag = true;
     }
 
+    public Long getId() {
+        return id;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public Place getPlace() {
+        return place;
+    }
+
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+    public LocalDateTime getEndTime() {
+        return endTime;
+    }
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public boolean isPerformanceStatus() {
+        return performanceStatus;
+    }
+
+    public boolean isDeletedFlag() {
+        return deletedFlag;
+    }
+
+    public LocalDateTime getReservationStartTime() {
+        return reservationStartTime;
+    }
+
+    public File getFile() {
+        return file;
+    }
 }
