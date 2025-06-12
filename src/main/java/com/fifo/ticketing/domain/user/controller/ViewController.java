@@ -11,6 +11,7 @@ import com.fifo.ticketing.domain.user.service.UserFormService;
 import com.fifo.ticketing.global.util.UserValidator;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -53,7 +54,7 @@ public class ViewController {
     }
 
     @PostMapping("/users/signup")
-    public String doSignup(SignUpForm signUpForm, HttpSession session, Model model) {
+    public String doSignup(@Valid SignUpForm signUpForm, HttpSession session, Model model) {
 
         String emailVerified = (String) session.getAttribute("emailVerified");
         if (emailVerified == null || !emailVerified.equals(signUpForm.email)) {
