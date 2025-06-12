@@ -5,6 +5,7 @@ import com.fifo.ticketing.domain.book.repository.BookRepository;
 import com.fifo.ticketing.domain.book.service.BookService;
 import com.fifo.ticketing.domain.like.repository.LikeCountRepository;
 import com.fifo.ticketing.domain.performance.entity.Performance;
+import com.fifo.ticketing.domain.performance.repository.PerformanceAdminRepository;
 import com.fifo.ticketing.domain.performance.repository.PerformanceRepository;
 import com.fifo.ticketing.domain.performance.repository.PlaceRepository;
 import com.fifo.ticketing.domain.seat.service.SeatService;
@@ -31,6 +32,7 @@ class AdminPerformanceServiceUnitTest {
     private AdminPerformanceService adminPerformanceService;
 
     @Mock private PerformanceRepository performanceRepository;
+    @Mock private PerformanceAdminRepository performanceAdminRepository;
     @Mock private PlaceRepository placeRepository;
     @Mock private LikeCountRepository likeCountRepository;
     @Mock private BookRepository bookRepository;
@@ -55,7 +57,7 @@ class AdminPerformanceServiceUnitTest {
             .deletedFlag(false)
             .build();
 
-        when(performanceRepository.findByIdAndDeletedFlagFalse(performanceId))
+        when(performanceAdminRepository.findByIdAndDeletedFlagFalse(performanceId))
             .thenReturn(Optional.of(performance));
 
         // 예약 취소 → 빈 리스트 반환
@@ -83,7 +85,7 @@ class AdminPerformanceServiceUnitTest {
     void test_deletePerformance_notFound_throwsError() {
         // Given
         Long invalidId = 999L;
-        when(performanceRepository.findByIdAndDeletedFlagFalse(invalidId))
+        when(performanceAdminRepository.findByIdAndDeletedFlagFalse(invalidId))
             .thenReturn(Optional.empty());
 
         // When & Then
