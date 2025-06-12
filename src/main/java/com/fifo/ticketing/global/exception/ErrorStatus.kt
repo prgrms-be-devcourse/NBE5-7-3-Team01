@@ -1,6 +1,6 @@
-package com.fifo.ticketing.global.exception;
+package com.fifo.ticketing.global.exception
 
-public enum ErrorStatus {
+enum class ErrorStatus {
     NOT_FOUND,
     CONFLICT,
     INTERNAL_SERVER_ERROR,
