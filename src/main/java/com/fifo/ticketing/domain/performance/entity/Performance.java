@@ -25,7 +25,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Getter
 @Builder
 @Table(name = "performances")
 @NoArgsConstructor

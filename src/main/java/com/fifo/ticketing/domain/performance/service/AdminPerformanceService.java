@@ -17,7 +17,6 @@ import com.fifo.ticketing.domain.performance.dto.AdminPerformanceDetailResponse;
 import com.fifo.ticketing.domain.performance.dto.AdminPerformanceResponseDto;
 import com.fifo.ticketing.domain.performance.dto.AdminPerformanceStaticsDto;
 import com.fifo.ticketing.domain.performance.dto.PerformanceRequestDto;
-import com.fifo.ticketing.domain.performance.dto.PerformanceResponseDto;
 import com.fifo.ticketing.domain.performance.dto.PerformanceSeatGradeDto;
 import com.fifo.ticketing.domain.performance.dto.PlaceResponseDto;
 import com.fifo.ticketing.domain.performance.entity.Category;
