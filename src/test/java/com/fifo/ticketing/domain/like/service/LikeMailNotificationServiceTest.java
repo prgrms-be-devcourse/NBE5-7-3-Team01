@@ -56,6 +56,7 @@ class LikeMailNotificationServiceTest {
             .id(1L)
             .title("테스트 공연")
             .startTime(LocalDateTime.now().plusHours(1))
+                .reservationStartTime(LocalDateTime.now())
             .build();
 
         like = Like.builder()
