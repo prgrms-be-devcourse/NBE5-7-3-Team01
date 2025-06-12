@@ -26,7 +26,10 @@ class BookKtService(
 
     @Transactional
     fun cancelBook(bookId: Long, userId: Long): Long {
-        val book: Book = bookRepository.findByUserIdAndId(userId, bookId) ?: throw ErrorException("예매 정보가 존재하지 않습니다.", ErrorCode.NOT_FOUND_BOOK)
+        val book: Book = bookRepository.findByUserIdAndId(userId, bookId) ?: throw ErrorException(
+            ErrorCode.NOT_FOUND_BOOK,
+            "예매 정보가 존재하지 않습니다.",
+        )
 
         val bookSeats: List<BookSeat> = bookSeatRepository.findAllByBookId(book.id)
 
@@ -39,7 +42,10 @@ class BookKtService(
 
     @Transactional
     fun getBookDetail(userId: Long, bookId: Long): BookedView {
-        val book: Book = bookRepository.findByUserIdAndId(userId, bookId) ?: throw ErrorException("예매 정보가 존재하지 않습니다.", ErrorCode.NOT_FOUND_BOOK);
+        val book: Book = bookRepository.findByUserIdAndId(userId, bookId) ?: throw ErrorException(
+            ErrorCode.NOT_FOUND_BOOK,
+            "예매 정보가 존재하지 않습니다."
+        );
 
         return BookMapper.toBookedViewDto(book, urlPrefix)
     }

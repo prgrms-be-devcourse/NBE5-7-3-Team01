@@ -33,7 +33,7 @@ import com.fifo.ticketing.domain.seat.service.SeatService;
 import com.fifo.ticketing.global.entity.File;
 import com.fifo.ticketing.global.event.PerformanceCanceledEvent;
 import com.fifo.ticketing.global.exception.ErrorException;
-import com.fifo.ticketing.global.util.ImageFileService;
+import com.fifo.ticketing.global.service.ImageFileService;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;

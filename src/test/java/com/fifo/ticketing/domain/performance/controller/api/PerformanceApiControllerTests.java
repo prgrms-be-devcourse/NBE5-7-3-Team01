@@ -10,8 +10,7 @@ import com.fifo.ticketing.domain.performance.repository.PerformanceRepository;
 import com.fifo.ticketing.domain.performance.repository.PlaceRepository;
 import com.fifo.ticketing.domain.seat.repository.SeatRepository;
 import com.fifo.ticketing.global.entity.File;
-import com.fifo.ticketing.global.repository.FileRepository;
-import com.fifo.ticketing.global.util.ImageFileService;
+import com.fifo.ticketing.global.service.ImageFileService;
 import jakarta.persistence.EntityManager;
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,8 +40,6 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
