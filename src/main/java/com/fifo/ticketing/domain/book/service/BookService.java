@@ -44,49 +44,13 @@ public class BookService {
     private String urlPrefix;
 
     private final BookRepository bookRepository;
-    private final UserRepository userRepository;
-    private final PerformanceRepository performanceRepository;
-    private final SeatService seatService;
+
     private final BookSeatRepository bookSeatRepository;
     private final BookScheduleManager bookScheduleManager;
 
-    @Transactional
-    public Long createBook(Long performanceId, Long userId, BookCreateRequest request) {
-        User user = userRepository.findById(userId)
-            .orElseThrow(() -> new ErrorException(NOT_FOUND_MEMBER));
 
-        Performance performance = performanceRepository.findById(performanceId)
-            .orElseThrow(() -> new ErrorException(NOT_FOUND_PERFORMANCE));
 
-        List<Seat> selectedSeats = seatService.validateBookSeats(request.getSeatIds());
 
-        int totalPrice = selectedSeats.stream().mapToInt(Seat::getPrice).sum();
-        int quantity = selectedSeats.size();
-
-        Book book = saveBookAndBookSeats(user, performance, totalPrice, quantity, selectedSeats);
-
-        scheduleBookCancel(book.getId());
-
-        return book.getId();
-    }
-
-    private void scheduleBookCancel(Long bookId) {
-        LocalDateTime runTime = LocalDateTime.now().plusMinutes(10);
-        bookScheduleManager.scheduleCancelTask(bookId, runTime);
-    }
-
-    private Book saveBookAndBookSeats(User user, Performance performance, int totalPrice,
-        int quantity,
-        List<Seat> selectedSeats) {
-        Book book = BookMapper.toBookEntity(user, performance, totalPrice, quantity);
-        bookRepository.save(book);
-        bookRepository.flush();
-
-        List<BookSeat> bookSeatList = BookMapper.toBookSeatEntities(book, selectedSeats);
-
-        bookSeatRepository.saveAll(bookSeatList);
-        return book;
-    }
 
     @Transactional
     public BookCompleteDto getBookCompleteInfo(Long bookId) {

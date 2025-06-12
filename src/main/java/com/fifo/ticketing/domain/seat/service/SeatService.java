@@ -40,6 +40,7 @@ public class SeatService {
         }
     }
 
+    @Transactional
     public List<Seat> validateBookSeats(List<Long> seatIds) {
         List<Seat> selectedSeats = seatRepository.findAllByIdInWithOptimisticLock(seatIds);
 
