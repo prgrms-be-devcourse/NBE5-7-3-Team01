@@ -7,7 +7,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Getter
 @Builder
 @Table(name = "places")
 @NoArgsConstructor
@@ -26,4 +25,20 @@ public class Place {
 
     @Column(name = "total_seats", nullable = false)
     private Integer totalSeats;
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public Integer getTotalSeats() {
+        return totalSeats;
+    }
 }

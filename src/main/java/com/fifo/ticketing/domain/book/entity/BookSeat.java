@@ -35,5 +35,17 @@ public class BookSeat extends BaseDateEntity {
             .seat(seat)
             .build();
     }
+
+    public Long getId() {
+        return id;
+    }
+
+    public Book getBook() {
+        return book;
+    }
+
+    public Seat getSeat() {
+        return seat;
+    }
 }
 

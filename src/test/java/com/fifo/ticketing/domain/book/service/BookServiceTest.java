@@ -1,6 +1,14 @@
 package com.fifo.ticketing.domain.book.service;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.BDDMockito.any;
+import static org.mockito.BDDMockito.doNothing;
+import static org.mockito.BDDMockito.doThrow;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.never;
+import static org.mockito.BDDMockito.verify;
 
 import com.fifo.ticketing.domain.book.dto.BookCompleteDto;
 import com.fifo.ticketing.domain.book.dto.BookMailSendDto;
@@ -9,25 +17,22 @@ import com.fifo.ticketing.domain.book.dto.BookedView;
 import com.fifo.ticketing.domain.book.entity.Book;
 import com.fifo.ticketing.domain.book.entity.BookSeat;
 import com.fifo.ticketing.domain.book.entity.BookStatus;
-import com.fifo.ticketing.domain.book.mapper.BookMapper;
 import com.fifo.ticketing.domain.book.repository.BookRepository;
 import com.fifo.ticketing.domain.book.repository.BookSeatRepository;
-import com.fifo.ticketing.domain.performance.dto.PerformanceRequestDto;
 import com.fifo.ticketing.domain.performance.entity.Category;
 import com.fifo.ticketing.domain.performance.entity.Grade;
 import com.fifo.ticketing.domain.performance.entity.Performance;
 import com.fifo.ticketing.domain.performance.entity.Place;
-import com.fifo.ticketing.domain.performance.mapper.PerformanceMapper;
 import com.fifo.ticketing.domain.performance.repository.PerformanceRepository;
 import com.fifo.ticketing.domain.seat.entity.Seat;
 import com.fifo.ticketing.domain.seat.entity.SeatStatus;
 import com.fifo.ticketing.domain.seat.service.SeatService;
+import com.fifo.ticketing.domain.user.entity.User;
 import com.fifo.ticketing.domain.user.repository.UserRepository;
 import com.fifo.ticketing.global.entity.File;
 import com.fifo.ticketing.global.exception.ErrorCode;
 import com.fifo.ticketing.global.exception.ErrorException;
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,9 +48,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.util.ReflectionTestUtils;
-import com.fifo.ticketing.domain.user.entity.User;
-
-import static org.mockito.BDDMockito.*;
 
 
 @ActiveProfiles("ci")
@@ -98,19 +100,19 @@ class BookServiceTest {
             .originalFileName("sample.jpg")
             .build();
 
-        mockPerformance = new Performance(
-            1L,
-            "라따뚜이",
-            "라따뚜이는 픽사의 영화입니다.",
-            place,
-            LocalDateTime.of(2025, 6, 1, 19, 0),
-            LocalDateTime.of(2025, 6, 1, 21, 0),
-            Category.MOVIE,
-            false,
-            false,
-            LocalDateTime.of(2025, 5, 12, 19, 0),
-            mockFile
-        );
+        mockPerformance = Performance.builder()
+            .id(1L)
+            .title("라따뚜이")
+            .description("라따뚜이는 픽사의 영화입니다.")
+            .place(place)
+            .startTime(LocalDateTime.of(2025, 6, 1, 19, 0))
+            .endTime(LocalDateTime.of(2025, 6, 1, 21, 0))
+            .category(Category.MOVIE)
+            .performanceStatus(false)
+            .deletedFlag(false)
+            .reservationStartTime(LocalDateTime.of(2025, 5, 12, 19, 0))
+            .file(mockFile)
+            .build();
 
         mockBook = Book.builder()
             .id(1L)
@@ -214,33 +216,6 @@ class BookServiceTest {
 
         assertEquals(ErrorCode.NOT_FOUND_BOOK, exception.getErrorCode());
         verify(bookRepository).findBookDetailByBookId(bookId, performanceId);
-    }
-
-
-    @Test
-    @DisplayName("getBookDetail_성공")
-    void getBookDetail_success() {
-        // given
-        given(bookRepository.findByUserIdAndId(mockUser.getId(), mockBook.getId()))
-            .willReturn(Optional.of(mockBook));
-
-        // when
-        BookedView result = bookService.getBookDetail(mockUser.getId(), mockBook.getId());
-
-        // then
-        assertNotNull(result);
-        verify(bookRepository).findByUserIdAndId(mockUser.getId(), mockBook.getId());
-    }
-
-    @Test
-    @DisplayName("getBookDetail_실패")
-    void getBookDetail_fail() {
-        // given
-        given(bookRepository.findByUserIdAndId(mockUser.getId(), 999L))
-            .willReturn(Optional.empty());
-
-        // when & then
-        assertThrows(ErrorException.class, () -> bookService.getBookDetail(mockUser.getId(), 999L));
     }
 
 
@@ -438,42 +413,6 @@ class BookServiceTest {
             BookStatus.ADMIN_REFUNDED);
     }
 
-    @Test
-    @DisplayName("cancelBook_성공")
-    void cancelBook_success() throws Exception {
-        // given
-        Long bookId = 1L;
-        Long userId = 1L;
-
-        given(bookRepository.findByUserIdAndId(userId, bookId)).willReturn(Optional.of(mockBook));
-        given(bookSeatRepository.findAllByBookId(bookId)).willReturn(List.of(mockBookSeat));
-
-        // when
-        Long result = bookService.cancelBook(bookId, userId);
-
-        // then
-        assertEquals(bookId, result);
-        assertEquals(BookStatus.CANCELED, mockBook.getBookStatus());
-
-        verify(bookRepository).findByUserIdAndId(userId, bookId);
-        verify(bookSeatRepository).findAllByBookId(bookId);
-
-        assertEquals(SeatStatus.AVAILABLE, mockSeat.getSeatStatus());
-    }
-
-    @Test
-    @DisplayName("cancelBook_실패")
-    void cancelBook_fail() throws Exception {
-        // given
-        Long bookId = 10L;
-        Long userId = 1L;
-        given(bookRepository.findByUserIdAndId(userId, bookId)).willReturn(Optional.empty());
-
-        // when & then
-        assertThrows(ErrorException.class, () -> bookService.cancelBook(bookId, userId));
-        verify(bookRepository).findByUserIdAndId(userId, bookId);
-        verify(bookSeatRepository, never()).findAllByBookId(any());
-    }
 
     @Test
     @DisplayName("completePayment_성공")

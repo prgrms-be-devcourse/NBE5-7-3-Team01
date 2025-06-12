@@ -29,4 +29,16 @@ public class File extends BaseDateEntity {
         this.encodedFileName = encodedFileName;
         this.originalFileName = originalFileName;
     }
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getEncodedFileName() {
+        return encodedFileName;
+    }
+
+    public String getOriginalFileName() {
+        return originalFileName;
+    }
 }

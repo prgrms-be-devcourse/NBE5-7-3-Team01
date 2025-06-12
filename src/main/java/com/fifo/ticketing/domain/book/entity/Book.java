@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Getter
 @Builder
 @Table(name = "books")
 @NoArgsConstructor
@@ -71,4 +70,39 @@ public class Book extends BaseDateEntity {
 
     }
 
+    public Long getId() {
+        return id;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public Performance getPerformance() {
+        return performance;
+    }
+
+    public List<BookSeat> getBookSeats() {
+        return bookSeats;
+    }
+
+    public File getFile() {
+        return file;
+    }
+
+    public BookStatus getBookStatus() {
+        return bookStatus;
+    }
+
+    public Integer getTotalPrice() {
+        return totalPrice;
+    }
+
+    public Integer getQuantity() {
+        return quantity;
+    }
+
+    public BookScheduledTask getScheduledTask() {
+        return scheduledTask;
+    }
 }

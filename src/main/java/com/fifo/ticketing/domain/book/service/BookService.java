@@ -109,20 +109,6 @@ public class BookService {
 
     }
 
-    @Transactional
-    public Long cancelBook(Long bookId, Long userId) {
-        Book book = bookRepository.findByUserIdAndId(userId, bookId)
-            .orElseThrow(() -> new ErrorException(ErrorCode.NOT_FOUND_BOOK));
-
-        List<BookSeat> bookSeats = bookSeatRepository.findAllByBookId(book.getId());
-
-        book.canceled();
-
-        SeatService.changeSeatStatus(bookSeats, SeatStatus.AVAILABLE);
-
-        return bookId;
-    }
-
 
     @Transactional
     public List<Book> cancelAllBook(Performance performance) {
@@ -159,13 +145,6 @@ public class BookService {
         return BookMapper.getBookMailInfo(book);
     }
 
-    @Transactional
-    public BookedView getBookDetail(Long userId, Long bookId) {
-        Book book = bookRepository.findByUserIdAndId(userId, bookId)
-            .orElseThrow(() -> new ErrorException(ErrorCode.NOT_FOUND_BOOK));
-
-        return BookMapper.toBookedViewDto(book, urlPrefix);
-    }
 
     @Transactional(readOnly = true)
     public Page<BookAdminDetailDto> getBookAdminList(Long performanceId, Pageable pageable) {

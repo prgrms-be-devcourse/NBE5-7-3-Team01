@@ -88,4 +88,32 @@ public class Seat extends BaseDateEntity {
                 ErrorCode.SEAT_ALREADY_BOOKED);
         }
     }
+
+    public Long getId() {
+        return id;
+    }
+
+    public Performance getPerformance() {
+        return performance;
+    }
+
+    public String getSeatNumber() {
+        return seatNumber;
+    }
+
+    public Integer getPrice() {
+        return price;
+    }
+
+    public Grade getGrade() {
+        return grade;
+    }
+
+    public SeatStatus getSeatStatus() {
+        return seatStatus;
+    }
+
+    public Long getVersion() {
+        return version;
+    }
 }
