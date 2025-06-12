@@ -50,7 +50,7 @@ class LikeService(
             true
         } else {
             val isNowLiked = !existingLike.isLiked
-            existingLike.isLiked = isNowLiked
+            existingLike.setLiked(isNowLiked)
             likeRepository.save(existingLike)
             updateLike(performance, if (isNowLiked) 1 else -1)
             isNowLiked
@@ -61,7 +61,7 @@ class LikeService(
         val likeCount = likeCountRepository.findByPerformance(performance)?:
         throw  ErrorException(ErrorCode.NOT_FOUND_PERFORMANCES,"예매 가능한 공연이 존재하지 않습니다.")
 
-        val updatedCnt = max(0L, likeCount.likeCount + cnt)
+        val updatedCnt = max(0L, likeCount.getLikeCount() + cnt)
         likeCount.setLikeCount(updatedCnt)
         likeCountRepository.save(likeCount)
     }
