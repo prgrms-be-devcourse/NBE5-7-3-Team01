@@ -50,6 +50,21 @@ public class User extends BaseDateEntity {
         this.provider = provider;
     }
 
+    public static User fromForm(String email, String password, String username){
+        return new User(email, password, username, null);
+    }
+
+    public static User fromOAuth(String email, String username, String provider){
+        return new User(email, null, username, provider);
+    }
+
+    private User(String email, String password, String username, String provider) {
+        this.email = email;
+        this.password = password;
+        this.username = username;
+        this.provider = provider;
+    }
+
     public void updateBlockedState() {
         isBlocked = !isBlocked;
     }
