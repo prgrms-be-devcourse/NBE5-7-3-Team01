@@ -23,7 +23,7 @@ public class UserLikeController {
         SessionUser sessionUser = UserValidator.validateSessionUser(httpSession);
 
         // record라서 .getId()가 아니라 .id()
-        boolean liked = likeService.toggleLike(sessionUser.id() , likeRequest);
+        boolean liked = likeService.toggleLike(sessionUser.id, likeRequest);
         return ResponseEntity.ok(liked ? "Liked" : "Unliked");
     }
 

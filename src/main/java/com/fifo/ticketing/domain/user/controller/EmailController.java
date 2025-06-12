@@ -26,7 +26,7 @@ public class EmailController {
     @Operation(summary = "공연 등록", description = "이메일 정보(sendEmailRequest)를 이용하여 인증 이메일을 송신합니다.")
     public ResponseEntity<?> emailSend(@RequestBody SendEmailRequest sendEmailRequest)
         throws MessagingException {
-        emailAuthService.sendEmail(sendEmailRequest.email());
+        emailAuthService.sendEmail(sendEmailRequest.email);
         return ResponseEntity.ok().build();
     }
 
@@ -34,8 +34,8 @@ public class EmailController {
     @Operation(summary = "공연 등록", description = "이메일 정보(sendEmailRequest)를 이용하여 인증 이메일을 송신합니다.")
     public ResponseEntity<?> emailAuth(@RequestBody AuthEmailRequest authEmailRequest,
         HttpSession session) {
-        boolean checked = emailAuthService.checkAuthCode(authEmailRequest.email(),
-            authEmailRequest.authCode(),
+        boolean checked = emailAuthService.checkAuthCode(authEmailRequest.email,
+            authEmailRequest.authCode,
             session);
         if (checked) {
             return ResponseEntity.ok().build();

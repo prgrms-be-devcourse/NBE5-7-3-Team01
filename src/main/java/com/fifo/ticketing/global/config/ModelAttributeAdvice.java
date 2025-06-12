@@ -12,8 +12,8 @@ public class ModelAttributeAdvice {
     public void addUserIdToModel(HttpSession session, Model model) {
         SessionUser loginUser = (SessionUser) session.getAttribute("loginUser");
         if (loginUser != null) {
-            model.addAttribute("userId", loginUser.id());
-            model.addAttribute("userRole", loginUser.role());
+            model.addAttribute("userId", loginUser.id);
+            model.addAttribute("userRole", loginUser.role);
         }
     }
 }

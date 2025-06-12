@@ -33,9 +33,9 @@ class SignUpTests {
         mockMvc.perform(post("/users/signup")
                 .sessionAttr("emailVerified", "test@test.com")
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .param("username", testForm.username())
-                .param("email", testForm.email())
-                .param("password", testForm.password())
+                .param("username", testForm.username)
+                .param("email", testForm.email)
+                .param("password", testForm.password)
             ).andExpect(status().is3xxRedirection())
             .andExpect(redirectedUrl("/users/signin?signupSuccess=true"));
     }
@@ -51,9 +51,9 @@ class SignUpTests {
         mockMvc.perform(post("/users/signup")
                 .sessionAttr("emailVerified", "wrong@test.com")
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .param("username", wrongForm.username())
-                .param("email", wrongForm.email())
-                .param("password", wrongForm.password())
+                .param("username", wrongForm.username)
+                .param("email", wrongForm.email)
+                .param("password", wrongForm.password)
             ).andExpect(status().isOk())
             .andExpect(view().name("user/sign_up"));
     }
