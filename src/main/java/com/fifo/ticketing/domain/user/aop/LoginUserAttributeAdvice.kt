@@ -1,4 +1,4 @@
-package com.fifo.ticketing.global.config
+package com.fifo.ticketing.domain.user.aop
 
 import com.fifo.ticketing.domain.user.dto.SessionUser
 import jakarta.servlet.http.HttpSession
@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ModelAttribute
 
 @ControllerAdvice
-class ModelAttributeAdvice {
+class LoginUserAttributeAdvice {
 
     @ModelAttribute
     fun addUserIdToModel(session: HttpSession, model: Model) {
