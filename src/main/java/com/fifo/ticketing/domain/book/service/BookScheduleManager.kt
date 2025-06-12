@@ -33,6 +33,9 @@ class BookScheduleManager(
     suspend fun scheduleCancelTask(bookId: Long, runTime: LocalDateTime) {
         bookScheduleRepository.save(toBookScheduledTaskEntity(bookId, runTime))
 
+        log.info{"${bookId}번 예매 생성됨 | ${LocalDateTime.now()}"}
+
+
         // 레포지토리에 작업이 저장되면 실행됨
         coroutineScope.launch {
             // 10분동안 대기했다가
@@ -51,7 +54,7 @@ class BookScheduleManager(
         if (book.bookStatus == BookStatus.CONFIRMED) {
             book.canceled()
 
-            log.info{"${bookId}번 예매 취소됨"}
+            log.info{"${bookId}번 예매 취소됨 | ${LocalDateTime.now()}"}
 
             val bookSeats = bookSeatRepository.findAllByBookIdWithSeat(book.id)
             bookSeats.map { it.seat.available() }

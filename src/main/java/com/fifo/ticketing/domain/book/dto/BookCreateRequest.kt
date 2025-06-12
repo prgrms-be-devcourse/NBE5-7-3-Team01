@@ -5,6 +5,6 @@ import jakarta.validation.constraints.NotBlank
 data class BookCreateRequest(
 
     @field: NotBlank
-    val seatIds: MutableList<Long>
+    val seatIds: List<Long>
 
 )
