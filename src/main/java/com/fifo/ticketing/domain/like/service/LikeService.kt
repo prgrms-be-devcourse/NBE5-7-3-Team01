@@ -3,6 +3,7 @@ package com.fifo.ticketing.domain.like.service
 import com.fifo.ticketing.domain.like.dto.LikeRequest
 import com.fifo.ticketing.domain.like.entity.Like
 import com.fifo.ticketing.domain.like.entity.LikeCount
+import com.fifo.ticketing.domain.like.mapper.LikeMapper
 import com.fifo.ticketing.domain.like.repository.LikeCountRepository
 import com.fifo.ticketing.domain.like.repository.LikeRepository
 import com.fifo.ticketing.domain.performance.entity.Performance
@@ -43,11 +44,7 @@ class LikeService(
         val existingLike = likeRepository.findByUserAndPerformance(user, performance)
 
         return if (existingLike == null) {
-            val like = Like.builder()
-                .user(user)
-                .performance(performance)
-                .isLiked(true)
-                .build()
+            val like = LikeMapper.create(user, performance)
             likeRepository.save(like)
             updateLike(performance, 1)
             true
