@@ -16,6 +16,7 @@ public class UserLikeController {
 
     private final LikeService likeService;
 
+
     @PostMapping
     public ResponseEntity<String> toggleLike(@RequestBody LikeRequest likeRequest
         ,HttpSession httpSession){
