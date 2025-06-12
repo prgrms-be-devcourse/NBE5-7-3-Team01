@@ -31,4 +31,9 @@ public class LikeCount extends BaseDateEntity {
         this.likeCount = likeCount;
     }
 
+    public long getLikeCount() {
+        return this.likeCount;
+    }
+
+
 }
