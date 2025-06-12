@@ -1,15 +1,12 @@
-package com.fifo.ticketing.domain.like.dto;
+package com.fifo.ticketing.domain.like.dto
 
-import java.time.LocalDateTime;
-import lombok.Builder;
-import lombok.Getter;
 
-@Getter
-@Builder
-public class ReservationStartMailDto {
+import java.time.LocalDateTime
 
-    private String email;
-    private String username;
-    private String performanceTitle;
-    private LocalDateTime reservationStartTime;
-}
+
+class ReservationStartMailDto(
+    val email: String,
+    val username: String,
+    val performanceTitle: String,
+    val reservationStartTime: LocalDateTime,
+)

@@ -1,120 +1,156 @@
-package com.fifo.ticketing.domain.like.service;
+package com.fifo.ticketing.domain.like.service
 
-import com.fifo.ticketing.domain.like.dto.LikeRequest;
-import com.fifo.ticketing.domain.like.entity.Like;
-import com.fifo.ticketing.domain.like.entity.LikeCount;
-import com.fifo.ticketing.domain.like.repository.LikeCountRepository;
-import com.fifo.ticketing.domain.like.repository.LikeRepository;
-import com.fifo.ticketing.domain.performance.entity.Performance;
-import com.fifo.ticketing.domain.performance.repository.PerformanceRepository;
-import com.fifo.ticketing.domain.user.entity.User;
-import com.fifo.ticketing.domain.user.repository.UserRepository;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import com.fifo.ticketing.domain.book.entity.Book
+import com.fifo.ticketing.domain.book.entity.BookStatus
+import com.fifo.ticketing.domain.book.entity.BookSeat
+import com.fifo.ticketing.domain.like.dto.LikeRequest
+import com.fifo.ticketing.domain.like.entity.Like
+import com.fifo.ticketing.domain.like.entity.LikeCount
+import com.fifo.ticketing.domain.like.repository.LikeCountRepository
+import com.fifo.ticketing.domain.like.repository.LikeRepository
+import com.fifo.ticketing.domain.performance.entity.*
+import com.fifo.ticketing.domain.performance.repository.PerformanceRepository
+import com.fifo.ticketing.domain.seat.entity.*
+import com.fifo.ticketing.domain.user.entity.User
+import com.fifo.ticketing.domain.user.repository.UserRepository
+import com.fifo.ticketing.global.entity.File
+import io.mockk.*
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import java.time.LocalDateTime
+import java.util.*
 
 class LikeServiceTest {
 
-    @InjectMocks
-    private LikeService likeService;
+    private val likeRepository = mockk<LikeRepository>()
+    private val likeCountRepository = mockk<LikeCountRepository>()
+    private val userRepository = mockk<UserRepository>()
+    private val performanceRepository = mockk<PerformanceRepository>()
 
-    @Mock
-    private LikeRepository likeRepository;
-    @Mock
-    private LikeCountRepository likeCountRepository;
-    @Mock
-    private UserRepository userRepository;
-    @Mock
-    private PerformanceRepository performanceRepository;
+    private lateinit var likeService: LikeService
 
-    private final Long userId = 1L;
-    private final Long performanceId = 100L;
+    private val userId = 1L
+    private val performanceId = 100L
 
-    private User user;
-    private Performance performance;
-    private LikeCount likeCount;
-
+    private lateinit var mockUser: User
+    private lateinit var place: Place
+    private lateinit var mockFile: File
+    private lateinit var mockPerformance: Performance
+    private lateinit var mockLikeCount: LikeCount
 
     @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
+    fun setUp() {
+        likeService = LikeService(
+            likeRepository, likeCountRepository, userRepository, performanceRepository
+        )
 
-        user = User.builder().id(1L).build();
-        performance = Performance.builder().id(100L).build();
-        likeCount = LikeCount.builder().performance(performance).likeCount(1L).build();
+        mockUser = User.builder()
+            .id(userId)
+            .email("test@fifo.com")
+            .username("테스트 유저")
+            .password("secure")
+            .build()
+
+        place = Place.builder()
+            .id(1L)
+            .name("강남아트홀")
+            .address("서울시 강남구")
+            .totalSeats(100)
+            .build()
+
+        mockFile = File.builder()
+            .id(1L)
+            .encodedFileName("poster.png")
+            .originalFileName("poster-original.png")
+            .build()
+
+        mockPerformance = Performance.builder()
+            .id(performanceId)
+            .title("오페라의 유령")
+            .description("명작 뮤지컬")
+            .startTime(LocalDateTime.of(2025, 10, 5, 19, 30))
+            .endTime(LocalDateTime.of(2025, 10, 5, 22, 0))
+            .reservationStartTime(LocalDateTime.of(2025, 9, 1, 12, 0))
+            .place(place)
+            .category(Category.MOVIE)
+            .file(mockFile)
+            .performanceStatus(false)
+            .deletedFlag(false)
+            .build()
+
+        mockLikeCount = LikeCount.builder()
+            .id(1L)
+            .performance(mockPerformance)
+            .likeCount(1)
+            .build()
     }
 
     @Test
-    void 좋아요_처음_누를_경우() {
+    fun `처음 좋아요 누르면 저장되고 likeCount 증가`() {
+        val request = LikeRequest(performanceId)
 
-        LikeRequest request = new LikeRequest(performance.getId());
+        every { userRepository.findById(userId) } returns Optional.of(mockUser)
+        every { performanceRepository.findById(performanceId) } returns Optional.of(mockPerformance)
+        every { likeRepository.findByUserAndPerformance(mockUser, mockPerformance) } returns null
+        every { likeCountRepository.findByPerformance(mockPerformance) } returns mockLikeCount
+        every { likeRepository.save(any()) } returns mockk()
+        every { likeCountRepository.save(any()) } returns mockLikeCount
 
-        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
-        when(performanceRepository.findById(performance.getId())).thenReturn(Optional.of(performance));
-        when(likeRepository.findByUserAndPerformance(user, performance)).thenReturn(null);
-        when(likeCountRepository.findByPerformance(performance)).thenReturn(Optional.of(likeCount));
+        val result = likeService.toggleLike(userId, request)
 
-        boolean result = likeService.toggleLike(userId, request);
+        assertThat(result).isTrue()
+        assertThat(mockLikeCount.likeCount).isEqualTo(2L)
 
-        assertThat(result).isTrue();
-        verify(likeRepository).save(any(Like.class));
-        assertThat(likeCount.getLikeCount()).isEqualTo(2L);
+        verify { likeRepository.save(any()) }
+        verify { likeCountRepository.save(mockLikeCount) }
     }
 
     @Test
-    void 이미_좋아요를_누른_상태에서_취소하는_경우() {
-        LikeRequest request = new LikeRequest(performance.getId());
+    fun `이미 좋아요 누른 상태면 취소되고 likeCount 감소`() {
+        val request = LikeRequest(performanceId)
 
-        Like existingLike = Like.builder()
-                .user(user)
-                .performance(performance)
-                .isLiked(true)
-                .build();
+        val existingLike = Like.builder()
+            .user(mockUser)
+            .performance(mockPerformance)
+            .isLiked(true)
+            .build()
 
-        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
-        when(performanceRepository.findById(performance.getId())).thenReturn(Optional.of(performance));
-        when(likeRepository.findByUserAndPerformance(user, performance)).thenReturn(existingLike);
-        when(likeCountRepository.findByPerformance(performance)).thenReturn(Optional.of(likeCount));
+        every { userRepository.findById(userId) } returns Optional.of(mockUser)
+        every { performanceRepository.findById(performanceId) } returns Optional.of(mockPerformance)
+        every { likeRepository.findByUserAndPerformance(mockUser, mockPerformance) } returns existingLike
+        every { likeCountRepository.findByPerformance(mockPerformance) } returns mockLikeCount
+        every { likeRepository.save(any()) } returns existingLike
+        every { likeCountRepository.save(any()) } returns mockLikeCount
 
-        boolean result = likeService.toggleLike(userId,request);
+        val result = likeService.toggleLike(userId, request)
 
-        assertThat(result).isFalse();
-        assertThat(existingLike.isLiked()).isFalse();
-        assertThat(likeCount.getLikeCount()).isEqualTo(0L);
-
-        verify(likeRepository).save(existingLike);
-        verify(likeCountRepository).save(likeCount);
+        assertThat(result).isFalse()
+        assertThat(existingLike.getIsLiked()).isFalse()
+        assertThat(mockLikeCount.likeCount).isEqualTo(0L)
     }
 
     @Test
-    void 좋아요_취소한상태에서_다시_좋아요를_누르는_경우(){
-        LikeRequest request = new LikeRequest( performance.getId());
+    fun `좋아요 취소한 상태에서 다시 누르면 likeCount 증가`() {
+        val request = LikeRequest(performanceId)
 
-        Like existingLike = Like.builder()
-                .user(user)
-                .performance(performance)
-                .isLiked(false)
-                .build();
+        val existingLike = Like.builder()
+            .user(mockUser)
+            .performance(mockPerformance)
+            .isLiked(false)
+            .build()
 
-        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
-        when(performanceRepository.findById(performance.getId())).thenReturn(Optional.of(performance));
-        when(likeRepository.findByUserAndPerformance(user, performance)).thenReturn(existingLike);
-        when(likeCountRepository.findByPerformance(performance)).thenReturn(Optional.of(likeCount));
+        every { userRepository.findById(userId) } returns Optional.of(mockUser)
+        every { performanceRepository.findById(performanceId) } returns Optional.of(mockPerformance)
+        every { likeRepository.findByUserAndPerformance(mockUser, mockPerformance) } returns existingLike
+        every { likeCountRepository.findByPerformance(mockPerformance) } returns mockLikeCount
+        every { likeRepository.save(any()) } returns existingLike
+        every { likeCountRepository.save(any()) } returns mockLikeCount
 
-        boolean result = likeService.toggleLike(userId,request);
-        assertThat(result).isTrue();
-        assertThat(existingLike.isLiked()).isTrue();
-        assertThat(likeCount.getLikeCount()).isEqualTo(2L);
+        val result = likeService.toggleLike(userId, request)
 
-        verify(likeRepository).save(existingLike);
-        verify(likeCountRepository).save(likeCount);
+        assertThat(result).isTrue()
+        assertThat(existingLike.getIsLiked()).isTrue()
+        assertThat(mockLikeCount.likeCount).isEqualTo(2L)
     }
 }

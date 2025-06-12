@@ -43,4 +43,8 @@ public class Like extends BaseDateEntity {
     public void setLiked(boolean liked) {
         this.isLiked = liked;
     }
+
+    public boolean getIsLiked() {
+        return isLiked;
+    }
 }

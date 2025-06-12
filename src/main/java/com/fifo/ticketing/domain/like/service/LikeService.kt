@@ -1,88 +1,80 @@
-package com.fifo.ticketing.domain.like.service;
+package com.fifo.ticketing.domain.like.service
 
-import com.fifo.ticketing.domain.like.dto.LikeRequest;
-import com.fifo.ticketing.domain.like.entity.Like;
-import com.fifo.ticketing.domain.like.entity.LikeCount;
-import com.fifo.ticketing.domain.like.repository.LikeCountRepository;
-import com.fifo.ticketing.domain.like.repository.LikeRepository;
-import com.fifo.ticketing.domain.performance.entity.Performance;
-import com.fifo.ticketing.domain.performance.repository.PerformanceRepository;
-import com.fifo.ticketing.domain.user.entity.User;
-import com.fifo.ticketing.domain.user.repository.UserRepository;
-import com.fifo.ticketing.global.exception.ErrorException;
-import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
-import java.util.List;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-
-import static com.fifo.ticketing.global.exception.ErrorCode.NOT_FOUND_MEMBER;
-import static com.fifo.ticketing.global.exception.ErrorCode.NOT_FOUND_PERFORMANCES;
-
-
+import com.fifo.ticketing.domain.like.dto.LikeRequest
+import com.fifo.ticketing.domain.like.entity.Like
+import com.fifo.ticketing.domain.like.entity.LikeCount
+import com.fifo.ticketing.domain.like.mapper.LikeMapper
+import com.fifo.ticketing.domain.like.repository.LikeCountRepository
+import com.fifo.ticketing.domain.like.repository.LikeRepository
+import com.fifo.ticketing.domain.performance.entity.Performance
+import com.fifo.ticketing.domain.performance.repository.PerformanceRepository
+import com.fifo.ticketing.domain.user.repository.UserRepository
+import com.fifo.ticketing.global.exception.ErrorCode
+import com.fifo.ticketing.global.exception.ErrorException
+import jakarta.transaction.Transactional
+import org.springframework.stereotype.Service
+import kotlin.math.max
 
 @Service
-@RequiredArgsConstructor
-public class LikeService {
-    private final LikeRepository likeRepository;
-    private final LikeCountRepository likeCountRepository;
-    private final UserRepository userRepository;
-    private final PerformanceRepository performanceRepository;
-
+class LikeService(
+    private val likeRepository: LikeRepository,
+    private val likeCountRepository: LikeCountRepository,
+    private val userRepository: UserRepository,
+    private val performanceRepository: PerformanceRepository
+) {
 
     @Transactional
-    public boolean toggleLike(Long userId, LikeRequest likeRequest) {
+    fun toggleLike(userId: Long, likeRequest: LikeRequest): Boolean {
+        val user = userRepository.findById(userId)
+            .orElseThrow {
+                ErrorException(
+                    ErrorCode.NOT_FOUND_MEMBER,
+                    "존재하지 않는 회원입니다."
+                )
+            }
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ErrorException(NOT_FOUND_MEMBER));
+        val performance = performanceRepository.findById(likeRequest.performanceId)
+            .orElseThrow {
+                ErrorException(
+                    ErrorCode.NOT_FOUND_PERFORMANCES,
+                    "예매 가능한 공연이 존재하지 않습니다."
+                )
+            }
 
-        Performance performance = performanceRepository.findById(likeRequest.getPerformanceId())
-                .orElseThrow( ()-> new ErrorException(NOT_FOUND_PERFORMANCES));
+        val existingLike = likeRepository.findByUserAndPerformance(user, performance)
 
-        Like existingLike = likeRepository.findByUserAndPerformance(user, performance);
-
-        //like가 없다면
-        if(existingLike == null) {
-            Like like = Like.builder()
-                    .user(user)
-                    .performance(performance)
-                    .isLiked(true)
-                    .build();
-            likeRepository.save(like);
-            updateLike(performance,1);
-            // likecount 제거
-            return true;
-        }//없다ㅕㄴ
-
-        if(existingLike.isLiked() ){
-            existingLike.setLiked(false);
-            likeRepository.save(existingLike);
-            updateLike(performance, -1);
-            // likeCOunt 추가
-            return false;
+        return if (existingLike == null) {
+            val like = LikeMapper.create(user, performance)
+            likeRepository.save(like)
+            updateLike(performance, 1)
+            true
+        } else {
+            val isNowLiked = !existingLike.isLiked
+            existingLike.setLiked(isNowLiked)
+            likeRepository.save(existingLike)
+            updateLike(performance, if (isNowLiked) 1 else -1)
+            isNowLiked
         }
-
-        existingLike.setLiked(true);
-        likeRepository.save(existingLike);
-        updateLike(performance,1);
-        return true;
     }
 
-    private void updateLike(Performance performance, int cnt) {
-        LikeCount likeCount = likeCountRepository.findByPerformance(performance)
-                .orElseThrow(() -> new ErrorException(NOT_FOUND_PERFORMANCES));
+    private fun updateLike(performance: Performance, cnt: Int) {
+        val likeCount = likeCountRepository.findByPerformance(performance)?:
+        throw  ErrorException(ErrorCode.NOT_FOUND_PERFORMANCES,"예매 가능한 공연이 존재하지 않습니다.")
 
-        long updatedCnt = likeCount.getLikeCount() + cnt;
-        updatedCnt = Math.max(0, updatedCnt); //  음수 방지
-        likeCount.setLikeCount(updatedCnt);
-        likeCountRepository.save(likeCount);
-
+        val updatedCnt = max(0L, likeCount.getLikeCount() + cnt)
+        likeCount.setLikeCount(updatedCnt)
+        likeCountRepository.save(likeCount)
     }
 
-    public List<Long> getLikedPerformancesIds(Long userId) {
+    fun getLikedPerformancesIds(userId: Long): List<Long> {
         userRepository.findById(userId)
-            .orElseThrow(() -> new ErrorException(NOT_FOUND_MEMBER));
+            .orElseThrow {
+                ErrorException(
+                    ErrorCode.NOT_FOUND_MEMBER,
+                    "존재하지 않는 회원입니다."
+                )
+            }
 
-        return likeRepository.findLikedPerformanceIdsByUserId(userId);
+        return likeRepository.findLikedPerformanceIdsByUserId(userId)
     }
 }
