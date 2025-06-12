@@ -35,7 +35,7 @@ public class BookController {
     ) {
         SessionUser loginUser = UserValidator.validateSessionUser(session);
         BookCreateRequest request = new BookCreateRequest(seatIds);
-        Long bookId = bookService.createBook(performanceId, loginUser.id(), request);
+        Long bookId = bookService.createBook(performanceId, loginUser.id, request);
         return "redirect:/performances/" + performanceId + "/book/complete/" + bookId;
 
     }

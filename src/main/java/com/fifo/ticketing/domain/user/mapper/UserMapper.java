@@ -10,13 +10,13 @@ public class UserMapper {
     }
 
     public static UserDto toUserDto(User user) {
-        return UserDto.builder()
-            .id(user.getId())
-            .username(user.getUsername())
-            .email(user.getEmail())
-            .isBlocked(user.isBlocked())
-            .role(user.getRole())
-            .build();
+        return new UserDto (
+            user.getId(),
+            user.getUsername(),
+            user.getEmail(),
+            user.isBlocked(),
+            user.getRole()
+            );
     }
 
     public static Page<UserDto> toUserDtoPage(Page<User> users) {

@@ -171,7 +171,7 @@ public class AdminPerformanceController {
 
         model.addAttribute("performanceDetail", performanceDetail);
         model.addAttribute("performanceId", performanceId);
-        model.addAttribute("userId", loginUser.id());
+        model.addAttribute("userId", loginUser.id);
         model.addAttribute("seats", seatViewDtos);
         model.addAttribute("showBackButton", true);
 
@@ -241,7 +241,7 @@ public class AdminPerformanceController {
             String queryParams
     ) {
         SessionUser loginUser = UserValidator.validateSessionUser(session);
-        Long userId = loginUser.id();
+        Long userId = loginUser.id;
 
         model.addAttribute("userId", userId);
         model.addAttribute("performances", performances.getContent());
