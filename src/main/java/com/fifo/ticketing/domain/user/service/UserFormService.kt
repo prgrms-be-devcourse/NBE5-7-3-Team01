@@ -7,42 +7,33 @@ import com.fifo.ticketing.domain.user.repository.UserRepository
 import com.fifo.ticketing.global.exception.ErrorCode
 import com.fifo.ticketing.global.exception.ErrorException
 import jakarta.transaction.Transactional
-import lombok.RequiredArgsConstructor
-import lombok.extern.slf4j.Slf4j
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
-import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 
-@Slf4j
 @Service
 @Transactional
-@RequiredArgsConstructor
-class UserFormService : UserDetailsService {
-    private val userRepository: UserRepository? = null
-    private val passwordEncoder: PasswordEncoder? = null
+class UserFormService(
+    private val userRepository: UserRepository,
+    private val passwordEncoder: PasswordEncoder
+) : UserDetailsService {
 
     fun save(signUpForm: SignUpForm) {
-        if (userRepository!!.findByEmail(signUpForm.email!!).isPresent()) {
+        if (userRepository.findByEmail(signUpForm.email) != null) {
             throw ErrorException(ErrorCode.EMAIL_ALREADY_EXISTS)
         }
-        val user = User.builder()
-            .username(signUpForm.username)
-            .password(passwordEncoder!!.encode(signUpForm.password))
-            .email(signUpForm.email)
-            .build()
+        val user = User.fromForm(
+            signUpForm.email,
+            passwordEncoder.encode(signUpForm.password),
+            signUpForm.username
+        )
         userRepository.save(user)
     }
 
-    @Throws(UsernameNotFoundException::class)
     override fun loadUserByUsername(email: String): UserDetails {
-        val userOptional = userRepository!!.findByEmail(email)
-        val findUser: User = userOptional.orElseThrow {
-            ErrorException(
-                ErrorCode.NOT_FOUND_MEMBER
-            )
-        }
+        val findUser = userRepository.findByEmail(email)
+            ?: throw ErrorException(ErrorCode.NOT_FOUND_MEMBER)
         return UserFormDetails(findUser)
     }
 }
