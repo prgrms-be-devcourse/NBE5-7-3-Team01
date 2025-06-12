@@ -24,7 +24,7 @@ jobs:
         uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0
 
       - name: Build with Gradle Wrapper
-        run: ./gradlew build -Dspring.profiles.active=ci
+        run: ./gradlew clean build -Dspring.profiles.active=ci
 
   dependency-submission:
     if: github.event_name != 'pull_request'  # PR에서는 실행 안 함
