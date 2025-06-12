@@ -43,18 +43,18 @@ class LikeService(
 
         val existingLike = likeRepository.findByUserAndPerformance(user, performance)
 
-        return if (existingLike == null) {
+        if (existingLike == null) {
             val like = LikeMapper.create(user, performance)
             likeRepository.save(like)
             updateLike(performance, 1)
-            true
-        } else {
-            val isNowLiked = !existingLike.isLiked
-            existingLike.setLiked(isNowLiked)
-            likeRepository.save(existingLike)
-            updateLike(performance, if (isNowLiked) 1 else -1)
-            isNowLiked
+            return true
         }
+
+        val isNowLiked = !existingLike.isLiked
+        existingLike.setLiked(isNowLiked)
+        likeRepository.save(existingLike)
+        updateLike(performance, if (isNowLiked) 1 else -1)
+        return isNowLiked
     }
 
     private fun updateLike(performance: Performance, cnt: Int) {
