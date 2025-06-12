@@ -26,6 +26,7 @@ import com.fifo.ticketing.domain.performance.entity.Place;
 import com.fifo.ticketing.domain.performance.mapper.PerformanceMapper;
 import com.fifo.ticketing.domain.performance.mapper.PlaceMapper;
 import com.fifo.ticketing.domain.performance.repository.GradeRepository;
+import com.fifo.ticketing.domain.performance.repository.PerformanceAdminRepository;
 import com.fifo.ticketing.domain.performance.repository.PerformanceRepository;
 import com.fifo.ticketing.domain.performance.repository.PlaceRepository;
 import com.fifo.ticketing.domain.seat.entity.Seat;
@@ -54,6 +55,7 @@ public class AdminPerformanceService {
     private final BookRepository bookRepository;
     private final PlaceRepository placeRepository;
     private final PerformanceRepository performanceRepository;
+    private final PerformanceAdminRepository performanceAdminRepository;
     private final GradeRepository gradeRepository;
     private final SeatService seatService;
     private final ImageFileService imageFileService;
@@ -84,7 +86,7 @@ public class AdminPerformanceService {
     @Transactional(readOnly = true)
     public Page<AdminPerformanceResponseDto> getPerformancesSortedByLatestForAdmin(
         Pageable pageable) {
-        Page<Performance> performances = performanceRepository
+        Page<Performance> performances = performanceAdminRepository
             .findUpcomingPerformancesOrderByReservationStartTimeForAdmin(pageable);
         return PerformanceMapper.toPageAdminPerformanceResponseDto(performances, urlPrefix);
     }
@@ -95,8 +97,8 @@ public class AdminPerformanceService {
         if (keyword == null || keyword.isEmpty()) {
             getPerformancesSortedByLatestForAdmin(pageable);
         }
-        Page<Performance> performances = performanceRepository.findUpcomingPerformancesByKeywordContainingForAdmin(
-                LocalDateTime.now(), keyword, pageable);
+        Page<Performance> performances = performanceAdminRepository.findUpcomingPerformancesByKeywordContainingForAdmin(
+                LocalDateTime.now(), keyword.trim(), pageable);
         return PerformanceMapper.toPageAdminPerformanceResponseDto(performances, urlPrefix);
     }
 
@@ -174,7 +176,7 @@ public class AdminPerformanceService {
     @Transactional
     public void deletePerformance(Long id) {
         // 1. 삭제를 위한 Performance 조회 (삭제되지 않은 파일만)
-        Performance findPerformance = performanceRepository.findByIdAndDeletedFlagFalse(id)
+        Performance findPerformance = performanceAdminRepository.findByIdAndDeletedFlagFalse(id)
             .orElseThrow(
                 () -> new ErrorException(NOT_FOUND_PERFORMANCE));
 
@@ -267,7 +269,7 @@ public class AdminPerformanceService {
     @Transactional(readOnly = true)
     public Page<AdminPerformanceResponseDto> getPerformancesSortedByLikesForAdmin(
         Pageable pageable) {
-        Page<Performance> performances = performanceRepository.findUpcomingPerformancesOrderByLikesForAdmin(
+        Page<Performance> performances = performanceAdminRepository.findUpcomingPerformancesOrderByLikesForAdmin(
             pageable);
         return PerformanceMapper.toPageAdminPerformanceResponseDto(performances, urlPrefix);
     }
@@ -276,7 +278,7 @@ public class AdminPerformanceService {
     public Page<AdminPerformanceResponseDto> getPerformancesByReservationPeriodForAdmin(
         LocalDateTime start,
         LocalDateTime end, Pageable pageable) {
-        Page<Performance> performances = performanceRepository.findUpcomingPerformancesByReservationPeriodForAdmin(
+        Page<Performance> performances = performanceAdminRepository.findUpcomingPerformancesByReservationPeriodForAdmin(
             start, end, pageable);
         return PerformanceMapper.toPageAdminPerformanceResponseDto(performances, urlPrefix);
     }
@@ -284,21 +286,21 @@ public class AdminPerformanceService {
     @Transactional(readOnly = true)
     public Page<AdminPerformanceResponseDto> getPerformancesByCategoryForAdmin(Category category,
         Pageable pageable) {
-        Page<Performance> performances = performanceRepository.findUpcomingPerformancesByCategoryForAdmin(
+        Page<Performance> performances = performanceAdminRepository.findUpcomingPerformancesByCategoryForAdmin(
             category, pageable);
         return PerformanceMapper.toPageAdminPerformanceResponseDto(performances, urlPrefix);
     }
 
     public Page<AdminPerformanceResponseDto> getPerformancesSortedByDeletedForAdmin(
         Pageable pageable) {
-        Page<Performance> performances = performanceRepository.findUpComingPerformancesByDeletedFlagForAdmin(
+        Page<Performance> performances = performanceAdminRepository.findUpComingPerformancesByDeletedFlagForAdmin(
             pageable);
         return PerformanceMapper.toPageAdminPerformanceResponseDto(performances, urlPrefix);
     }
 
     @Transactional(readOnly = true)
     public Page<AdminPerformanceStaticsDto> getPerformanceStatics(Pageable pageable) {
-        Page<AdminPerformanceStaticsDto> performanceStatics = performanceRepository.findPerformanceStatics(
+        Page<AdminPerformanceStaticsDto> performanceStatics = performanceAdminRepository.findPerformanceStatics(
             pageable);
         if (performanceStatics.isEmpty()) {
             throw new ErrorException(NOT_FOUND_PERFORMANCE);
