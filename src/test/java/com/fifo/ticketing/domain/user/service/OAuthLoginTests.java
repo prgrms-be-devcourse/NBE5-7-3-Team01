@@ -68,14 +68,23 @@ class OAuthLoginTests {
             userDetails.getAuthorities(),
             "google"
         );
+//
+//        given(userRepository.findByEmail("test@test.com")).willReturn(
+//            Optional.of(User.builder()
+//                .id(1L)
+//                .email("test@test.com")
+//                .username("테스트 유저")
+//                .provider("google")
+//                .build())
+//        );
 
         given(userRepository.findByEmail("test@test.com")).willReturn(
-            Optional.of(User.builder()
+            User.builder()
                 .id(1L)
                 .email("test@test.com")
                 .username("테스트 유저")
                 .provider("google")
-                .build())
+                .build()
         );
 
         given(request.getSession()).willReturn(session);
