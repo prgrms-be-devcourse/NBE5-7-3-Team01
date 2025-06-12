@@ -14,7 +14,7 @@ import java.time.LocalDateTime
 @Repository
 interface LikeRepository : JpaRepository<Like, Long> {
 
-    fun findByUserAndPerformance(user: User?, performance: Performance?): Like?
+    fun findByUserAndPerformance(user: User, performance: Performance): Like?
 
     @Query("SELECT l.user FROM Like l WHERE l.performance.id = :performanceId AND l.isLiked = true")
     fun findUsersByPerformanceId(@Param("performanceId") performanceId: Long): List<User>
