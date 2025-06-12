@@ -13,11 +13,12 @@ public enum OAuthProvider {
         @Override
         public UserOAuthDetails extract(OAuth2User oAuth2User) {
             Map<String, Object> attributes = oAuth2User.getAttributes();
-            return UserOAuthDetails.builder()
-                .name(attributes.get("name").toString())
-                .email(attributes.get("email").toString())
-                .attributes(attributes)
-                .build();
+            return new UserOAuthDetails(
+                attributes.get("name").toString(),
+                attributes.get("email").toString(),
+                attributes,
+                Role.USER
+            );
         }
     },
     NAVER {
@@ -25,11 +26,12 @@ public enum OAuthProvider {
         public UserOAuthDetails extract(OAuth2User oAuth2User) {
             Map<String, Object> attributes = oAuth2User.getAttributes();
             Map<String, Object> properties = (Map<String, Object>) attributes.get("response");
-            return UserOAuthDetails.builder()
-                .name(properties.get("name").toString())
-                .email(properties.get("id") + "@naver.com")
-                .attributes(properties)
-                .build();
+            return new UserOAuthDetails(
+                properties.get("name").toString(),
+                properties.get("id") + "@naver.com",
+                properties,
+                Role.USER
+            );
         }
     },
     KAKAO {
@@ -37,11 +39,12 @@ public enum OAuthProvider {
         public UserOAuthDetails extract(OAuth2User oAuth2User) {
             Map<String, Object> attributes = oAuth2User.getAttributes();
             Map<String, Object> properties = (Map<String, Object>) attributes.get("properties");
-            return UserOAuthDetails.builder()
-                .name(properties.get("nickname").toString())
-                .email(attributes.get("id") + "@kakao.com")
-                .attributes(properties)
-                .build();
+            return new UserOAuthDetails(
+                properties.get("nickname").toString(),
+                attributes.get("id") + "@kakao.com",
+                properties,
+                Role.USER
+            );
         }
     };
 
