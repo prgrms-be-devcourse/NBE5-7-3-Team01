@@ -25,21 +25,10 @@ class LikeService(
 
     @Transactional
     fun toggleLike(userId: Long, likeRequest: LikeRequest): Boolean {
-        val user = userRepository.findById(userId)
-            .orElseThrow {
-                ErrorException(
-                    ErrorCode.NOT_FOUND_MEMBER,
+        val user = userRepository.findById(userId).get()
 
-                )
-            }
+        val performance = performanceRepository.findById(likeRequest.performanceId).get()
 
-        val performance = performanceRepository.findById(likeRequest.performanceId)
-            .orElseThrow {
-                ErrorException(
-                    ErrorCode.NOT_FOUND_PERFORMANCES
-
-                )
-            }
 
         val existingLike = likeRepository.findByUserAndPerformance(user, performance)
 
