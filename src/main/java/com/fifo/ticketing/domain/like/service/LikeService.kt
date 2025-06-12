@@ -29,15 +29,15 @@ class LikeService(
             .orElseThrow {
                 ErrorException(
                     ErrorCode.NOT_FOUND_MEMBER,
-                    "존재하지 않는 회원입니다."
+
                 )
             }
 
         val performance = performanceRepository.findById(likeRequest.performanceId)
             .orElseThrow {
                 ErrorException(
-                    ErrorCode.NOT_FOUND_PERFORMANCES,
-                    "예매 가능한 공연이 존재하지 않습니다."
+                    ErrorCode.NOT_FOUND_PERFORMANCES
+
                 )
             }
 
@@ -59,7 +59,7 @@ class LikeService(
 
     private fun updateLike(performance: Performance, cnt: Int) {
         val likeCount = likeCountRepository.findByPerformance(performance)?:
-        throw  ErrorException(ErrorCode.NOT_FOUND_PERFORMANCES,"예매 가능한 공연이 존재하지 않습니다.")
+        throw  ErrorException(ErrorCode.NOT_FOUND_PERFORMANCES)
 
         val updatedCnt = max(0L, likeCount.getLikeCount() + cnt)
         likeCount.setLikeCount(updatedCnt)
@@ -70,8 +70,7 @@ class LikeService(
         userRepository.findById(userId)
             .orElseThrow {
                 ErrorException(
-                    ErrorCode.NOT_FOUND_MEMBER,
-                    "존재하지 않는 회원입니다."
+                    ErrorCode.NOT_FOUND_MEMBER
                 )
             }
 
