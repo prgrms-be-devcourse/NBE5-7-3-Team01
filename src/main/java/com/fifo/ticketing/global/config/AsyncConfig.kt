@@ -1,45 +1,35 @@
-package com.fifo.ticketing.global.config;
+package com.fifo.ticketing.global.config
 
-import java.util.concurrent.Executor;
-import java.util.concurrent.ThreadPoolExecutor;
-import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.scheduling.annotation.AsyncConfigurer;
-import org.springframework.scheduling.annotation.EnableAsync;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
+import org.springframework.scheduling.annotation.AsyncConfigurer
+import org.springframework.scheduling.annotation.EnableAsync
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor
+import java.util.concurrent.Executor
+import java.util.concurrent.ThreadPoolExecutor
 
 @EnableAsync
 @Configuration
-public class AsyncConfig implements AsyncConfigurer {
+class AsyncConfig : AsyncConfigurer {
 
+    @Bean(name = ["mailExecutor"])
+    override fun getAsyncExecutor(): Executor =
+        ThreadPoolTaskExecutor().apply {
+            corePoolSize = 200
+            maxPoolSize = 400
+            queueCapacity = 100
+            initialize()
+        }
 
-    //커스텀 쓰레드 풀 정의
-    @Override
-    @Bean(name = "mailExecutor")
-    public Executor getAsyncExecutor() {
-        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(200);
-        executor.setMaxPoolSize(400);
-        executor.setQueueCapacity(100);
-        executor.initialize();
-
-        return executor;
-    }
-
-    @Bean(name = "cancelPerformanceMailExecutor")
-    public Executor cancelMailExecutor() {
-        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-
-        executor.setCorePoolSize(200);
-        executor.setMaxPoolSize(400);
-        executor.setQueueCapacity(100);
-        executor.setKeepAliveSeconds(60);
-        executor.setThreadNamePrefix("async-exec-mail-");
-        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
-        executor.initialize();
-        return executor;
-    }
-
-
+    @Bean(name = ["cancelPerformanceMailExecutor"])
+    fun cancelMailExecutor(): Executor =
+        ThreadPoolTaskExecutor().apply {
+            corePoolSize = 200
+            maxPoolSize = 400
+            queueCapacity = 100
+            keepAliveSeconds = 60
+            threadNamePrefix = "async-exec-mail-"
+            setRejectedExecutionHandler(ThreadPoolExecutor.CallerRunsPolicy())
+            initialize()
+        }
 }
