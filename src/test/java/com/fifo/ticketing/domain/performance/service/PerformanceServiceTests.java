@@ -16,7 +16,7 @@ import com.fifo.ticketing.domain.seat.service.SeatService;
 import com.fifo.ticketing.global.entity.File;
 import com.fifo.ticketing.global.exception.ErrorCode;
 import com.fifo.ticketing.global.exception.ErrorException;
-import com.fifo.ticketing.global.util.ImageFileService;
+import com.fifo.ticketing.global.service.ImageFileService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

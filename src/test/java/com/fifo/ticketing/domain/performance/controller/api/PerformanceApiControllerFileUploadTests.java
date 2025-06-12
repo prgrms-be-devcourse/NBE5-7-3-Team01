@@ -9,7 +9,7 @@ import com.fifo.ticketing.domain.performance.repository.PlaceRepository;
 import com.fifo.ticketing.domain.seat.repository.SeatRepository;
 import com.fifo.ticketing.global.entity.File;
 import com.fifo.ticketing.global.repository.FileRepository;
-import com.fifo.ticketing.global.util.ImageFileService;
+import com.fifo.ticketing.global.service.ImageFileService;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
