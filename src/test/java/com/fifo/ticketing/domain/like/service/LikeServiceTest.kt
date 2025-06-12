@@ -14,10 +14,8 @@ import com.fifo.ticketing.domain.seat.entity.*
 import com.fifo.ticketing.domain.user.entity.User
 import com.fifo.ticketing.domain.user.repository.UserRepository
 import com.fifo.ticketing.global.entity.File
-import io.kotest.matchers.booleans.shouldBeFalse
-import io.kotest.matchers.booleans.shouldBeTrue
-import io.kotest.matchers.longs.shouldBeExactly
 import io.mockk.*
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.LocalDateTime
@@ -101,8 +99,8 @@ class LikeServiceTest {
 
         val result = likeService.toggleLike(userId, request)
 
-        result.shouldBeTrue()
-        mockLikeCount.likeCount shouldBeExactly 2L
+        assertThat(result).isTrue()
+        assertThat(mockLikeCount.likeCount).isEqualTo(2L)
 
         verify { likeRepository.save(any()) }
         verify { likeCountRepository.save(mockLikeCount) }
@@ -127,9 +125,9 @@ class LikeServiceTest {
 
         val result = likeService.toggleLike(userId, request)
 
-        result.shouldBeFalse()
-        existingLike.isLiked.shouldBeFalse()
-        mockLikeCount.likeCount shouldBeExactly 0L
+        assertThat(result).isFalse()
+        assertThat(existingLike.getIsLiked()).isFalse()
+        assertThat(mockLikeCount.likeCount).isEqualTo(0L)
     }
 
     @Test
@@ -151,8 +149,8 @@ class LikeServiceTest {
 
         val result = likeService.toggleLike(userId, request)
 
-        result.shouldBeTrue()
-        existingLike.isLiked.shouldBeTrue()
-        mockLikeCount.likeCount shouldBeExactly 2L
+        assertThat(result).isTrue()
+        assertThat(existingLike.getIsLiked()).isTrue()
+        assertThat(mockLikeCount.likeCount).isEqualTo(2L)
     }
 }
