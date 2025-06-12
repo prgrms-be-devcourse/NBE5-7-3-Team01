@@ -27,8 +27,13 @@ class LikeService(
     fun toggleLike(userId: Long, likeRequest: LikeRequest): Boolean {
         val user = userRepository.findById(userId).get()
 
-        val performance = performanceRepository.findById(likeRequest.performanceId).get()
+        val performance = performanceRepository.findById(likeRequest.performanceId)
+            .orElseThrow {
+                ErrorException(
+                    ErrorCode.NOT_FOUND_PERFORMANCES
 
+                )
+            }
 
         val existingLike = likeRepository.findByUserAndPerformance(user, performance)
 
