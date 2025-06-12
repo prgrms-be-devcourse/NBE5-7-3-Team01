@@ -1,72 +1,63 @@
-package com.fifo.ticketing.domain.book.service;
+package com.fifo.ticketing.domain.book.service
 
-import com.fifo.ticketing.domain.book.entity.Book;
-import com.fifo.ticketing.domain.book.entity.BookScheduledTask;
-import com.fifo.ticketing.domain.book.entity.BookSeat;
-import com.fifo.ticketing.domain.book.entity.BookStatus;
-import com.fifo.ticketing.domain.book.mapper.BookMapper;
-import com.fifo.ticketing.domain.book.repository.BookRepository;
-import com.fifo.ticketing.domain.book.repository.BookScheduleRepository;
-import com.fifo.ticketing.domain.book.repository.BookSeatRepository;
-import com.fifo.ticketing.domain.seat.entity.Seat;
-import com.fifo.ticketing.global.exception.ErrorCode;
-import com.fifo.ticketing.global.exception.ErrorException;
-import com.fifo.ticketing.global.util.DateTimeUtil;
-import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.scheduling.TaskScheduler;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import com.fifo.ticketing.domain.book.entity.BookScheduledTask
+import com.fifo.ticketing.domain.book.entity.BookStatus
+import com.fifo.ticketing.domain.book.mapper.BookMapper.toBookScheduledTaskEntity
+import com.fifo.ticketing.domain.book.repository.BookRepository
+import com.fifo.ticketing.domain.book.repository.BookScheduleRepository
+import com.fifo.ticketing.domain.book.repository.BookSeatRepository
+import com.fifo.ticketing.global.exception.ErrorCode
+import com.fifo.ticketing.global.exception.ErrorException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDateTime
+import java.util.*
+import io.github.oshai.kotlinlogging.KotlinLogging
 
-@Slf4j
+private val log = KotlinLogging.logger {}
 @Service
-@RequiredArgsConstructor
-public class BookScheduleManager {
+class BookScheduleManager(
+    private val bookScheduleRepository: BookScheduleRepository,
+    private val bookRepository: BookRepository,
+    private val bookSeatRepository: BookSeatRepository,
 
-    private final BookScheduleRepository bookScheduleRepository;
-    private final BookRepository bookRepository;
-    private final BookSeatRepository bookSeatRepository;
-    @Qualifier("taskScheduler")
-    private final TaskScheduler taskScheduler;
+    private val coroutineScope: CoroutineScope,
 
+) {
 
-    @Transactional
-    public void scheduleCancelTask(Long bookId, LocalDateTime runTime) {
-
-        bookScheduleRepository.save(BookMapper.toBookScheduledTaskEntity(bookId, runTime));
-
-        Date triggerTime = DateTimeUtil.toDate(runTime);
-
-        taskScheduler.schedule(() -> cancelIfUnpaid(bookId), triggerTime);
-
-    }
 
     @Transactional
-    public void cancelIfUnpaid(Long bookId) {
-        Book book = bookRepository.findById(bookId)
-            .orElseThrow(() -> new ErrorException(ErrorCode.NOT_FOUND_BOOK));
+    suspend fun scheduleCancelTask(bookId: Long, runTime: LocalDateTime) {
+        bookScheduleRepository.save(toBookScheduledTaskEntity(bookId, runTime))
 
-        if (book.getBookStatus() == BookStatus.CONFIRMED) {
-
-            book.canceled();
-
-            log.info("{}번 예매 취소됨", bookId);
-
-            List<BookSeat> bookSeats = bookSeatRepository.findAllByBookIdWithSeat(book.getId());
-            for (BookSeat bookSeat : bookSeats) {
-                Seat seat = bookSeat.getSeat();
-                seat.available();
-            }
+        // 레포지토리에 작업이 저장되면 실행됨
+        coroutineScope.launch {
+            // 10분동안 대기했다가
+            delay(600000)
+            // 취소 로직 실행
+            cancelIfUnpaid(bookId)
         }
 
-        Optional.ofNullable(book.getScheduledTask())
-            .ifPresent(BookScheduledTask::complete);
-
     }
 
+    @Transactional
+    suspend fun cancelIfUnpaid(bookId: Long) {
+        val book = bookRepository.findById(bookId)
+            .orElseThrow { ErrorException(ErrorCode.NOT_FOUND_BOOK) }
+
+        if (book.bookStatus == BookStatus.CONFIRMED) {
+            book.canceled()
+
+            log.info{"${bookId}번 예매 취소됨"}
+
+            val bookSeats = bookSeatRepository.findAllByBookIdWithSeat(book.id)
+            bookSeats.map { it.seat.available() }
+        }
+
+        Optional.ofNullable(book.scheduledTask)
+            .ifPresent { obj: BookScheduledTask -> obj.complete() }
+    }
 }
