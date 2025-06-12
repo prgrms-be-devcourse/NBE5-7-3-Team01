@@ -1,10 +1,10 @@
-package com.fifo.ticketing.global.util;
+package com.fifo.ticketing.global.service;
 
-import com.fifo.ticketing.domain.performance.entity.Performance;
 import com.fifo.ticketing.global.entity.File;
 import com.fifo.ticketing.global.exception.ErrorCode;
 import com.fifo.ticketing.global.exception.ErrorException;
 import com.fifo.ticketing.global.repository.FileRepository;
+import com.fifo.ticketing.global.util.ImageTypeChecker;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
