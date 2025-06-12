@@ -1,12 +1,13 @@
-package com.fifo.ticketing.global.util;
+package com.fifo.ticketing.global.util
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.Date;
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.util.*
 
-public class DateTimeUtil {
+object DateTimeUtil {
 
-    public static Date toDate(LocalDateTime localDateTime) {
-        return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+    @JvmStatic
+    fun toDate(localDateTime: LocalDateTime): Date {
+        return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant())
     }
 }

@@ -1,21 +1,18 @@
-package com.fifo.ticketing.global.util;
+package com.fifo.ticketing.global.util
 
-import com.fifo.ticketing.global.exception.ErrorCode;
-import com.fifo.ticketing.global.exception.ErrorException;
-import java.time.LocalDateTime;
+import com.fifo.ticketing.global.exception.ErrorCode
+import com.fifo.ticketing.global.exception.ErrorException
+import java.time.LocalDateTime
 
-public class DateTimeValidator {
+object DateTimeValidator {
 
-    private DateTimeValidator() {
-
-    }
-
-    public static void periodValidator(LocalDateTime startDate, LocalDateTime endDate) {
+    @JvmStatic
+    fun periodValidator(startDate: LocalDateTime?, endDate: LocalDateTime?) {
         if (startDate == null || endDate == null) {
-            throw new ErrorException(ErrorCode.INVALID_DATETIME_TYPE);
+            throw ErrorException(ErrorCode.INVALID_DATETIME_TYPE)
         }
         if (startDate.isAfter(endDate)) {
-            throw new ErrorException(ErrorCode.INVALID_DATETIME_PERIOD);
+            throw ErrorException(ErrorCode.INVALID_DATETIME_PERIOD)
         }
     }
 }

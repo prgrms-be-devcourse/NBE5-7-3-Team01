@@ -1,20 +1,16 @@
-package com.fifo.ticketing.global.util;
+package com.fifo.ticketing.global.util
 
-import com.fifo.ticketing.domain.user.dto.SessionUser;
-import com.fifo.ticketing.global.exception.ErrorCode;
-import com.fifo.ticketing.global.exception.ErrorException;
-import jakarta.servlet.http.HttpSession;
+import com.fifo.ticketing.domain.user.dto.SessionUser
+import com.fifo.ticketing.global.exception.ErrorCode
+import com.fifo.ticketing.global.exception.ErrorException
+import jakarta.servlet.http.HttpSession
 
-public class UserValidator {
+object UserValidator {
 
-    private UserValidator() {
-    }
-
-    public static SessionUser validateSessionUser(HttpSession session) {
-        SessionUser user = (SessionUser) session.getAttribute("loginUser");
-        if (user == null) {
-            throw new ErrorException("user/sign_in", ErrorCode.UNAUTHORIZED_REQUEST);
-        }
-        return user;
+    @JvmStatic
+    fun validateSessionUser(session: HttpSession): SessionUser {
+        val user = session.getAttribute("loginUser") as? SessionUser
+            ?: throw ErrorException(ErrorCode.UNAUTHORIZED_REQUEST, "user/sign_in")
+        return user
     }
 }

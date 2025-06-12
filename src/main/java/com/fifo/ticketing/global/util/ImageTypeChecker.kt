@@ -1,24 +1,24 @@
-package com.fifo.ticketing.global.util;
+package com.fifo.ticketing.global.util
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartFile
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class ImageTypeChecker {
+object ImageTypeChecker {
 
-    static public boolean isImage(String contentType) {
-        return contentType != null && contentType.startsWith("image/");
+    @JvmStatic
+    fun isImage(contentType: String?): Boolean {
+        return contentType?.startsWith("image/") == true
     }
 
-    static public boolean validImageExtension(MultipartFile file) {
-        String filename = file.getOriginalFilename();
+    @JvmStatic
+    fun validImageExtension(file: MultipartFile): Boolean {
+        val filename = file.originalFilename?.lowercase()
         return filename != null && (
-                filename.toLowerCase().endsWith(".jpg") ||
-                filename.toLowerCase().endsWith(".jpeg") ||
-                filename.toLowerCase().endsWith(".png") ||
-                filename.toLowerCase().endsWith(".gif") ||
-                filename.toLowerCase().endsWith(".webp")
-        );
+                filename.endsWith(".jpg") ||
+                        filename.endsWith(".jpeg") ||
+                        filename.endsWith(".png") ||
+                        filename.endsWith(".gif") ||
+                        filename.endsWith(".webp")
+                )
     }
 }
+
