@@ -136,6 +136,7 @@ public interface PerformanceRepository extends JpaRepository<Performance, Long> 
         + "LEFT JOIN File f ON p.file.id = f.id "
         + "WHERE p.deletedFlag = false AND p.id = :performanceId "
         + "GROUP BY p.id, p.title, f.encodedFileName")
+    @SuppressWarnings("JpaQlInspection")
     AdminPerformanceBookDetailDto findPerformanceBookDetails(
         @Param("performanceId") Long performanceId);
 

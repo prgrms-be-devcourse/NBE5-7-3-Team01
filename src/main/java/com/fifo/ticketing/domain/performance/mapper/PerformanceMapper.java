@@ -42,26 +42,27 @@ public class PerformanceMapper {
 
     public static AdminPerformanceDetailResponse toAdminDetailResponseDto(Performance performance,
         List<PerformanceSeatGradeDto> seatGrades, String urlPrefix) {
-        return AdminPerformanceDetailResponse.builder().performanceId(performance.getId())
-            .title(performance.getTitle())
-            .description(performance.getDescription())
-            .category(performance.getCategory().name())
-            .startTime(performance.getStartTime())
-            .encodedFileName(performance.getFile().getEncodedFileName())
-            .endTime(performance.getEndTime())
-            .performanceStatus(performance.isPerformanceStatus())
-            .deletedFlag(performance.isDeletedFlag())
-            .placeName(performance.getPlace().getName())
-            .address(performance.getPlace().getAddress())
-            .totalSeats(performance.getPlace().getTotalSeats())
-            .seatGrades(seatGrades)
-            .urlPrefix(urlPrefix)
-            .build();
+        return new AdminPerformanceDetailResponse(
+                performance.getId(),
+                performance.getTitle(),
+                performance.getDescription(),
+                performance.getPlace().getName(),
+                performance.getFile().getEncodedFileName(),
+                performance.getPlace().getAddress(),
+                performance.getCategory().name(),
+                performance.getStartTime(),
+                performance.getEndTime(),
+                performance.isDeletedFlag(),
+                performance.isPerformanceStatus(),
+                performance.getPlace().getTotalSeats(),
+                seatGrades,
+                urlPrefix
+        );
     }
 
     public static PerformanceSeatGradeDto toSeatGradeDto(Grade grade) {
-        return PerformanceSeatGradeDto.builder().grade(grade.getGrade())
-            .defaultPrice(grade.getDefaultPrice()).seatCount(grade.getSeatCount()).build();
+        return new PerformanceSeatGradeDto(grade.getGrade(), grade.getDefaultPrice(),
+                grade.getSeatCount());
     }
 
     public static PerformanceResponseDto toPerformanceResponseDto(Performance performance,
@@ -103,33 +104,32 @@ public class PerformanceMapper {
 
     public static AdminPerformanceResponseDto toAdminPerformanceResponseDto(Performance performance,
         String urlPrefix) {
-        return AdminPerformanceResponseDto.builder()
-            .id(performance.getId())
-            .encodedFileName(performance.getFile().getEncodedFileName())
-            .title(performance.getTitle())
-            .description(performance.getDescription())
-            .category(performance.getCategory().name())
-            .place(performance.getPlace().getName())
-            .startTime(performance.getStartTime())
-            .endTime(performance.getEndTime())
-            .reservationStartTime(performance.getReservationStartTime())
-            .performanceStatus(performance.isPerformanceStatus())
-            .urlPrefix(urlPrefix)
-            .id(performance.getId())
-            .build();
+        return new AdminPerformanceResponseDto(
+            performance.getId(),
+            performance.getFile().getEncodedFileName(),
+            performance.getTitle(),
+            performance.getDescription(),
+            performance.getCategory().name(),
+            performance.getPlace().getName(),
+            performance.getStartTime(),
+            performance.getEndTime(),
+            performance.getReservationStartTime(),
+            performance.isPerformanceStatus(),
+            urlPrefix
+        );
     }
 
     public static LikedPerformanceDto toLikedPerformanceDto(Performance performance,
         String prefix) {
-        return LikedPerformanceDto.builder()
-            .id(performance.getId())
-            .title(performance.getTitle())
-            .encodedFileName(performance.getFile().getEncodedFileName())
-            .startTime(performance.getStartTime())
-            .endTime(performance.getEndTime())
-            .placeName(performance.getPlace().getName())
-            .urlPrefix(prefix)
-            .build();
+        return new LikedPerformanceDto(
+            performance.getId(),
+            performance.getTitle(),
+            performance.getFile().getEncodedFileName(),
+            performance.getStartTime(),
+            performance.getEndTime(),
+            performance.getPlace().getName(),
+            prefix
+        );
     }
 
     public static Page<AdminPerformanceResponseDto> toPageAdminPerformanceResponseDto(
