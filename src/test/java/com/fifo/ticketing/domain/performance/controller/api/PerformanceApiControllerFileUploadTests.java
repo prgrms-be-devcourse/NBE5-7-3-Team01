@@ -4,7 +4,7 @@ import com.fifo.ticketing.domain.performance.entity.Grade;
 import com.fifo.ticketing.domain.performance.entity.Performance;
 import com.fifo.ticketing.domain.performance.entity.Place;
 import com.fifo.ticketing.domain.performance.repository.GradeRepository;
-import com.fifo.ticketing.domain.performance.repository.PerformanceRepository;
+import com.fifo.ticketing.domain.performance.repository.PerformanceAdminRepository;
 import com.fifo.ticketing.domain.performance.repository.PlaceRepository;
 import com.fifo.ticketing.domain.seat.repository.SeatRepository;
 import com.fifo.ticketing.global.entity.File;
@@ -48,7 +48,7 @@ public class PerformanceApiControllerFileUploadTests {
     @Autowired
     private GradeRepository gradeRepository;
     @Autowired
-    private PerformanceRepository performanceRepository;
+    private PerformanceAdminRepository performanceAdminRepository;
     @Autowired
     private FileRepository fileRepository;
     @Autowired
@@ -65,31 +65,15 @@ public class PerformanceApiControllerFileUploadTests {
 
     @BeforeEach
     void setUp() throws IOException {
-        performanceRepository.deleteAll();
+        performanceAdminRepository.deleteAll();
         seatRepository.deleteAll();
         fileRepository.deleteAll();
 
-        Place place = Place.builder()
-                .address("서울특별시 서초구 서초동 1307")
-                .name("강남아트홀")
-                .totalSeats(50)
-                .build();
+        Place place = new Place(null, "서울특별시 서초구 서초동 1307", "강남아트홀", 50);
         savedPlace = placeRepository.save(place);
 
-        Grade gradeS = Grade.builder()
-                .place(savedPlace)
-                .grade("S")
-                .defaultPrice(120000)
-                .seatCount(20)
-                .build();
-
-        Grade gradeA = Grade.builder()
-                .place(savedPlace)
-                .grade("A")
-                .defaultPrice(90000)
-                .seatCount(30)
-                .build();
-
+        Grade gradeS = new Grade(null, place, "S", 120000, 20);
+        Grade gradeA = new Grade(null, place, "A", 90000, 30);
         gradeRepository.saveAll(List.of(gradeS, gradeA));
 
         Path uploadPath = Paths.get(uploadDir);
