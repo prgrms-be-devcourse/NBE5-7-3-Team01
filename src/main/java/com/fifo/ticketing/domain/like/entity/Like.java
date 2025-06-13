@@ -47,4 +47,12 @@ public class Like extends BaseDateEntity {
     public boolean getIsLiked() {
         return isLiked;
     }
+
+    public User getUser() {
+        return user;
+    }
+
+    public Performance getPerformance() {
+        return performance;
+    }
 }
