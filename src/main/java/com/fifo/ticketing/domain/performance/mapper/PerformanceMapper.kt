@@ -80,12 +80,7 @@ object PerformanceMapper {
     fun toPagePerformanceResponseDto(
         performances: Page<Performance>, urlPrefix: String
     ): Page<PerformanceResponseDto> {
-        return performances.map { performance: Performance ->
-            toPerformanceResponseDto(
-                performance,
-                urlPrefix
-            )
-        }
+        return performances.map { toPerformanceResponseDto(it, urlPrefix) }
     }
 
     @JvmStatic
@@ -108,11 +103,6 @@ object PerformanceMapper {
     fun toPageLikedPerformanceDto(
         performances: Page<Performance>, urlPrefix: String
     ): Page<LikedPerformanceDto> {
-        return performances.map { performance: Performance ->
-            toLikedPerformanceDto(
-                performance,
-                urlPrefix
-            )
-        }
+        return performances.map { toLikedPerformanceDto(it, urlPrefix) }
     }
 }
