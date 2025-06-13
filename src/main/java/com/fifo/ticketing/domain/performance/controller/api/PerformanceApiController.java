@@ -5,6 +5,7 @@ import com.fifo.ticketing.domain.performance.entity.Performance;
 import com.fifo.ticketing.domain.performance.service.AdminPerformanceService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +26,7 @@ public class PerformanceApiController {
     @Operation(summary = "공연 등록", description = "이미지 파일(file)과 공연 정보(request)를 이용하여 공연을 신규 등록합니다.")
     public ResponseEntity<?> createPerformance(
             @RequestPart("file") MultipartFile file,
-            @RequestPart("request") PerformanceRequestDto request) throws IOException {
+            @RequestPart("request") @Valid PerformanceRequestDto request) throws IOException {
         Performance performance = adminPerformanceService.createPerformance(request, file);
         return ResponseEntity.ok("공연이 등록되었습니다.");
     }

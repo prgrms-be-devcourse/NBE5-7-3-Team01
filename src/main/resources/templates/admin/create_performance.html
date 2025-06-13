@@ -59,9 +59,9 @@
     </div>
 
     <div>
-      <label for="placeId" class="block font-semibold mb-1">장소 ID</label>
+      <label for="placeId" class="block font-semibold mb-1">공연장</label>
       <select id="placeId" name="placeId" required class="w-full border rounded px-3 py-2">
-        <option value="" disabled selected>장소를 선택해주세요.</option>
+        <option value="" disabled selected>공연장을 선택해주세요.</option>
         <th:block th:each="place : ${places}">
           <option th:value="${place.id}" th:text="${place.name}"></option>
         </th:block>
