@@ -6,7 +6,6 @@ import static org.mockito.Mockito.*;
 import com.fifo.ticketing.domain.book.entity.BookStatus;
 import com.fifo.ticketing.domain.book.repository.BookRepository;
 import com.fifo.ticketing.domain.like.entity.Like;
-import com.fifo.ticketing.domain.like.mapper.LikeMailMapper;
 import com.fifo.ticketing.domain.like.repository.LikeRepository;
 import com.fifo.ticketing.domain.performance.entity.Category;
 import com.fifo.ticketing.domain.performance.entity.Performance;
@@ -15,7 +14,7 @@ import com.fifo.ticketing.domain.performance.repository.PerformanceRepository;
 import com.fifo.ticketing.domain.seat.repository.SeatRepository;
 import com.fifo.ticketing.domain.user.entity.User;
 import com.fifo.ticketing.global.entity.File;
-import com.fifo.ticketing.global.event.NoPayMailEvent;
+import com.fifo.ticketing.global.event.MailEvent;
 import com.fifo.ticketing.global.event.ReservationEvent;
 
 import java.time.LocalDateTime;
@@ -113,7 +112,7 @@ class LikeMailNotificationServiceTest {
         likeMailNotificationService.sendNoPayedNotification();
 
         // then
-        verify(eventPublisher).publishEvent(any(NoPayMailEvent.class));
+        verify(eventPublisher).publishEvent(any(MailEvent.class));
     }
 
     @Test
@@ -128,6 +127,6 @@ class LikeMailNotificationServiceTest {
         likeMailNotificationService.sendNoPayedNotification();
 
         // then
-        verify(eventPublisher, never()).publishEvent(any(NoPayMailEvent.class));
+        verify(eventPublisher, never()).publishEvent(any(MailEvent.class));
     }
 }

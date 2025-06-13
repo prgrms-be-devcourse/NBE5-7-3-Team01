@@ -1,32 +1,32 @@
-package com.fifo.ticketing.global.scheduler;
+package com.fifo.ticketing.global.scheduler
 
+import com.fifo.ticketing.domain.like.service.LikeMailNotificationService
+import com.fifo.ticketing.domain.performance.service.PerformanceReservationOpenService
+import lombok.RequiredArgsConstructor
+import org.springframework.scheduling.annotation.Scheduled
+import org.springframework.stereotype.Component
 
-import com.fifo.ticketing.domain.like.service.LikeMailNotificationService;
-import com.fifo.ticketing.domain.performance.service.PerformanceReservationOpenService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
 
 @Component
-@RequiredArgsConstructor
-public class NotificationScheduler {
 
-    private final LikeMailNotificationService likeMailNotificationService;
-    private final PerformanceReservationOpenService performanceReservationOpenService;
+class NotificationScheduler(
+    private val likeMailNotificationService: LikeMailNotificationService,
+    private val performanceReservationOpenService: PerformanceReservationOpenService
+) {
 
     @Scheduled(cron = "0 30 12 * * *")
-    public void likeMailNotification() {
-        likeMailNotificationService.sendTimeNotification();
+    fun likeMailNotification() {
+        likeMailNotificationService.sendTimeNotification()
     }
 
 
     @Scheduled(cron = "0 0 2 * * *")
-    public void NoPayedNotification() {
-        likeMailNotificationService.sendNoPayedNotification();
+    fun noPayedNotification() {
+        likeMailNotificationService.sendNoPayedNotification()
     }
 
     @Scheduled(cron = "0 0 13 * * *")
-    public void updatePerformanceStatus() {
-        performanceReservationOpenService.updateStatusIfReservationStart();
+    fun updatePerformanceStatus() {
+        performanceReservationOpenService.updateStatusIfReservationStart()
     }
 }
