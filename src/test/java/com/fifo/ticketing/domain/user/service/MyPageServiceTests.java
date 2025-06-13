@@ -62,31 +62,31 @@ class MyPageServiceTests {
         place = new Place(3L, "서울특별시 서초구 서초동 1307", "공연장A", 500);
 
         performance1 = new Performance(
-                1L,
-                "테스트 공연",
-                "라따뚜이2",
-                place,
-                LocalDateTime.now().plusHours(1),
-                LocalDateTime.now().plusHours(3),
-                Category.MOVIE,
-                false,
-                false,
-                LocalDateTime.now().minusDays(1),
-                File.builder().id(10L).originalFileName("001.jpg").encodedFileName("poster1.jpg").build()
+            1L,
+            "테스트 공연",
+            "라따뚜이2",
+            place,
+            LocalDateTime.now().plusHours(1),
+            LocalDateTime.now().plusHours(3),
+            Category.MOVIE,
+            false,
+            false,
+            LocalDateTime.now().minusDays(1),
+            new File(10L, "001.jpg", "poster1.jpg")
         );
 
         performance2 = new Performance(
-                2L,
-                "테스트 공연",
-                "라따뚜이1",
-                place,
-                LocalDateTime.now().plusHours(4),
-                LocalDateTime.now().plusHours(6),
-                Category.MOVIE,
-                false,
-                false,
-                LocalDateTime.now().minusDays(1),
-                File.builder().id(11L).originalFileName("002.jpg").encodedFileName("poster2.jpg").build()
+            2L,
+            "테스트 공연",
+            "라따뚜이1",
+            place,
+            LocalDateTime.now().plusHours(4),
+            LocalDateTime.now().plusHours(6),
+            Category.MOVIE,
+            false,
+            false,
+            LocalDateTime.now().minusDays(1),
+            new File(11L, "002.jpg", "poster2.jpg")
         );
 
         performanceList = List.of(performance1, performance2);

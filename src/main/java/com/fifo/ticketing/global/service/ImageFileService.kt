@@ -1,116 +1,117 @@
-package com.fifo.ticketing.global.service;
+package com.fifo.ticketing.global.service
 
-import com.fifo.ticketing.global.entity.File;
-import com.fifo.ticketing.global.exception.ErrorCode;
-import com.fifo.ticketing.global.exception.ErrorException;
-import com.fifo.ticketing.global.repository.FileRepository;
-import com.fifo.ticketing.global.util.ImageTypeChecker;
-import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.UUID;
+import com.fifo.ticketing.global.entity.File
+import com.fifo.ticketing.global.exception.ErrorCode
+import com.fifo.ticketing.global.exception.ErrorException
+import com.fifo.ticketing.global.repository.FileRepository
+import com.fifo.ticketing.global.util.ImageTypeChecker.isImage
+import com.fifo.ticketing.global.util.ImageTypeChecker.validImageExtension
+import jakarta.transaction.Transactional
+import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.stereotype.Service
+import org.springframework.web.multipart.MultipartFile
+import java.io.IOException
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
+import java.util.*
 
 @Service
-@RequiredArgsConstructor
-public class ImageFileService {
-
-    @Value("${file.upload-dir}")
-    private String uploadDir;
-
-    private final FileRepository fileRepository;
+class ImageFileService(
+    private val fileRepository: FileRepository
+) {
+    @Value("\${file.upload-dir}")
+    lateinit var uploadDir: String
+    private val log = LoggerFactory.getLogger(this::class.java)
 
     @Transactional
-    public File uploadFile(MultipartFile file) throws IOException {
-        validateImageType(file);
-        String originalFileName = file.getOriginalFilename();
-        String uuidFileName = generateUuidFileName(originalFileName);
-        Path savePath = Paths.get(uploadDir, uuidFileName);
+    @Throws(IOException::class)
+    fun uploadFile(file: MultipartFile): File {
+        validateImageType(file)
+        val originalFileName =
+            file.originalFilename ?: throw ErrorException(ErrorCode.FILE_UPLOAD_FAILED)
+        val uuidFileName = generateUuidFileName(originalFileName)
+        val savePath = Paths.get(uploadDir, uuidFileName)
+
         try {
-            file.transferTo(savePath.toFile());
-            File generatedFile = File.builder()
-                    .encodedFileName(uuidFileName)
-                    .originalFileName(originalFileName)
-                    .build();
-            return fileRepository.save(generatedFile);
-        } catch (Exception e) {
-            handleFileUploadFailure(savePath);
-            throw new ErrorException(ErrorCode.FILE_UPLOAD_FAILED);
+            Files.createDirectories(savePath.parent)
+            file.transferTo(savePath.toFile())
+            val generatedFile = File(
+                encodedFileName = uuidFileName,
+                originalFileName = originalFileName
+            )
+            log.info(generatedFile.toString())
+            return fileRepository.save(generatedFile)
+        } catch (e: Exception) {
+            handleFileUploadFailure(savePath)
+            throw ErrorException(ErrorCode.FILE_UPLOAD_FAILED)
         }
     }
 
     @Transactional
-    public void deleteFile(String encodedFileName) {
-        if (encodedFileName != null && !encodedFileName.isEmpty()) {
-            Path filePathToDelete = Paths.get(uploadDir, encodedFileName);
+    fun deleteFile(encodedFileName: String?) {
+        if (!encodedFileName.isNullOrEmpty()) {
+            val filePathToDelete = Paths.get(uploadDir, encodedFileName)
             try {
                 if (Files.exists(filePathToDelete)) {
-                    Files.delete(filePathToDelete);
+                    Files.delete(filePathToDelete)
                 }
-            } catch (IOException e) {
-                throw new ErrorException(ErrorCode.FILE_DELETE_FAILED);
+            } catch (e: IOException) {
+                throw ErrorException(ErrorCode.FILE_DELETE_FAILED)
             }
         }
     }
 
     @Transactional
-    public void updateFile(File existFile, MultipartFile file) throws IOException {
-        validateImageType(file);
-        String originalFileName = file.getOriginalFilename();
-        String extension = getExtension(originalFileName);
-        String uuidFileName = UUID.randomUUID() + "." + extension;
-        Path savePath = Paths.get(uploadDir, uuidFileName);
-        String oldEncodedFileName = null;
+    @Throws(IOException::class)
+    fun updateFile(existFile: File?, file: MultipartFile) {
+        validateImageType(file)
+        val originalFileName =
+            file.originalFilename ?: throw ErrorException(ErrorCode.FILE_UPDATE_FAILED)
+        val extension = getExtension(originalFileName)
+        val uuidFileName = "${UUID.randomUUID()}.$extension"
+        val savePath = Paths.get(uploadDir, uuidFileName)
+        val oldEncodedFileName = existFile?.encodedFileName
+
         try {
-            if (existFile != null && existFile.getEncodedFileName() != null) {
-                oldEncodedFileName = existFile.getEncodedFileName();
-            }
-            file.transferTo(savePath.toFile());
-            if (oldEncodedFileName != null) {
-                deleteFile(oldEncodedFileName);
-            }
+            file.transferTo(savePath.toFile())
+            oldEncodedFileName?.let { deleteFile(it) }
+
             if (existFile != null) {
-                existFile.update(uuidFileName, originalFileName);
+                existFile.update(uuidFileName, originalFileName)
             } else {
-                File newFile = File.builder()
-                        .encodedFileName(uuidFileName)
-                        .originalFileName(originalFileName)
-                        .build();
-                fileRepository.save(newFile);
+                val newFile = File(
+                    encodedFileName = uuidFileName,
+                    originalFileName = originalFileName,
+                )
+                fileRepository.save(newFile)
             }
-        } catch (Exception e) {
-            handleFileUploadFailure(savePath);
-            throw new ErrorException(ErrorCode.FILE_UPDATE_FAILED);
+        } catch (e: Exception) {
+            handleFileUploadFailure(savePath)
+            throw ErrorException(ErrorCode.FILE_UPDATE_FAILED)
         }
     }
 
-    public String generateUuidFileName(String originalFileName) {
-        String extension = getExtension(originalFileName);
-        return UUID.randomUUID() + "." + extension;
+    fun generateUuidFileName(originalFileName: String): String {
+        val extension = getExtension(originalFileName)
+        return "${UUID.randomUUID()}.$extension"
     }
 
-    private void handleFileUploadFailure(Path savePath) {
-        java.io.File targetFile = savePath.toFile();
+    private fun handleFileUploadFailure(savePath: Path) {
+        val targetFile = savePath.toFile()
         if (targetFile.exists()) {
-            targetFile.delete();
+            targetFile.delete()
         }
     }
 
-    private static String getExtension(String originalFileName) {
-        return originalFileName != null && originalFileName.contains(".")
-                ? originalFileName.substring(originalFileName.lastIndexOf(".") + 1)
-                : "";
+    private fun getExtension(originalFileName: String?): String {
+        return originalFileName?.substringAfterLast('.', "") ?: ""
     }
 
-    private void validateImageType(MultipartFile file) {
-        if (!ImageTypeChecker.isImage(file.getContentType()) || !ImageTypeChecker.validImageExtension(file)) {
-            throw new ErrorException(ErrorCode.INVALID_IMAGE_TYPE);
+    private fun validateImageType(file: MultipartFile) {
+        if (!isImage(file.contentType) || !validImageExtension(file)) {
+            throw ErrorException(ErrorCode.INVALID_IMAGE_TYPE)
         }
     }
 }

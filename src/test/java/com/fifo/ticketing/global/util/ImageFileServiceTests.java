@@ -36,7 +36,6 @@ class ImageFileServiceTests {
     @InjectMocks
     private ImageFileService imageFileService;
 
-
     @BeforeEach
     void setUp() {
         ReflectionTestUtils.setField(imageFileService, "uploadDir", "/test/uploads");

@@ -1,44 +1,21 @@
-package com.fifo.ticketing.global.entity;
+package com.fifo.ticketing.global.entity
 
-import com.fifo.ticketing.domain.performance.entity.Performance;
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
+import jakarta.persistence.*
 
 @Entity
-@Getter
-@Builder
 @Table(name = "files")
-@NoArgsConstructor
-@AllArgsConstructor
-public class File extends BaseDateEntity {
-
+class File @JvmOverloads constructor(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    val id: Long? = null,
 
-    private String encodedFileName;
+    var encodedFileName: String,
 
-    private String originalFileName;
+    var originalFileName: String
+) : BaseDateEntity() {
 
-    public void update(String encodedFileName, String originalFileName) {
-        this.encodedFileName = encodedFileName;
-        this.originalFileName = originalFileName;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getEncodedFileName() {
-        return encodedFileName;
-    }
-
-    public String getOriginalFileName() {
-        return originalFileName;
+    fun update(encodedFileName: String, originalFileName: String) {
+        this.encodedFileName = encodedFileName
+        this.originalFileName = originalFileName
     }
 }

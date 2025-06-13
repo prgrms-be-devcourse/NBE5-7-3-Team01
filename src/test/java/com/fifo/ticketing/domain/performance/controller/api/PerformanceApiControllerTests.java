@@ -1,5 +1,12 @@
 package com.fifo.ticketing.domain.performance.controller.api;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.fifo.ticketing.domain.like.entity.LikeCount;
 import com.fifo.ticketing.domain.like.repository.LikeCountRepository;
 import com.fifo.ticketing.domain.performance.entity.Category;
@@ -13,7 +20,11 @@ import com.fifo.ticketing.domain.seat.repository.SeatRepository;
 import com.fifo.ticketing.global.entity.File;
 import com.fifo.ticketing.global.service.ImageFileService;
 import jakarta.persistence.EntityManager;
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -30,22 +41,11 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.web.multipart.MultipartFile;
 
-import static com.fifo.ticketing.domain.performance.entity.Category.MOVIE;
-import static org.mockito.Mockito.*;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("ci")
 class PerformanceApiControllerTests {
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -81,14 +81,11 @@ class PerformanceApiControllerTests {
         Grade gradeS = new Grade(null, place, "S", 120000, 20);
         Grade gradeA = new Grade(null, place, "A", 90000, 30);
 
-        mockFile = File.builder()
-                .id(null)
-                .encodedFileName("poster.jpg")
-                .originalFileName("sample.jpg")
-                .build();
+        mockFile = new File("poster.jpg", "sample.jpg");
 
         gradeRepository.saveAll(List.of(gradeS, gradeA));
-        when(imageFileService.uploadFile(any(MultipartFile.class))).thenReturn(File.builder().encodedFileName("test.webp").originalFileName("test.webp").build());
+        when(imageFileService.uploadFile(any(MultipartFile.class))).thenReturn(
+            new File("test.webp", "test.webp"));
     }
 
     @DisplayName("@BeforeEach로 저장된 Place가 제대로 존재하는지 확인")
@@ -152,13 +149,15 @@ class PerformanceApiControllerTests {
             .andExpect(status().isOk())
             .andExpect(content().string("공연이 등록되었습니다."));
 
-        Performance savedPerformance = entityManager.createQuery("SELECT p FROM Performance p WHERE p.title = :title", Performance.class)
+        Performance savedPerformance = entityManager.createQuery(
+                "SELECT p FROM Performance p WHERE p.title = :title", Performance.class)
             .setParameter("title", "라따뚜이")
             .setMaxResults(1)
             .getSingleResult();
         assertThat(savedPerformance).isNotNull();
 
-        List<LikeCount> foundLikeCounts = entityManager.createQuery("SELECT lc FROM LikeCount lc WHERE lc.performance = :performance", LikeCount.class)
+        List<LikeCount> foundLikeCounts = entityManager.createQuery(
+                "SELECT lc FROM LikeCount lc WHERE lc.performance = :performance", LikeCount.class)
             .setParameter("performance", savedPerformance)
             .getResultList();
         assertThat(foundLikeCounts).isNotEmpty();
@@ -174,17 +173,17 @@ class PerformanceApiControllerTests {
         performanceRepository.deleteAll();
 
         String requestJson = """
-        {
-            "title": "라따뚜이",
-            "description": "픽사의 명작 애니메이션",
-            "category": "MOVIE",
-            "performanceStatus": true,
-            "startTime": "2025-06-01T19:00:00",
-            "endTime": "2025-06-01T21:00:00",
-            "reservationStartTime": "2025-05-12T19:00:00",
-            "placeId": %d
-        }
-        """.formatted(savedPlace.getId());
+            {
+                "title": "라따뚜이",
+                "description": "픽사의 명작 애니메이션",
+                "category": "MOVIE",
+                "performanceStatus": true,
+                "startTime": "2025-06-01T19:00:00",
+                "endTime": "2025-06-01T21:00:00",
+                "reservationStartTime": "2025-05-12T19:00:00",
+                "placeId": %d
+            }
+            """.formatted(savedPlace.getId());
 
         ClassPathResource resource = new ClassPathResource("uploads/default.webp");
         InputStream inputStream = resource.getInputStream();
@@ -204,7 +203,7 @@ class PerformanceApiControllerTests {
         );
 
         // ImageFileService Mocking (파일 업로드 성공 가정)
-        File uploadedFile = File.builder().encodedFileName("encoded").originalFileName("default.webp").build();
+        File uploadedFile = new File("encoded", "default.webp");
         when(imageFileService.uploadFile(any(MultipartFile.class))).thenReturn(uploadedFile);
 
         // When & Then
@@ -216,7 +215,9 @@ class PerformanceApiControllerTests {
             .andExpect(content().string("공연이 등록되었습니다."));
 
         // 추가적인 검증: 저장된 Performance에 File이 연결되었는지 확인
-        Performance savedPerformance = entityManager.createQuery("SELECT p FROM Performance p JOIN FETCH p.file WHERE p.title = :title", Performance.class)
+        Performance savedPerformance = entityManager.createQuery(
+                "SELECT p FROM Performance p JOIN FETCH p.file WHERE p.title = :title",
+                Performance.class)
             .setParameter("title", "라따뚜이")
             .setMaxResults(1) // 결과 수를 1로 제한
             .getSingleResult(); // 단일 결과를 가져옴
@@ -224,7 +225,8 @@ class PerformanceApiControllerTests {
         assertThat(savedPerformance.getFile()).isNotNull();
         assertThat(savedPerformance.getFile().getEncodedFileName()).isEqualTo("encoded");
 
-        List<LikeCount> foundLikeCounts = entityManager.createQuery("SELECT lc FROM LikeCount lc WHERE lc.performance = :performance", LikeCount.class)
+        List<LikeCount> foundLikeCounts = entityManager.createQuery(
+                "SELECT lc FROM LikeCount lc WHERE lc.performance = :performance", LikeCount.class)
             .setParameter("performance", savedPerformance)
             .getResultList();
         assertThat(foundLikeCounts).isNotEmpty();
@@ -236,14 +238,14 @@ class PerformanceApiControllerTests {
     void test_performance_delete_success_likeCount_remains() throws Exception {
         // Given: 공연 생성 및 저장
         Performance performance = new Performance(
-                null, "공연 삭제 테스트", "테스트용 공연 설명", savedPlace,
-                LocalDateTime.of(2025, 6, 1, 19, 0),
-                LocalDateTime.of(2025, 6, 1, 21, 0),
-                Category.MOVIE,
-                true,
-                false,
-                LocalDateTime.of(2025, 5, 12, 19, 0),
-                mockFile
+            null, "공연 삭제 테스트", "테스트용 공연 설명", savedPlace,
+            LocalDateTime.of(2025, 6, 1, 19, 0),
+            LocalDateTime.of(2025, 6, 1, 21, 0),
+            Category.MOVIE,
+            true,
+            false,
+            LocalDateTime.of(2025, 5, 12, 19, 0),
+            mockFile
         );
         performance = performanceRepository.save(performance);
 

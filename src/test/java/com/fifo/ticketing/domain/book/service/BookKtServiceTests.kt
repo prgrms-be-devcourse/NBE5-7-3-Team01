@@ -40,7 +40,15 @@ class BookKtServiceTests {
     val seatService = mockk<SeatService>()
 
 
-    val bookKtService = BookKtService(urlPrefix, bookRepository, bookSeatRepository, bookScheduleManager, userRepository, performanceRepository, seatService)
+    val bookKtService = BookKtService(
+        urlPrefix,
+        bookRepository,
+        bookSeatRepository,
+        bookScheduleManager,
+        userRepository,
+        performanceRepository,
+        seatService
+    )
 
 
     private lateinit var mockUser: User
@@ -67,11 +75,7 @@ class BookKtServiceTests {
 
         place = Place(1L, "서울특별시 서초구 서초동 1307", "강남아트홀", 100)
 
-        mockFile = File.builder()
-            .id(1L)
-            .encodedFileName("poster.jpg")
-            .originalFileName("sample.jpg")
-            .build()
+        mockFile = File(1L, "poster.jpg", "sample.jpg")
 
         mockPerformance = Performance(
             1L, "라따뚜이", "라따뚜이는 픽시의 영화입니다.", place,
@@ -93,7 +97,7 @@ class BookKtServiceTests {
             .bookStatus(BookStatus.CONFIRMED)
             .build()
 
-        mockGrade = Grade (1L, place,"A", 5000, 10)
+        mockGrade = Grade(1L, place, "A", 5000, 10)
 
         mockSeat = Seat(1L, mockPerformance, "A1", 5000, mockGrade, SeatStatus.BOOKED)
 
