@@ -9,10 +9,10 @@ object LikeMailMapper {
     @JvmStatic
     fun toReservationStartMailDto(user: User, performance: Performance): ReservationStartMailDto {
         return ReservationStartMailDto(
-            email= user.getEmail(),
+            email = user.getEmail(),
             username = user.getUsername(),
             performanceTitle = performance.title,
-            reservationStartTime =performance.reservationStartTime,
+            reservationStartTime = performance.reservationStartTime,
         )
     }
 
@@ -25,5 +25,4 @@ object LikeMailMapper {
             availableSeats = availableSeats,
         )
     }
-
 }
