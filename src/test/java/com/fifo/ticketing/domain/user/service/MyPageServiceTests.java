@@ -65,8 +65,7 @@ class MyPageServiceTests {
             false,
             false,
             LocalDateTime.now().minusDays(1),
-            File.builder().id(10L).originalFileName("001.jpg").encodedFileName("poster1.jpg")
-                .build()
+            new File(10L, "001.jpg", "poster1.jpg")
         );
 
         performance2 = new Performance(
@@ -80,8 +79,7 @@ class MyPageServiceTests {
             false,
             false,
             LocalDateTime.now().minusDays(1),
-            File.builder().id(11L).originalFileName("002.jpg").encodedFileName("poster2.jpg")
-                .build()
+            new File(11L, "002.jpg", "poster2.jpg")
         );
 
         performanceList = List.of(performance1, performance2);
