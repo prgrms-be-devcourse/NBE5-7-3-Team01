@@ -42,7 +42,7 @@ open class ImageFileServiceTests {
     )
     open fun test_upload_file_success() {
         // Given
-        Mockito.`when`(mockFile!!.contentType).thenReturn("image/png")
+        Mockito.`when`(mockFile.contentType).thenReturn("image/png")
         Mockito.`when`(mockFile.originalFilename).thenReturn("test.png")
         Mockito.doNothing().`when`(mockFile).transferTo(
             ArgumentMatchers.any(JavaFile::class.java)
