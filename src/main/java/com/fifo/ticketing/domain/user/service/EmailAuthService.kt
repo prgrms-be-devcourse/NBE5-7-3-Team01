@@ -1,5 +1,6 @@
 package com.fifo.ticketing.domain.user.service
 
+import jakarta.mail.MessagingException
 import jakarta.mail.internet.MimeMessage
 import jakarta.servlet.http.HttpSession
 import org.springframework.beans.factory.annotation.Value
@@ -18,6 +19,7 @@ class EmailAuthService(
     private val setForm: String
 ) {
 
+    @Throws(MessagingException::class)
     fun sendEmail(toEmail: String) {
         val authCode = createCode()
         val setKey = "EAC:$toEmail"
@@ -35,6 +37,7 @@ class EmailAuthService(
         }
     }
 
+    @Throws(MessagingException::class)
     fun createEmailForm(email: String, authCode: String): MimeMessage {
         val title = "Ticketing 회원가입 인증 번호"
         val message = emailSender.createMimeMessage()
