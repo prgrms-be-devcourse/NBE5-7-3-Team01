@@ -29,7 +29,6 @@ class MyPageService(
         if (likedPerformances.isEmpty) {
             return Page.empty()
         }
-
         return PerformanceMapper.toPageLikedPerformanceDto(likedPerformances, urlPrefix)
     }
 }
