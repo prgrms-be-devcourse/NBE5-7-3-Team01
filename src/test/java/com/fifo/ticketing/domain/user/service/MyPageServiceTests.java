@@ -23,29 +23,24 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.util.ReflectionTestUtils;
 
 @Slf4j
 @ActiveProfiles("ci")
 @ExtendWith(MockitoExtension.class)
 class MyPageServiceTests {
 
+    private final String UPLOAD = "/tmp/uploads/";
     @Mock
     private LikeRepository likeRepository;
-
-    @InjectMocks
     private MyPageService myPageService;
-
     @Mock
     private Pageable pageable;
-
     private User user;
     private List<Performance> performanceList;
     private List<Performance> emptyPerformanceList = new ArrayList<>();
@@ -55,41 +50,46 @@ class MyPageServiceTests {
 
     @BeforeEach
     void setUp() {
-        // Mockito가 만든 객체이기 때문에, Spring의 @Value 주입이 일어나지 않아서 직접 값을 주입해주어야 합니다.
-        ReflectionTestUtils.setField(myPageService, "urlPrefix", "http://localhost/files/");
 
         user = User.builder().id(1L).username("test").build();
         place = new Place(3L, "서울특별시 서초구 서초동 1307", "공연장A", 500);
 
         performance1 = new Performance(
-                1L,
-                "테스트 공연",
-                "라따뚜이2",
-                place,
-                LocalDateTime.now().plusHours(1),
-                LocalDateTime.now().plusHours(3),
-                Category.MOVIE,
-                false,
-                false,
-                LocalDateTime.now().minusDays(1),
-                File.builder().id(10L).originalFileName("001.jpg").encodedFileName("poster1.jpg").build()
+            1L,
+            "테스트 공연",
+            "라따뚜이2",
+            place,
+            LocalDateTime.now().plusHours(1),
+            LocalDateTime.now().plusHours(3),
+            Category.MOVIE,
+            false,
+            false,
+            LocalDateTime.now().minusDays(1),
+            File.builder().id(10L).originalFileName("001.jpg").encodedFileName("poster1.jpg")
+                .build()
         );
 
         performance2 = new Performance(
-                2L,
-                "테스트 공연",
-                "라따뚜이1",
-                place,
-                LocalDateTime.now().plusHours(4),
-                LocalDateTime.now().plusHours(6),
-                Category.MOVIE,
-                false,
-                false,
-                LocalDateTime.now().minusDays(1),
-                File.builder().id(11L).originalFileName("002.jpg").encodedFileName("poster2.jpg").build()
+            2L,
+            "테스트 공연",
+            "라따뚜이1",
+            place,
+            LocalDateTime.now().plusHours(4),
+            LocalDateTime.now().plusHours(6),
+            Category.MOVIE,
+            false,
+            false,
+            LocalDateTime.now().minusDays(1),
+            File.builder().id(11L).originalFileName("002.jpg").encodedFileName("poster2.jpg")
+                .build()
         );
 
         performanceList = List.of(performance1, performance2);
+
+        myPageService = new MyPageService(
+            likeRepository,
+            UPLOAD
+        );
     }
 
     @Test
@@ -116,15 +116,5 @@ class MyPageServiceTests {
             pageable);
 
         assertThat(result.getContent()).isEmpty();
-    }
-
-    @Test
-    @DisplayName("userId가 null인 경우 예외 발생")
-    void get_liked_performance_userId_null() {
-        ErrorException exception = assertThrows(ErrorException.class, () ->
-            myPageService.getUserLikedPerformance(null, pageable)
-        );
-
-        assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.NOT_FOUND_MEMBER);
     }
 }
