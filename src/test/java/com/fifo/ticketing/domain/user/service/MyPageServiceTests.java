@@ -37,7 +37,6 @@ class MyPageServiceTests {
     @Mock
     private LikeRepository likeRepository;
 
-    @InjectMocks
     private MyPageService myPageService;
 
     @Mock
@@ -49,6 +48,7 @@ class MyPageServiceTests {
     private Performance performance1;
     private Performance performance2;
     private Place place;
+    private final String UPLOAD = "/tmp/uploads/";
 
     @BeforeEach
     void setUp() {
@@ -59,6 +59,11 @@ class MyPageServiceTests {
         performance1 = Performance.builder().id(1L).place(place).file(file).build();
         performance2 = Performance.builder().id(2L).place(place).file(file).build();
         performanceList = List.of(performance1, performance2);
+
+        myPageService = new MyPageService(
+            likeRepository,
+            UPLOAD
+        );
     }
 
     @Test

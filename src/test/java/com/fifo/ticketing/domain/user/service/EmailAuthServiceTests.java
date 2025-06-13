@@ -23,7 +23,7 @@ import org.thymeleaf.spring6.SpringTemplateEngine;
 
 class EmailAuthServiceTests {
 
-    @InjectMocks
+//    @InjectMocks
     private EmailAuthService emailAuthService;
 
     @Mock
@@ -41,13 +41,22 @@ class EmailAuthServiceTests {
     @Mock
     private HttpSession session;
 
+    private final String TEST_EMAIL_FORM =  "test@example.com";
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
 
+
         when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
         when(templateEngine.process(eq("mail"), any(Context.class))).thenReturn(
             "<html><body>Code: 123456</body></html>");
+        emailAuthService = new EmailAuthService(
+            redisService,
+            mailSender,
+            templateEngine,
+            TEST_EMAIL_FORM
+        );
     }
 
     @Test
