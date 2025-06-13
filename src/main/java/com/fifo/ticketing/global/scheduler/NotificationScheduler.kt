@@ -13,12 +13,10 @@ class NotificationScheduler(
     private val likeMailNotificationService: LikeMailNotificationService,
     private val performanceReservationOpenService: PerformanceReservationOpenService
 ) {
-
     @Scheduled(cron = "0 30 12 * * *")
     fun likeMailNotification() {
         likeMailNotificationService.sendTimeNotification()
     }
-
 
     @Scheduled(cron = "0 0 2 * * *")
     fun noPayedNotification() {

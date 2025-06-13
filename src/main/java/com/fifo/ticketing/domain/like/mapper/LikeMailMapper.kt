@@ -25,5 +25,4 @@ object LikeMailMapper {
             availableSeats = availableSeats,
         )
     }
-
 }

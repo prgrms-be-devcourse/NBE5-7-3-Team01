@@ -6,5 +6,4 @@ import com.fifo.ticketing.domain.user.entity.User
 
 object LikeMapper {
     fun create(user: User, performance: Performance) = Like(null, user, performance, true)
-
 }
