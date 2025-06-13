@@ -1,12 +1,10 @@
 package com.fifo.ticketing.domain.seat.service;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
 
-import com.fifo.ticketing.domain.book.entity.Book;
-import com.fifo.ticketing.domain.book.entity.BookSeat;
-import com.fifo.ticketing.domain.book.entity.BookStatus;
 import com.fifo.ticketing.domain.performance.entity.Category;
 import com.fifo.ticketing.domain.performance.entity.Grade;
 import com.fifo.ticketing.domain.performance.entity.Performance;
@@ -14,7 +12,6 @@ import com.fifo.ticketing.domain.performance.entity.Place;
 import com.fifo.ticketing.domain.seat.entity.Seat;
 import com.fifo.ticketing.domain.seat.entity.SeatStatus;
 import com.fifo.ticketing.domain.seat.repository.SeatRepository;
-import com.fifo.ticketing.domain.user.entity.User;
 import com.fifo.ticketing.global.entity.File;
 import com.fifo.ticketing.global.exception.AlertDetailException;
 import com.fifo.ticketing.global.exception.ErrorCode;
@@ -27,9 +24,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.util.ReflectionTestUtils;
 
 @ActiveProfiles("ci")
 @ExtendWith(MockitoExtension.class)
@@ -87,9 +82,12 @@ class SeatServiceTests {
 
         List<Long> seatIds = List.of(1L, 2L, 3L);
 
-        Seat mockSeat1 = new Seat(1L, mockPerformance, "A1", 5000, modckGrade, SeatStatus.AVAILABLE);
-        Seat mockSeat2 = new Seat(2L, mockPerformance, "A1", 5000, modckGrade, SeatStatus.AVAILABLE);
-        Seat mockSeat3 = new Seat(3L, mockPerformance, "A1", 5000, modckGrade, SeatStatus.AVAILABLE);
+        Seat mockSeat1 = new Seat(1L, mockPerformance, "A1", 5000, modckGrade,
+            SeatStatus.AVAILABLE);
+        Seat mockSeat2 = new Seat(2L, mockPerformance, "A1", 5000, modckGrade,
+            SeatStatus.AVAILABLE);
+        Seat mockSeat3 = new Seat(3L, mockPerformance, "A1", 5000, modckGrade,
+            SeatStatus.AVAILABLE);
 
         List<Seat> mockSeats = List.of(mockSeat1, mockSeat2, mockSeat3);
 
@@ -115,7 +113,8 @@ class SeatServiceTests {
 
         List<Long> seatIds = List.of(1L, 2L);
 
-        Seat mockSeat1 = new Seat(1L, mockPerformance, "A1", 5000, modckGrade, SeatStatus.AVAILABLE);
+        Seat mockSeat1 = new Seat(1L, mockPerformance, "A1", 5000, modckGrade,
+            SeatStatus.AVAILABLE);
         Seat mockSeat2 = new Seat(2L, mockPerformance, "A1", 5000, modckGrade, SeatStatus.BOOKED);
 
         List<Seat> mockSeats = List.of(mockSeat1, mockSeat2);

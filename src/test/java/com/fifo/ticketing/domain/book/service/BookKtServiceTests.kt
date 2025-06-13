@@ -40,7 +40,15 @@ class BookKtServiceTests {
     val seatService = mockk<SeatService>()
 
 
-    val bookKtService = BookKtService(urlPrefix, bookRepository, bookSeatRepository, bookScheduleManager, userRepository, performanceRepository, seatService)
+    val bookKtService = BookKtService(
+        urlPrefix,
+        bookRepository,
+        bookSeatRepository,
+        bookScheduleManager,
+        userRepository,
+        performanceRepository,
+        seatService
+    )
 
 
     private lateinit var mockUser: User
@@ -143,7 +151,12 @@ class BookKtServiceTests {
 
         every { bookRepository.findByUserIdAndId(unavailableUserId, actualBookId) } returns null
 
-        val error = assertThrows<ErrorException> { bookKtService.getBookDetail(unavailableUserId, actualBookId) }
+        val error = assertThrows<ErrorException> {
+            bookKtService.getBookDetail(
+                unavailableUserId,
+                actualBookId
+            )
+        }
 
         error.errorCode shouldBe ErrorCode.NOT_FOUND_BOOK
 

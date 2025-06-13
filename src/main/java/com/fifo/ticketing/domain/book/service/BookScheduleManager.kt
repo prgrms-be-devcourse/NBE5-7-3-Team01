@@ -42,7 +42,7 @@ class BookScheduleManager(
         // 레포지토리에 작업이 저장되면 실행됨
         coroutineScope.launch {
             // 10분동안 대기했다가
-            delay(60000)
+            delay(600000)
             // 취소 로직 실행
             cancelIfUnpaid(bookId)
         }
