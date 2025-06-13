@@ -34,7 +34,6 @@ class ImageFileService(
         val savePath = Paths.get(uploadDir, uuidFileName)
 
         try {
-            Files.createDirectories(savePath.parent)
             file.transferTo(savePath.toFile())
             val generatedFile = File(
                 encodedFileName = uuidFileName,
