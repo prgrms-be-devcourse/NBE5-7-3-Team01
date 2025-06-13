@@ -4,13 +4,12 @@ import com.fifo.ticketing.domain.performance.entity.Performance;
 import com.fifo.ticketing.domain.user.entity.User;
 import com.fifo.ticketing.global.entity.BaseDateEntity;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Entity
 @Getter
+@Entity
 @Builder
 @Table(name = "likes")
 @NoArgsConstructor
@@ -47,4 +46,13 @@ public class Like extends BaseDateEntity {
     public boolean getIsLiked() {
         return isLiked;
     }
+
+    public User getUser() {
+        return user;
+    }
+
+    public Performance getPerformance() {
+        return performance;
+    }
+
 }
