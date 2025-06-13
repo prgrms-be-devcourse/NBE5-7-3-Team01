@@ -8,12 +8,14 @@ import static org.mockito.Mockito.when;
 
 import com.fifo.ticketing.domain.like.repository.LikeRepository;
 import com.fifo.ticketing.domain.performance.dto.LikedPerformanceDto;
+import com.fifo.ticketing.domain.performance.entity.Category;
 import com.fifo.ticketing.domain.performance.entity.Performance;
 import com.fifo.ticketing.domain.performance.entity.Place;
 import com.fifo.ticketing.domain.user.entity.User;
 import com.fifo.ticketing.global.entity.File;
 import com.fifo.ticketing.global.exception.ErrorCode;
 import com.fifo.ticketing.global.exception.ErrorException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +29,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.util.ReflectionTestUtils;
 
 @Slf4j
 @ActiveProfiles("ci")
@@ -48,12 +51,40 @@ class MyPageServiceTests {
 
     @BeforeEach
     void setUp() {
+        // Mockito가 만든 객체이기 때문에, Spring의 @Value 주입이 일어나지 않아서 직접 값을 주입해주어야 합니다.
+        ReflectionTestUtils.setField(myPageService, "urlPrefix", "http://localhost/files/");
+
         user = User.builder().id(1L).username("test").build();
-        place = Place.builder().id(3L).name("공연장A").totalSeats(500).build();
-        File file = File.builder().encodedFileName("qwe001.png").originalFileName("001.png")
-            .build();
-        performance1 = Performance.builder().id(1L).place(place).file(file).build();
-        performance2 = Performance.builder().id(2L).place(place).file(file).build();
+        place = new Place(3L, "서울특별시 서초구 서초동 1307", "공연장A", 500);
+
+        performance1 = new Performance(
+                1L,
+                "테스트 공연",
+                "라따뚜이2",
+                place,
+                LocalDateTime.now().plusHours(1),
+                LocalDateTime.now().plusHours(3),
+                Category.MOVIE,
+                false,
+                false,
+                LocalDateTime.now().minusDays(1),
+                File.builder().id(10L).originalFileName("001.jpg").encodedFileName("poster1.jpg").build()
+        );
+
+        performance2 = new Performance(
+                2L,
+                "테스트 공연",
+                "라따뚜이1",
+                place,
+                LocalDateTime.now().plusHours(4),
+                LocalDateTime.now().plusHours(6),
+                Category.MOVIE,
+                false,
+                false,
+                LocalDateTime.now().minusDays(1),
+                File.builder().id(11L).originalFileName("002.jpg").encodedFileName("poster2.jpg").build()
+        );
+
         performanceList = List.of(performance1, performance2);
 
         myPageService = new MyPageService(

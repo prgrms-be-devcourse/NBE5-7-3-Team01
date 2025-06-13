@@ -10,7 +10,7 @@ import com.fifo.ticketing.domain.performance.entity.Performance;
 import com.fifo.ticketing.domain.performance.entity.Place;
 import com.fifo.ticketing.domain.performance.mapper.PerformanceMapper;
 import com.fifo.ticketing.domain.performance.repository.GradeRepository;
-import com.fifo.ticketing.domain.performance.repository.PerformanceRepository;
+import com.fifo.ticketing.domain.performance.repository.PerformanceAdminRepository;
 import com.fifo.ticketing.domain.performance.repository.PlaceRepository;
 import com.fifo.ticketing.domain.seat.service.SeatService;
 import com.fifo.ticketing.global.entity.File;
@@ -55,7 +55,7 @@ class PerformanceServiceTests {
     private GradeRepository gradeRepository;
 
     @Mock
-    private PerformanceRepository performanceRepository;
+    private PerformanceAdminRepository performanceAdminRepository;
 
     @Mock
     private LikeCountRepository likeCountRepository;
@@ -83,6 +83,7 @@ class PerformanceServiceTests {
 
     @BeforeEach
     void setUp() {
+
         place = new Place(1L, "서울특별시 서초구 서초동 1307", "강남아트홀", 100);
 
         performanceRequestDto = new PerformanceRequestDto(
@@ -104,12 +105,12 @@ class PerformanceServiceTests {
         when(placeRepository.findById(any(Long.class))).thenReturn(Optional.of(place));
 
         Performance performance = PerformanceMapper.toEntity(performanceRequestDto, place);
-        when(performanceRepository.save(any(Performance.class))).thenReturn(performance);
+        when(performanceAdminRepository.save(any(Performance.class))).thenReturn(performance);
 
         File uploadedFile = new File(null, "encoded-uuid.webp", "default.webp");
         when(imageFileService.uploadFile(file)).thenReturn(uploadedFile);
 
-        Grade grade = new Grade(1L, place, "S", 20, 20000);
+        Grade grade = new Grade(null, place, "S", 20, 20000);
         when(gradeRepository.findAllByPlaceId(any(Long.class))).thenReturn(Arrays.asList(grade));
 
         doNothing().when(seatService).createSeats(anyList());
@@ -132,7 +133,7 @@ class PerformanceServiceTests {
 
         // Verify
         verify(placeRepository).findById(any(Long.class));
-        verify(performanceRepository).save(any(Performance.class));
+        verify(performanceAdminRepository).save(any(Performance.class));
         verify(imageFileService).uploadFile(file);
         verify(gradeRepository).findAllByPlaceId(any(Long.class));
         verify(seatService).createSeats(anyList());
@@ -152,7 +153,7 @@ class PerformanceServiceTests {
 
         // Verify
         verify(placeRepository).findById(any(Long.class));
-        verifyNoInteractions(performanceRepository, imageFileService, gradeRepository, seatService);
+        verifyNoInteractions(performanceAdminRepository, imageFileService, gradeRepository, seatService);
     }
 
     @Test
@@ -160,7 +161,7 @@ class PerformanceServiceTests {
     void test_create_performance_file_upload_failed() throws Exception {
         // Given
         when(placeRepository.findById(any(Long.class))).thenReturn(Optional.of(place));
-        when(performanceRepository.save(any(Performance.class))).thenReturn(PerformanceMapper.toEntity(performanceRequestDto, place));
+        when(performanceAdminRepository.save(any(Performance.class))).thenReturn(PerformanceMapper.toEntity(performanceRequestDto, place));
         when(imageFileService.uploadFile(file)).thenThrow(new IOException("파일 업로드 실패"));
 
         // When & Then
@@ -178,7 +179,7 @@ class PerformanceServiceTests {
     void test_create_performance_not_found_grade() throws Exception {
         // Given
         when(placeRepository.findById(any(Long.class))).thenReturn(Optional.of(place));
-        when(performanceRepository.save(any(Performance.class))).thenReturn(PerformanceMapper.toEntity(performanceRequestDto, place));
+        when(performanceAdminRepository.save(any(Performance.class))).thenReturn(PerformanceMapper.toEntity(performanceRequestDto, place));
         when(imageFileService.uploadFile(file)).thenReturn(new File(null, "encoded-uuid.webp", "default.webp"));
         when(gradeRepository.findAllByPlaceId(any(Long.class))).thenReturn(Arrays.asList());
 
@@ -198,7 +199,7 @@ class PerformanceServiceTests {
 
         // Given
         when(placeRepository.findById(any(Long.class))).thenReturn(Optional.of(place));
-        when(performanceRepository.save(any(Performance.class))).thenReturn(PerformanceMapper.toEntity(performanceRequestDto, place));
+        when(performanceAdminRepository.save(any(Performance.class))).thenReturn(PerformanceMapper.toEntity(performanceRequestDto, place));
         when(imageFileService.uploadFile(file)).thenReturn(new File(null, "encoded-uuid.webp", "default.webp"));
         when(gradeRepository.findAllByPlaceId(any(Long.class))).thenReturn(Arrays.asList(new Grade(1L, place, "S", 10, 10000)));
         doThrow(new RuntimeException("Seat create failed")).when(seatService).createSeats(anyList());
@@ -218,30 +219,39 @@ class PerformanceServiceTests {
 
         // Given
         Long performanceId = 1L;
-        Long newPlaceId = 2L;
+        Long newPlaceId = 3L;
 
+        Place oldPlace = new Place(2L, "서울특별시 서초d구 서초동 1307", "구 공연장", 100);
+        Place newPlace = new Place(3L, "서울특별시 서초구 서초동 1307", "신 공연장", 100);
 
-        Place oldPlace = Place.builder().id(1L).name("구 공연장").build();
-        Place newPlace = Place.builder().id(newPlaceId).name("신 공연장").build();
+        Performance performance = new Performance
+                (performanceId, "구 공연 제목",
+                        "구 공연입니다.",
+                        oldPlace,
+                        LocalDateTime.now().plusHours(1),
+                        LocalDateTime.now().plusHours(3),
+                        Category.MOVIE,
+                        false,
+                        false,
+                        LocalDateTime.now().minusDays(3),
+                        File.builder().id(1L).originalFileName("oldFile.jpg").build()
+                );
 
-        Performance performance = Performance.builder()
-                .id(performanceId)
-                .title("구 공연 제목")
-                .place(oldPlace)
-                .file(File.builder().id(1L).originalFileName("oldFile.jpg").build())
-                .build();
-
-        List<Grade> grades = List.of(Grade.builder().id(1L).seatCount(10).build());
+        List<Grade> grades = List.of(new Grade(1L, newPlace, "S", 900000, 50));
 
         MultipartFile newFile = new MockMultipartFile("file", "new.jpg", "image/jpeg", "new image".getBytes());
 
-        PerformanceRequestDto requestDto = PerformanceRequestDto.builder()
-                .title("신 공연 제목")
-                .placeId(newPlaceId)
-                .build();
+        PerformanceRequestDto requestDto = new PerformanceRequestDto(
+                "신 공연 제목", "신 공연입니다.",
+                Category.CONCERT, false,
+                LocalDateTime.now().plusHours(5),
+                LocalDateTime.now().plusHours(8),
+                LocalDateTime.now().minusDays(2),
+                newPlaceId
+        );
 
         // When
-        given(performanceRepository.findById(performanceId)).willReturn(Optional.of(performance));
+        given(performanceAdminRepository.findById(performanceId)).willReturn(Optional.of(performance));
         given(placeRepository.findById(newPlaceId)).willReturn(Optional.of(newPlace));
         given(gradeRepository.findAllByPlaceId(newPlaceId)).willReturn(grades);
 
@@ -267,18 +277,28 @@ class PerformanceServiceTests {
 
         // Given
         Long performanceId = 1L;
-        Place oldPlace = Place.builder().id(1L).name("구 공연장").build();
-        Performance performance = Performance.builder()
-                .id(performanceId)
-                .title("구 공연 제목")
-                .place(oldPlace)
-                .file(File.builder().id(10L).originalFileName("001.png").build())
-                .build();
+        Place oldPlace = new Place(1L, "서울특별시 서초구 서초동 1307", "구 공연장", 100);
+        Performance performance = new Performance
+                (performanceId, "구 공연 제목",
+                        "구 공연입니다.",
+                        oldPlace,
+                        LocalDateTime.now().plusHours(1),
+                        LocalDateTime.now().plusHours(3),
+                        Category.MOVIE,
+                        false,
+                        false,
+                        LocalDateTime.now().minusDays(3),
+                        File.builder().id(10L).originalFileName("001.jpg").build()
+                );
 
-        PerformanceRequestDto requestDto = PerformanceRequestDto.builder()
-                .title("구 공연 제목")
-                .placeId(1L)
-                .build();
+        PerformanceRequestDto requestDto = new PerformanceRequestDto(
+                "구 공연 제목", "구 공연입니다.",
+                Category.MOVIE, false,
+                LocalDateTime.now().plusHours(1),
+                LocalDateTime.now().plusHours(3),
+                LocalDateTime.now().minusDays(3),
+                oldPlace.getId()
+        );
 
         MultipartFile newFile = new MockMultipartFile(
                 "encodedFile",
@@ -289,7 +309,7 @@ class PerformanceServiceTests {
 
         File uploadedFile = File.builder().id(10L).originalFileName("001.png").build();
 
-        given(performanceRepository.findById(performanceId)).willReturn(Optional.of(performance));
+        given(performanceAdminRepository.findById(performanceId)).willReturn(Optional.of(performance));
         given(placeRepository.findById(1L)).willReturn(Optional.of(oldPlace));
         doNothing().when(imageFileService).updateFile(any(), eq(newFile));
 
