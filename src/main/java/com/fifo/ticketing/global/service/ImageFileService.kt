@@ -23,7 +23,6 @@ class ImageFileService(
 ) {
     @Value("\${file.upload-dir}")
     lateinit var uploadDir: String
-    private val log = LoggerFactory.getLogger(this::class.java)
 
     @Transactional
     @Throws(IOException::class)
@@ -41,7 +40,6 @@ class ImageFileService(
                 encodedFileName = uuidFileName,
                 originalFileName = originalFileName
             )
-            log.info(generatedFile.toString())
             return fileRepository.save(generatedFile)
         } catch (e: Exception) {
             handleFileUploadFailure(savePath)
