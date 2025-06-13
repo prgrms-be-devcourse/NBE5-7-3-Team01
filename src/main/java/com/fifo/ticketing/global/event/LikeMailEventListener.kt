@@ -1,34 +1,27 @@
-package com.fifo.ticketing.global.event;
+package com.fifo.ticketing.global.event
 
-import static com.fifo.ticketing.global.event.MailType.NO_PAYED;
+import com.fifo.ticketing.domain.like.dto.NoPayedMailDto
+import com.fifo.ticketing.domain.like.dto.ReservationStartMailDto
+import com.fifo.ticketing.domain.like.service.LikeMailService
 
-import com.fifo.ticketing.domain.like.service.LikeMailService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.context.event.EventListener;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Component;
-
+import org.springframework.context.event.EventListener
+import org.springframework.scheduling.annotation.Async
+import org.springframework.stereotype.Component
 
 @Component
-@RequiredArgsConstructor
-public class LikeMailEventListener {
-
-    private final LikeMailService likeMailService;
-
+class LikeMailEventListener(
+    private val likeMailService: LikeMailService
+) {
 
     @Async("mailExecutor")
     @EventListener
-    public void handleLikeMailEvent(ReservationEvent event) {
-        likeMailService.reservationStart(event.getDto());
-
+    fun handleLikeMailEvent(dto: ReservationStartMailDto) {
+        likeMailService.reservationStart(dto)
     }
 
     @Async("mailExecutor")
     @EventListener
-    public void handleLikeMailEvent(NoPayMailEvent event) {
-        likeMailService.NoPayedPerformance(event.getDto());
-
+    fun handleLikeMailEvent(dto: NoPayedMailDto) {
+        likeMailService.noPayedPerformance(dto)
     }
-
-
 }

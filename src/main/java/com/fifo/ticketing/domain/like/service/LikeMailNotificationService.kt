@@ -1,98 +1,73 @@
-package com.fifo.ticketing.domain.like.service;
+package com.fifo.ticketing.domain.like.service
 
-import static com.fifo.ticketing.global.exception.ErrorCode.NOT_FOUND_PERFORMANCES;
+import com.fifo.ticketing.domain.book.entity.BookStatus
+import com.fifo.ticketing.domain.book.repository.BookRepository
+import com.fifo.ticketing.domain.like.entity.Like
+import com.fifo.ticketing.domain.like.mapper.LikeMailMapper.toNoPayedMailDto
+import com.fifo.ticketing.domain.like.mapper.LikeMailMapper.toReservationStartMailDto
+import com.fifo.ticketing.domain.like.repository.LikeRepository
+import com.fifo.ticketing.domain.seat.repository.SeatRepository
+import com.fifo.ticketing.domain.user.entity.User
+import io.github.oshai.kotlinlogging.KotlinLogging
+import jakarta.transaction.Transactional
+import org.springframework.context.ApplicationEventPublisher
+import org.springframework.stereotype.Service
+import java.time.LocalDateTime
+import java.util.function.Consumer
 
-import com.fifo.ticketing.domain.book.entity.BookStatus;
-import com.fifo.ticketing.domain.book.repository.BookRepository;
-import com.fifo.ticketing.domain.like.dto.NoPayedMailDto;
-import com.fifo.ticketing.domain.like.dto.ReservationStartMailDto;
-import com.fifo.ticketing.domain.like.entity.Like;
-import com.fifo.ticketing.domain.like.mapper.LikeMailMapper;
-import com.fifo.ticketing.domain.like.repository.LikeRepository;
-import com.fifo.ticketing.domain.performance.entity.Performance;
-import com.fifo.ticketing.domain.performance.repository.PerformanceRepository;
-import com.fifo.ticketing.domain.seat.repository.SeatRepository;
-import com.fifo.ticketing.domain.user.entity.User;
-import com.fifo.ticketing.global.event.NoPayMailEvent;
-import com.fifo.ticketing.global.event.ReservationEvent;
-import com.fifo.ticketing.global.exception.ErrorException;
-import jakarta.transaction.Transactional;
-import java.time.LocalDateTime;
-import java.util.List;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
-
-@Slf4j
 @Service
-@RequiredArgsConstructor
-public class LikeMailNotificationService {
-
-    private final LikeRepository likeRepository;
-    private final LikeMailService likeMailService;
-    private final PerformanceRepository performanceRepository;
-    private final ApplicationEventPublisher eventPublisher;
-    private final BookRepository bookRepository;
-    private final SeatRepository seatRepository;
-
-
+class LikeMailNotificationService(
+    private val likeRepository: LikeRepository,
+    private val eventPublisher: ApplicationEventPublisher,
+    private val bookRepository: BookRepository,
+    private val seatRepository: SeatRepository
+) {
+    private val log = KotlinLogging.logger {}
 
     @Transactional
-    public void sendTimeNotification() {
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime targetTime = now.plusMinutes(30);
-
-        LocalDateTime start = targetTime.minusMinutes(30);
-        LocalDateTime end = targetTime.plusMinutes(30);
-
-        likeRepository.findLikesByTargetTime(start, end).stream()
-            .filter(like -> isEmailSendTarget(like.getUser()))
-            .map(like -> {
-                User user = like.getUser();
-                Performance performance = like.getPerformance();
-                return LikeMailMapper.toReservationStartMailDto(user, performance);
-            })
-            .forEach(dto -> eventPublisher.publishEvent(new ReservationEvent(dto)));
-
-    }
-
-
-    @Transactional
-    public void sendNoPayedNotification() {
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime reservationTime = now.minusMinutes(60);
-
-        LocalDateTime start = reservationTime.minusMinutes(30);
-        LocalDateTime end = reservationTime.plusMinutes(30);
+    fun sendTimeNotification() {
+        val now = LocalDateTime.now()
+        val targetTime = now.plusMinutes(30)
+        val start = targetTime.minusMinutes(30)
+        val end = targetTime.plusMinutes(30)
 
         likeRepository.findLikesByTargetTime(start, end)
-            .forEach(this::notifyNoPay);
+            .filter { isEmailSendTarget(it.getUser()) }
+            .map { toReservationStartMailDto(it.getUser(), it.getPerformance()) }
+            .forEach { dto -> eventPublisher.publishEvent(dto) }
     }
 
-    private void notifyNoPay(Like like) {
-        User user = like.getUser();
-        Performance performance = like.getPerformance();
-        boolean payed = bookRepository.existsByUserAndPerformanceAndBookStatus(user, performance, BookStatus.PAYED);
+    @Transactional
+    fun sendNoPayedNotification() {
+        val now = LocalDateTime.now()
+        val reservationTime = now.minusMinutes(60)
+        val start = reservationTime.minusMinutes(30)
+        val end = reservationTime.plusMinutes(30)
 
-        if (!isEmailSendTarget(user)) {
-            return; //  메일 전송 조건 안되면 skip
+        likeRepository.findLikesByTargetTime(start, end)
+            .forEach(Consumer { notifyNoPay(it) })
+    }
+
+    private fun notifyNoPay(like: Like) {
+        val user = like.user
+        val performance = like.performance
+        val payed = bookRepository.existsByUserAndPerformanceAndBookStatus(user, performance, BookStatus.PAYED)
+
+        if (!isEmailSendTarget(user) || payed) {
+            return  //  메일 전송 조건 안되면 skip
         }
 
-        if(payed){return;}
-        int availableSeats = seatRepository.countAvailableSeatsByPerformanceId(performance.getId());
+        val availableSeats = seatRepository.countAvailableSeatsByPerformanceId(performance.id!!)
 
-        log.info("예약 여부: {}, 잔여좌석: {}", payed, availableSeats);
+        log.info { "예약 여부: $payed, 잔여좌석: $availableSeats" }
 
-        NoPayedMailDto dto = LikeMailMapper.toNoPayedMailDto(user, performance, availableSeats);
-        eventPublisher.publishEvent(new NoPayMailEvent(dto));
+        val dto = toNoPayedMailDto(user, performance, availableSeats)
+        eventPublisher.publishEvent(dto)
     }
 
-
-    private boolean isEmailSendTarget(User user) {
-        String provider = user.getProvider();
-        String email = user.getEmail();
-        return (provider == null || provider.equalsIgnoreCase("google")) && email != null;
+    private fun isEmailSendTarget(user: User): Boolean {
+        val provider = user.provider
+        val email = user.email
+        return (provider == null || provider.equals("google", ignoreCase = true)) && email != null
     }
-
 }

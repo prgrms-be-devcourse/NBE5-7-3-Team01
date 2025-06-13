@@ -1,8 +1,6 @@
 package com.fifo.ticketing.domain.like.service
 
 import com.fifo.ticketing.domain.like.dto.LikeRequest
-import com.fifo.ticketing.domain.like.entity.Like
-import com.fifo.ticketing.domain.like.entity.LikeCount
 import com.fifo.ticketing.domain.like.mapper.LikeMapper
 import com.fifo.ticketing.domain.like.repository.LikeCountRepository
 import com.fifo.ticketing.domain.like.repository.LikeRepository
@@ -52,8 +50,8 @@ class LikeService(
     }
 
     private fun updateLike(performance: Performance, cnt: Int) {
-        val likeCount = likeCountRepository.findByPerformance(performance)?:
-        throw  ErrorException(ErrorCode.NOT_FOUND_PERFORMANCES)
+        val likeCount =
+            likeCountRepository.findByPerformance(performance) ?: throw ErrorException(ErrorCode.NOT_FOUND_PERFORMANCES)
 
         val updatedCnt = max(0L, likeCount.getLikeCount() + cnt)
         likeCount.setLikeCount(updatedCnt)

@@ -1,131 +1,106 @@
-package com.fifo.ticketing.domain.like.service;
+package com.fifo.ticketing.domain.like.service
 
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import com.fifo.ticketing.domain.book.entity.BookStatus
+import com.fifo.ticketing.domain.book.repository.BookRepository
+import com.fifo.ticketing.domain.like.dto.NoPayedMailDto
+import com.fifo.ticketing.domain.like.dto.ReservationStartMailDto
+import com.fifo.ticketing.domain.like.entity.Like
+import com.fifo.ticketing.domain.like.repository.LikeRepository
+import com.fifo.ticketing.domain.performance.entity.Category
+import com.fifo.ticketing.domain.performance.entity.Performance
+import com.fifo.ticketing.domain.performance.entity.Place
+import com.fifo.ticketing.domain.seat.repository.SeatRepository
+import com.fifo.ticketing.domain.user.entity.User
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.springframework.context.ApplicationEventPublisher
+import java.time.LocalDateTime
 
-import com.fifo.ticketing.domain.book.entity.BookStatus;
-import com.fifo.ticketing.domain.book.repository.BookRepository;
-import com.fifo.ticketing.domain.like.entity.Like;
-import com.fifo.ticketing.domain.like.repository.LikeRepository;
-import com.fifo.ticketing.domain.performance.entity.Category;
-import com.fifo.ticketing.domain.performance.entity.Performance;
-import com.fifo.ticketing.domain.performance.entity.Place;
-import com.fifo.ticketing.domain.performance.repository.PerformanceRepository;
-import com.fifo.ticketing.domain.seat.repository.SeatRepository;
-import com.fifo.ticketing.domain.user.entity.User;
-import com.fifo.ticketing.global.entity.File;
-import com.fifo.ticketing.global.event.NoPayMailEvent;
-import com.fifo.ticketing.global.event.ReservationEvent;
-import java.time.LocalDateTime;
-import java.util.List;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.context.ApplicationEventPublisher;
-
-@ExtendWith(MockitoExtension.class)
 class LikeMailNotificationServiceTest {
 
-    @Mock
-    private LikeRepository likeRepository;
-    @Mock
-    private LikeMailService likeMailService;
-    @Mock
-    private PerformanceRepository performanceRepository;
-    @Mock
-    private ApplicationEventPublisher eventPublisher;
-    @Mock
-    private BookRepository bookRepository;
-    @Mock
-    private SeatRepository seatRepository;
+    private val likeRepository = mockk<LikeRepository>()
+    private val bookRepository = mockk<BookRepository>()
+    private val seatRepository = mockk<SeatRepository>()
+    private val eventPublisher = mockk<ApplicationEventPublisher>(relaxed = true)
 
-    @InjectMocks
-    private LikeMailNotificationService likeMailNotificationService;
-
-    private User user;
-    private Performance performance;
-    private Place place;
-    private File mockFile;
-    private Like like;
+    private lateinit var service: LikeMailNotificationService
+    private lateinit var user: User
+    private lateinit var performance: Performance
+    private lateinit var like: Like
 
     @BeforeEach
-    void setUp() {
+    fun setUp() {
         user = User.builder()
             .id(1L)
-            .email("test@gmail.com")
+            .email("test@example.com")
             .username("홍길동")
             .provider("google")
-            .build();
+            .build()
 
-        place = new Place(1L, "서울특별시 서초구 서초동 1307", "강남아트홀", 100);
+        val place = Place(1L, "서울시 강남구", "강남아트홀", 100)
 
-        mockFile = new File(1L, "poster.jpg", "sample.jpg");
-
-        performance = new Performance(
-            1L,
-            "테스트 공연",
-            "라따뚜이는 픽시의 영화입니다.",
-            place,
-            LocalDateTime.now().plusHours(1),
-            LocalDateTime.now().plusHours(3),
-            Category.MOVIE,
-            false,
-            false,
-            LocalDateTime.now().minusDays(1),
-            mockFile
-        );
+        performance = Performance(
+            1L, "공연", "설명", place,
+            LocalDateTime.now().plusMinutes(30),
+            LocalDateTime.now().plusHours(2),
+            Category.CONCERT, false, false,
+            LocalDateTime.now().minusDays(1)
+        )
 
         like = Like.builder()
             .id(1L)
             .user(user)
             .performance(performance)
-            .build();
+            .isLiked(true)
+            .build()
+
+        service = LikeMailNotificationService(
+            likeRepository, eventPublisher, bookRepository, seatRepository
+        )
     }
 
     @Test
-    void 공연30분전_알림이벤트_정상발송() {
-        // given
-        when(likeRepository.findLikesByTargetTime(any(), any()))
-            .thenReturn(List.of(like));
-        // when
-        likeMailNotificationService.sendTimeNotification();
-        // then
-        verify(eventPublisher).publishEvent(any(ReservationEvent.class));
+    fun `공연 30분 전 알림 이벤트 발송`() {
+        every { likeRepository.findLikesByTargetTime(any(), any()) } returns listOf(like)
+
+        service.sendTimeNotification()
+
+        verify { eventPublisher.publishEvent(any<ReservationStartMailDto>()) }
     }
 
     @Test
-    void 결제안한유저_알림이벤트_정상발송() {
-        // given
-        when(likeRepository.findLikesByTargetTime(any(), any()))
-            .thenReturn(List.of(like));
-        when(bookRepository.existsByUserAndPerformanceAndBookStatus(user, performance,
-            BookStatus.PAYED))
-            .thenReturn(false);
-        when(seatRepository.countAvailableSeatsByPerformanceId(performance.getId()))
-            .thenReturn(10);
-        // when
-        likeMailNotificationService.sendNoPayedNotification();
-        // then
-        verify(eventPublisher).publishEvent(any(NoPayMailEvent.class));
+    fun `결제하지 않은 유저 알림 발송`() {
+        every { likeRepository.findLikesByTargetTime(any(), any()) } returns listOf(like)
+        every {
+            bookRepository.existsByUserAndPerformanceAndBookStatus(
+                user,
+                performance,
+                BookStatus.PAYED
+            )
+        } returns false
+        every { seatRepository.countAvailableSeatsByPerformanceId(performance.id!!) } returns 10
+
+        service.sendNoPayedNotification()
+
+        verify { eventPublisher.publishEvent(any<NoPayedMailDto>()) }
     }
 
     @Test
-    void 결제완료한유저는_알림이벤트_발송되지_않음() {
-        // given
-        when(likeRepository.findLikesByTargetTime(any(), any()))
-            .thenReturn(List.of(like));
-        when(bookRepository.existsByUserAndPerformanceAndBookStatus(user, performance,
-            BookStatus.PAYED))
-            .thenReturn(true); // 결제 완료
+    fun `결제한 유저는 알림 발송 안 함`() {
+        every { likeRepository.findLikesByTargetTime(any(), any()) } returns listOf(like)
+        every {
+            bookRepository.existsByUserAndPerformanceAndBookStatus(
+                user,
+                performance,
+                BookStatus.PAYED
+            )
+        } returns true
 
-        // when
-        likeMailNotificationService.sendNoPayedNotification();
-        // then
-        verify(eventPublisher, never()).publishEvent(any(NoPayMailEvent.class));
+        service.sendNoPayedNotification()
+
+        verify(inverse = true) { eventPublisher.publishEvent(any<NoPayedMailDto>()) }
     }
 }
