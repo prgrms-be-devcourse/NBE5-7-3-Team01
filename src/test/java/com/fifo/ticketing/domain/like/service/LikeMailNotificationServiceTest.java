@@ -80,17 +80,17 @@ class LikeMailNotificationServiceTest {
         );
 
         like = Like.builder()
-            .id(1L)
-            .user(user)
-            .performance(performance)
-            .build();
+                .id(1L)
+                .user(user)
+                .performance(performance)
+                .build();
     }
 
     @Test
     void 공연30분전_알림이벤트_정상발송() {
         // given
         when(likeRepository.findLikesByTargetTime(any(), any()))
-            .thenReturn(List.of(like));
+                .thenReturn(List.of(like));
 
         // when
         likeMailNotificationService.sendTimeNotification();
@@ -103,11 +103,11 @@ class LikeMailNotificationServiceTest {
     void 결제안한유저_알림이벤트_정상발송() {
         // given
         when(likeRepository.findLikesByTargetTime(any(), any()))
-            .thenReturn(List.of(like));
+                .thenReturn(List.of(like));
         when(bookRepository.existsByUserAndPerformanceAndBookStatus(user, performance, BookStatus.PAYED))
-            .thenReturn(false);
+                .thenReturn(false);
         when(seatRepository.countAvailableSeatsByPerformanceId(performance.getId()))
-            .thenReturn(10);
+                .thenReturn(10);
 
         // when
         likeMailNotificationService.sendNoPayedNotification();
@@ -120,9 +120,9 @@ class LikeMailNotificationServiceTest {
     void 결제완료한유저는_알림이벤트_발송되지_않음() {
         // given
         when(likeRepository.findLikesByTargetTime(any(), any()))
-            .thenReturn(List.of(like));
+                .thenReturn(List.of(like));
         when(bookRepository.existsByUserAndPerformanceAndBookStatus(user, performance, BookStatus.PAYED))
-            .thenReturn(true); // 결제 완료
+                .thenReturn(true); // 결제 완료
 
         // when
         likeMailNotificationService.sendNoPayedNotification();

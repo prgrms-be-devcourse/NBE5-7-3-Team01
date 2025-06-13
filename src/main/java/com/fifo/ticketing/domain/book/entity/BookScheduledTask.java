@@ -48,4 +48,19 @@ public class BookScheduledTask extends BaseDateEntity {
             .build();
     }
 
+    public Long getId() {
+        return id;
+    }
+
+    public Long getBookId() {
+        return bookId;
+    }
+
+    public LocalDateTime getScheduledTime() {
+        return scheduledTime;
+    }
+
+    public TaskStatus getTaskStatus() {
+        return taskStatus;
+    }
 }

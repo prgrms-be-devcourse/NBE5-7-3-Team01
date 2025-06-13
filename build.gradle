@@ -64,6 +64,11 @@ dependencies {
     // https://mvnrepository.com/artifact/io.kotest/kotest-runner-junit5-jvm
     testImplementation 'io.kotest:kotest-runner-junit5-jvm:5.9.1'
 
+    // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-core
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2'
+    // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-reactor
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.10.2")
+
 }
 
 allOpen {

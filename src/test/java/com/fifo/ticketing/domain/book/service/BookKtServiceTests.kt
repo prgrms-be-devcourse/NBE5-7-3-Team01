@@ -9,9 +9,12 @@ import com.fifo.ticketing.domain.performance.entity.Category
 import com.fifo.ticketing.domain.performance.entity.Grade
 import com.fifo.ticketing.domain.performance.entity.Performance
 import com.fifo.ticketing.domain.performance.entity.Place
+import com.fifo.ticketing.domain.performance.repository.PerformanceRepository
 import com.fifo.ticketing.domain.seat.entity.Seat
 import com.fifo.ticketing.domain.seat.entity.SeatStatus
+import com.fifo.ticketing.domain.seat.service.SeatService
 import com.fifo.ticketing.domain.user.entity.User
+import com.fifo.ticketing.domain.user.repository.UserRepository
 import com.fifo.ticketing.global.entity.File
 import com.fifo.ticketing.global.exception.ErrorCode
 import com.fifo.ticketing.global.exception.ErrorException
@@ -31,7 +34,13 @@ class BookKtServiceTests {
 
     val bookRepository = mockk<BookRepository>()
     val bookSeatRepository = mockk<BookSeatRepository>()
-    val bookKtService = BookKtService(urlPrefix, bookRepository, bookSeatRepository)
+    val bookScheduleManager = mockk<BookScheduleManager>()
+    val userRepository = mockk<UserRepository>()
+    val performanceRepository = mockk<PerformanceRepository>()
+    val seatService = mockk<SeatService>()
+
+
+    val bookKtService = BookKtService(urlPrefix, bookRepository, bookSeatRepository, bookScheduleManager, userRepository, performanceRepository, seatService)
 
 
     private lateinit var mockUser: User
