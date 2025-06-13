@@ -15,8 +15,8 @@ import org.mockito.*
 import org.mockito.junit.jupiter.MockitoExtension
 import org.springframework.test.util.ReflectionTestUtils
 import org.springframework.web.multipart.MultipartFile
-import java.io.File as JavaFile
 import java.io.IOException
+import java.io.File as JavaFile
 
 @ExtendWith(MockitoExtension::class)
 open class ImageFileServiceTests {
@@ -45,22 +45,14 @@ open class ImageFileServiceTests {
         Mockito.`when`(mockFile!!.contentType).thenReturn("image/png")
         Mockito.`when`(mockFile.originalFilename).thenReturn("test.png")
         Mockito.doNothing().`when`(mockFile).transferTo(
-            ArgumentMatchers.any(
-                JavaFile::class.java
-            )
+            ArgumentMatchers.any(JavaFile::class.java)
         )
-        val expectedFile =
-            File(null, "generated-uuid.png", "test.png")
-        Mockito.`when`(
-            fileRepository!!.save(
-                ArgumentMatchers.any(
-                    File::class.java
-                )
-            )
-        ).thenReturn(expectedFile) // 반드시 추가!
+        val expectedFile = File(null, "generated-uuid.png", "test.png")
+        Mockito.`when`(fileRepository.save(ArgumentMatchers.any(File::class.java)))
+            .thenReturn(expectedFile) // 반드시 추가!
 
         // When
-        val result = imageFileService!!.uploadFile(mockFile)
+        val result = imageFileService.uploadFile(mockFile)
         Assertions.assertThat(result).isNotNull() // Null 체크
 
         // 4. 저장된 객체 검증
@@ -81,18 +73,13 @@ open class ImageFileServiceTests {
 
     @Test
     @DisplayName("이미지 확장자가 아닌 경우 예외 발생")
-    @Throws(
-        Exception::class
-    )
+    @Throws(Exception::class)
     fun test_invalid_file_type_throws_exception() {
-        Mockito.`when`(mockFile!!.contentType).thenReturn("text/plain")
+        Mockito.`when`(mockFile.contentType).thenReturn("text/plain")
 
-        val exception = org.junit.jupiter.api.Assertions.assertThrows(
-            ErrorException::class.java
-        ) {
-            imageFileService!!.uploadFile(mockFile)
+        val exception = org.junit.jupiter.api.Assertions.assertThrows(ErrorException::class.java) {
+            imageFileService.uploadFile(mockFile)
         }
-
         Assertions.assertThat(exception.errorCode).isEqualTo(ErrorCode.INVALID_IMAGE_TYPE)
     }
 }
