@@ -6,7 +6,6 @@ import com.fifo.ticketing.domain.user.mapper.UserMapper.toUserDtoPage
 import com.fifo.ticketing.domain.user.repository.UserRepository
 import com.fifo.ticketing.global.exception.ErrorCode
 import com.fifo.ticketing.global.exception.ErrorException
-import lombok.RequiredArgsConstructor
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service

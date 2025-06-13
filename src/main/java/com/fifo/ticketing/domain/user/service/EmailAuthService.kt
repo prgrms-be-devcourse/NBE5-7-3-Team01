@@ -1,9 +1,7 @@
 package com.fifo.ticketing.domain.user.service
 
-import jakarta.mail.MessagingException
 import jakarta.mail.internet.MimeMessage
 import jakarta.servlet.http.HttpSession
-import lombok.RequiredArgsConstructor
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.stereotype.Service
@@ -20,8 +18,6 @@ class EmailAuthService(
     private val setForm: String
 ) {
 
-
-
     fun sendEmail(toEmail: String) {
         val authCode = createCode()
         val setKey = "EAC:$toEmail"
@@ -33,7 +29,7 @@ class EmailAuthService(
     fun createCode(): String {
         val random = SecureRandom()
         return buildString {
-            repeat(6){
+            repeat(6) {
                 append(random.nextInt(9))
             }
         }
@@ -66,5 +62,4 @@ class EmailAuthService(
         }
         return false
     }
-
 }

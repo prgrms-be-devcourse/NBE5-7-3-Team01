@@ -21,7 +21,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
@@ -34,21 +33,18 @@ import org.springframework.test.context.ActiveProfiles;
 @ExtendWith(MockitoExtension.class)
 class MyPageServiceTests {
 
+    private final String UPLOAD = "/tmp/uploads/";
     @Mock
     private LikeRepository likeRepository;
-
     private MyPageService myPageService;
-
     @Mock
     private Pageable pageable;
-
     private User user;
     private List<Performance> performanceList;
     private List<Performance> emptyPerformanceList = new ArrayList<>();
     private Performance performance1;
     private Performance performance2;
     private Place place;
-    private final String UPLOAD = "/tmp/uploads/";
 
     @BeforeEach
     void setUp() {

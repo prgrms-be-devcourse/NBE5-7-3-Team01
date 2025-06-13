@@ -26,9 +26,10 @@ class MyPageService(
     ): Page<LikedPerformanceDto> {
         val id = userId ?: throw ErrorException(ErrorCode.NOT_FOUND_MEMBER)
 
-        val likedPerformances: Page<Performance> = likeRepository.findLikedPerformancesByUserId(id, pageable)
+        val likedPerformances: Page<Performance> =
+            likeRepository.findLikedPerformancesByUserId(id, pageable)
 
-        if(likedPerformances.isEmpty){
+        if (likedPerformances.isEmpty) {
             return Page.empty()
         }
 
