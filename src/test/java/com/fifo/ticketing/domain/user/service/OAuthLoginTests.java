@@ -17,7 +17,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.Map;
-import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -57,26 +56,16 @@ class OAuthLoginTests {
             "테스트 유저",
             "test@test.com",
             Map.of(
-                    "email", "test@test.com",
-                    "name", "테스트 유저"),
+                "email", "test@test.com",
+                "name", "테스트 유저"),
             Role.USER
-            );
-
+        );
 
         OAuth2AuthenticationToken token = new OAuth2AuthenticationToken(
             userDetails,
             userDetails.getAuthorities(),
             "google"
         );
-//
-//        given(userRepository.findByEmail("test@test.com")).willReturn(
-//            Optional.of(User.builder()
-//                .id(1L)
-//                .email("test@test.com")
-//                .username("테스트 유저")
-//                .provider("google")
-//                .build())
-//        );
 
         given(userRepository.findByEmail("test@test.com")).willReturn(
             User.builder()

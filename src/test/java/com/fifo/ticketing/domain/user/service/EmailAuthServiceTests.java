@@ -14,7 +14,6 @@ import jakarta.mail.internet.MimeMessage;
 import jakarta.servlet.http.HttpSession;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -23,21 +22,16 @@ import org.thymeleaf.spring6.SpringTemplateEngine;
 
 class EmailAuthServiceTests {
 
-    @InjectMocks
+    private final String TEST_EMAIL_FORM = "test@example.com";
     private EmailAuthService emailAuthService;
-
     @Mock
     private RedisService redisService;
-
     @Mock
     private JavaMailSender mailSender;
-
     @Mock
     private SpringTemplateEngine templateEngine;
-
     @Mock
     private MimeMessage mimeMessage;
-
     @Mock
     private HttpSession session;
 
@@ -48,6 +42,12 @@ class EmailAuthServiceTests {
         when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
         when(templateEngine.process(eq("mail"), any(Context.class))).thenReturn(
             "<html><body>Code: 123456</body></html>");
+        emailAuthService = new EmailAuthService(
+            redisService,
+            mailSender,
+            templateEngine,
+            TEST_EMAIL_FORM
+        );
     }
 
     @Test
@@ -86,5 +86,4 @@ class EmailAuthServiceTests {
         verify(session, never()).setAttribute(any(), any());
         assertThat(checked).isFalse();
     }
-
 }
