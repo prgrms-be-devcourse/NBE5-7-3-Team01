@@ -21,13 +21,13 @@ import java.io.IOException
 @ExtendWith(MockitoExtension::class)
 open class ImageFileServiceTests {
     @Mock
-    private val fileRepository: FileRepository? = null
+    private lateinit var fileRepository: FileRepository
 
     @Mock
-    private val mockFile: MultipartFile? = null
+    private lateinit var mockFile: MultipartFile
 
     @InjectMocks
-    private val imageFileService: ImageFileService? = null
+    private lateinit var imageFileService: ImageFileService
 
     @BeforeEach
     fun setUp() {
