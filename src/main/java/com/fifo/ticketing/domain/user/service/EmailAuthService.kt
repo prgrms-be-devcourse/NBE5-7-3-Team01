@@ -12,39 +12,36 @@ import org.thymeleaf.spring6.SpringTemplateEngine
 import java.security.SecureRandom
 
 @Service
-@RequiredArgsConstructor
-class EmailAuthService {
-    private val redisService: RedisService? = null
-    private val emailSender: JavaMailSender? = null
-    private val templateEngine: SpringTemplateEngine? = null
-
+class EmailAuthService(
+    private val redisService: RedisService,
+    private val emailSender: JavaMailSender,
+    private val templateEngine: SpringTemplateEngine,
     @Value("\${spring.mail.username}")
-    private val setForm: String? = null
+    private val setForm: String
+) {
 
-    @Throws(MessagingException::class)
+
+
     fun sendEmail(toEmail: String) {
         val authCode = createCode()
         val setKey = "EAC:$toEmail"
-        redisService!!.setValuesWithTimeout(setKey, authCode, (5 * 60 * 1000).toLong())
+        redisService.setValuesWithTimeout(setKey, authCode, 5 * 60 * 1000)
         val emailForm = createEmailForm(toEmail, authCode)
-        emailSender!!.send(emailForm)
+        emailSender.send(emailForm)
     }
 
     fun createCode(): String {
         val random = SecureRandom()
-        val authCode = StringBuilder()
-
-        for (i in 0..5) {
-            authCode.append(random.nextInt(9))
+        return buildString {
+            repeat(6){
+                append(random.nextInt(9))
+            }
         }
-
-        return authCode.toString()
     }
 
-    @Throws(MessagingException::class)
-    fun createEmailForm(email: String?, authCode: String?): MimeMessage {
+    fun createEmailForm(email: String, authCode: String): MimeMessage {
         val title = "Ticketing 회원가입 인증 번호"
-        val message = emailSender!!.createMimeMessage()
+        val message = emailSender.createMimeMessage()
         message.addRecipients(MimeMessage.RecipientType.TO, email)
         message.subject = title
         message.setFrom(setForm)
@@ -52,15 +49,15 @@ class EmailAuthService {
         return message
     }
 
-    fun setContext(authCode: String?): String {
+    fun setContext(authCode: String): String {
         val context = Context()
         context.setVariable("code", authCode)
-        return templateEngine!!.process("mail", context)
+        return templateEngine.process("mail", context)
     }
 
     fun checkAuthCode(toEmail: String, authCode: String, session: HttpSession): Boolean {
         val key = "EAC:$toEmail"
-        val findAuthCode = redisService!!.getValues(key) ?: return false
+        val findAuthCode = redisService.getValues(key) ?: return false
 
         if (findAuthCode == authCode) {
             redisService.deleteValues(key)
@@ -69,4 +66,5 @@ class EmailAuthService {
         }
         return false
     }
+
 }

@@ -13,31 +13,31 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 @Service
-@RequiredArgsConstructor
-class AdminService {
-    private val userRepository: UserRepository? = null
+class AdminService(
+    private val userRepository: UserRepository
+) {
 
     @Transactional(readOnly = true)
     fun getAllUsers(pageable: Pageable): Page<UserDto> {
-        val allUserInfo = userRepository!!.findAll(pageable)
+        val allUserInfo = userRepository.findAll(pageable)
         return toUserDtoPage(allUserInfo)
     }
 
     @Transactional(readOnly = true)
     fun getUsersByName(pageable: Pageable, name: String): Page<UserDto> {
-        val byUsernameContaining = userRepository!!.findByUsernameContaining(name, pageable)
+        val byUsernameContaining = userRepository.findByUsernameContaining(name, pageable)
         return toUserDtoPage(byUsernameContaining)
     }
 
     @Transactional(readOnly = true)
     fun getUsersByRole(pageable: Pageable, role: Role): Page<UserDto> {
-        val byRole = userRepository!!.findByRole(role, pageable)
+        val byRole = userRepository.findByRole(role, pageable)
         return toUserDtoPage(byRole)
     }
 
     @Transactional(readOnly = true)
     fun getUsersByRoleAndName(pageable: Pageable, role: Role, name: String): Page<UserDto> {
-        val byUsernameContainingAndRole = userRepository!!.findByUsernameContainingAndRole(
+        val byUsernameContainingAndRole = userRepository.findByUsernameContainingAndRole(
             name, role, pageable
         )
         return toUserDtoPage(byUsernameContainingAndRole)
@@ -45,7 +45,7 @@ class AdminService {
 
     @Transactional
     fun updateUserStatus(userId: Long) {
-        val user = userRepository!!.findById(userId).orElseThrow {
+        val user = userRepository.findById(userId).orElseThrow {
             ErrorException(
                 ErrorCode.NOT_FOUND_MEMBER
             )

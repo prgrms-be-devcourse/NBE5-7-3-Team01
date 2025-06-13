@@ -6,20 +6,20 @@ import org.springframework.stereotype.Service
 import java.util.concurrent.TimeUnit
 
 @Service
-@RequiredArgsConstructor
-class RedisService {
-    private val redisTemplate: RedisTemplate<String, String>? = null
+class RedisService(
+    private val redisTemplate: RedisTemplate<String, String>
+) {
 
     fun setValuesWithTimeout(key: String, value: String, timeout: Long) {
-        redisTemplate!!.opsForValue()[key, value, timeout] =
+        redisTemplate.opsForValue()[key, value, timeout] =
             TimeUnit.MILLISECONDS
     }
 
     fun getValues(key: String): String? {
-        return redisTemplate!!.opsForValue()[key]
+        return redisTemplate.opsForValue()[key]
     }
 
     fun deleteValues(key: String) {
-        redisTemplate!!.delete(key)
+        redisTemplate.delete(key)
     }
 }
