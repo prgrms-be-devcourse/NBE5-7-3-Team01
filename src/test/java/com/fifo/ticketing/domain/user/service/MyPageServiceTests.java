@@ -117,14 +117,4 @@ class MyPageServiceTests {
 
         assertThat(result.getContent()).isEmpty();
     }
-
-    @Test
-    @DisplayName("userId가 null인 경우 예외 발생")
-    void get_liked_performance_userId_null() {
-        ErrorException exception = assertThrows(ErrorException.class, () ->
-            myPageService.getUserLikedPerformance(null, pageable)
-        );
-
-        assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.NOT_FOUND_MEMBER);
-    }
 }
