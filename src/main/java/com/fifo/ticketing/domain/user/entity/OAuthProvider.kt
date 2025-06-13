@@ -21,9 +21,9 @@ enum class OAuthProvider {
     NAVER {
         override fun extract(oAuth2User: OAuth2User): UserOAuthDetails {
             val attributes = oAuth2User.attributes
-            val properties = attributes["response"] as Map<String, Any>?
+            val properties = attributes["response"] as Map<String, Any>
             return UserOAuthDetails(
-                properties!!["name"].toString(),
+                properties["name"].toString(),
                 properties["id"].toString() + "@naver.com",
                 properties,
                 Role.USER
@@ -33,9 +33,9 @@ enum class OAuthProvider {
     KAKAO {
         override fun extract(oAuth2User: OAuth2User): UserOAuthDetails {
             val attributes = oAuth2User.attributes
-            val properties = attributes["properties"] as Map<String, Any>?
+            val properties = attributes["properties"] as Map<String, Any>
             return UserOAuthDetails(
-                properties!!["nickname"].toString(),
+                properties["nickname"].toString(),
                 attributes["id"].toString() + "@kakao.com",
                 properties,
                 Role.USER
