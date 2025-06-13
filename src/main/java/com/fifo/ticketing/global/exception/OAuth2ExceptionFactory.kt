@@ -1,14 +1,14 @@
-package com.fifo.ticketing.global.exception;
+package com.fifo.ticketing.global.exception
 
-import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
-import org.springframework.security.oauth2.core.OAuth2Error;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException
+import org.springframework.security.oauth2.core.OAuth2Error
 
-public class OAuth2ExceptionFactory {
+object OAuth2ExceptionFactory {
 
-    public static OAuth2AuthenticationException fromErrorCode(ErrorCode errorCode) {
-        return new OAuth2AuthenticationException(
-            new OAuth2Error(errorCode.getCode(), errorCode.getMessage(), null),
-            errorCode.getMessage()
-        );
+    fun fromErrorCode(errorCode: ErrorCode): OAuth2AuthenticationException {
+        return OAuth2AuthenticationException(
+            OAuth2Error(errorCode.code, errorCode.message, null),
+            errorCode.message
+        )
     }
 }
