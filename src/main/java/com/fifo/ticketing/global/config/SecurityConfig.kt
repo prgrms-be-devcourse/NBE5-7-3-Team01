@@ -57,7 +57,7 @@ class SecurityConfig(
                     "/oauth/login/**"
                 ).permitAll()
                 it.requestMatchers("/user/**").hasAnyAuthority("USER", "ADMIN")
-                it.requestMatchers("/admin/**").hasAnyAuthority("USER")
+                it.requestMatchers("/admin/**").hasAnyAuthority("ADMIN")
                 it.anyRequest().permitAll()
             }
             .build()

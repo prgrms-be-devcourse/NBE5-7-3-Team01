@@ -1,20 +1,20 @@
 package com.fifo.ticketing.domain.like.service
 
-import com.fifo.ticketing.domain.book.entity.Book
-import com.fifo.ticketing.domain.book.entity.BookStatus
-import com.fifo.ticketing.domain.book.entity.BookSeat
 import com.fifo.ticketing.domain.like.dto.LikeRequest
 import com.fifo.ticketing.domain.like.entity.Like
 import com.fifo.ticketing.domain.like.entity.LikeCount
 import com.fifo.ticketing.domain.like.repository.LikeCountRepository
 import com.fifo.ticketing.domain.like.repository.LikeRepository
-import com.fifo.ticketing.domain.performance.entity.*
+import com.fifo.ticketing.domain.performance.entity.Category
+import com.fifo.ticketing.domain.performance.entity.Performance
+import com.fifo.ticketing.domain.performance.entity.Place
 import com.fifo.ticketing.domain.performance.repository.PerformanceRepository
-import com.fifo.ticketing.domain.seat.entity.*
 import com.fifo.ticketing.domain.user.entity.User
 import com.fifo.ticketing.domain.user.repository.UserRepository
 import com.fifo.ticketing.global.entity.File
-import io.mockk.*
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -52,32 +52,23 @@ class LikeServiceTest {
             .password("secure")
             .build()
 
-        place = Place.builder()
-            .id(1L)
-            .name("강남아트홀")
-            .address("서울시 강남구")
-            .totalSeats(100)
-            .build()
+        place = Place(1L, "서울특별시 서초구 서초동 1307", "강남아트홀", 100)
 
-        mockFile = File.builder()
-            .id(1L)
-            .encodedFileName("poster.png")
-            .originalFileName("poster-original.png")
-            .build()
+        mockFile = File(1L, "poster.png", "poster-original.png")
 
-        mockPerformance = Performance.builder()
-            .id(performanceId)
-            .title("오페라의 유령")
-            .description("명작 뮤지컬")
-            .startTime(LocalDateTime.of(2025, 10, 5, 19, 30))
-            .endTime(LocalDateTime.of(2025, 10, 5, 22, 0))
-            .reservationStartTime(LocalDateTime.of(2025, 9, 1, 12, 0))
-            .place(place)
-            .category(Category.MOVIE)
-            .file(mockFile)
-            .performanceStatus(false)
-            .deletedFlag(false)
-            .build()
+        mockPerformance = Performance(
+            performanceId,
+            "오페라의 유령",
+            "명작 뮤지컬",
+            place,
+            LocalDateTime.of(2025, 10, 5, 19, 30),
+            LocalDateTime.of(2025, 10, 5, 22, 0),
+            Category.MOVIE,
+            false,
+            false,
+            LocalDateTime.of(2025, 9, 1, 12, 0),
+            mockFile
+        );
 
         mockLikeCount = LikeCount.builder()
             .id(1L)
@@ -118,7 +109,12 @@ class LikeServiceTest {
 
         every { userRepository.findById(userId) } returns Optional.of(mockUser)
         every { performanceRepository.findById(performanceId) } returns Optional.of(mockPerformance)
-        every { likeRepository.findByUserAndPerformance(mockUser, mockPerformance) } returns existingLike
+        every {
+            likeRepository.findByUserAndPerformance(
+                mockUser,
+                mockPerformance
+            )
+        } returns existingLike
         every { likeCountRepository.findByPerformance(mockPerformance) } returns mockLikeCount
         every { likeRepository.save(any()) } returns existingLike
         every { likeCountRepository.save(any()) } returns mockLikeCount
@@ -142,7 +138,12 @@ class LikeServiceTest {
 
         every { userRepository.findById(userId) } returns Optional.of(mockUser)
         every { performanceRepository.findById(performanceId) } returns Optional.of(mockPerformance)
-        every { likeRepository.findByUserAndPerformance(mockUser, mockPerformance) } returns existingLike
+        every {
+            likeRepository.findByUserAndPerformance(
+                mockUser,
+                mockPerformance
+            )
+        } returns existingLike
         every { likeCountRepository.findByPerformance(mockPerformance) } returns mockLikeCount
         every { likeRepository.save(any()) } returns existingLike
         every { likeCountRepository.save(any()) } returns mockLikeCount

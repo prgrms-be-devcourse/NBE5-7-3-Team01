@@ -36,17 +36,18 @@ object BookMapper {
 
     @JvmStatic
     fun toBookCompleteDto(book: Book, urlPrefix: String): BookCompleteDto {
-        val performance = book.getPerformance()
+        val performance = book.performance
         return BookCompleteDto(
-            performanceId = performance.getId(),
-            performanceTitle = performance.getTitle(),
-            performanceStartTime = performance.getStartTime(),
-            performanceEndTime = performance.getEndTime(),
-            placeName = performance.getPlace().getName(),
-            encodedFileName = performance.getFile().getEncodedFileName(),
-            seats = book.getBookSeats().map { SeatMapper.toBookSeatViewDto(it.getSeat()) },
-            totalPrice = book.getTotalPrice(),
-            quantity = book.getQuantity(),
+            // 해당 부분은 performance의 id가 존재하지 않는 경우가 없기 때문에 null Assert 처리
+            performanceId = performance.id!!,
+            performanceTitle = performance.title,
+            performanceStartTime = performance.startTime,
+            performanceEndTime = performance.endTime,
+            placeName = performance.place.name,
+            encodedFileName = performance.file!!.encodedFileName,
+            seats = book.bookSeats.map { SeatMapper.toBookSeatViewDto(it.seat) },
+            totalPrice = book.totalPrice,
+            quantity = book.quantity,
             paymentCompleted = false,
             urlPrefix = urlPrefix
         )
@@ -54,18 +55,18 @@ object BookMapper {
 
     @JvmStatic
     fun toBookedViewDto(book: Book, urlPrefix: String): BookedView {
-        val performance = book.getPerformance()
+        val performance = book.performance
 
         return BookedView(
-            bookId = book.getId()!!,
-            performanceId = performance.getId(),
-            performanceTitle = performance.getTitle(),
-            placeName = performance.getPlace().getName(),
-            encodedFileName = performance.getFile().getEncodedFileName(),
-            seats = book.getBookSeats().map { SeatMapper.toBookSeatViewDto(it.getSeat()) },
-            quantity = book.getQuantity(),
-            totalPrice = book.getTotalPrice(),
-            bookStatus = book.getBookStatus(),
+            bookId = book.id!!,
+            performanceId = performance.id!!,
+            performanceTitle = performance.title,
+            placeName = performance.place.name,
+            encodedFileName = performance.file!!.encodedFileName,
+            seats = book.bookSeats.map { SeatMapper.toBookSeatViewDto(it.seat) },
+            quantity = book.quantity,
+            totalPrice = book.totalPrice,
+            bookStatus = book.bookStatus,
             urlPrefix = urlPrefix
         )
     }
@@ -84,29 +85,29 @@ object BookMapper {
 
     @JvmStatic
     fun getBookMailInfo(book: Book): BookMailSendDto {
-        val performance = book.getPerformance()
-        val user = book.getUser()
+        val performance = book.performance
+        val user = book.user
 
         val status = book.getBookStatus()
 
         val mailTitle = when (status) {
-            BookStatus.PAYED -> performance.getTitle() + MAIL_TITLE_PAYED
-            BookStatus.CANCELED -> performance.getTitle() + MAIL_TITLE_CANCELED
+            BookStatus.PAYED -> performance.title + MAIL_TITLE_PAYED
+            BookStatus.CANCELED -> performance.title + MAIL_TITLE_CANCELED
             else -> MAIL_TITLE_DEFAULT
         }
 
         return BookMailSendDto(
-            emailAddr = user.getEmail(),
+            emailAddr = user.email,
             title = mailTitle,
-            performanceId = performance.getId(),
-            performanceTitle = performance.getTitle(),
-            performanceStartTime = performance.getStartTime(),
-            performanceEndTime = performance.getEndTime(),
-            placeName = performance.getPlace().getName(),
-            seats = book.getBookSeats().map { SeatMapper.toBookSeatViewDto(it.getSeat()) },
-            totalPrice = book.getTotalPrice(),
-            quantity = book.getQuantity(),
-            bookStatus = book.getBookStatus(),
+            performanceId = performance.id!!,
+            performanceTitle = performance.title,
+            performanceStartTime = performance.startTime,
+            performanceEndTime = performance.endTime,
+            placeName = performance.place.name,
+            seats = book.bookSeats.map { SeatMapper.toBookSeatViewDto(it.seat) },
+            totalPrice = book.totalPrice,
+            quantity = book.quantity,
+            bookStatus = book.bookStatus,
         )
     }
 }

@@ -94,25 +94,18 @@ class BookServiceTest {
             .build();
 
         place = new Place(1L, "서울특별시 서초구 서초동 1307", "강남아트홀", 100);
-        File mockFile = File.builder()
-            .id(1L)
-            .encodedFileName("poster.jpg")
-            .originalFileName("sample.jpg")
-            .build();
+        File mockFile = new File(1L, "poster.jpg", "sample.jpg");
 
-        mockPerformance = Performance.builder()
-            .id(1L)
-            .title("라따뚜이")
-            .description("라따뚜이는 픽사의 영화입니다.")
-            .place(place)
-            .startTime(LocalDateTime.of(2025, 6, 1, 19, 0))
-            .endTime(LocalDateTime.of(2025, 6, 1, 21, 0))
-            .category(Category.MOVIE)
-            .performanceStatus(false)
-            .deletedFlag(false)
-            .reservationStartTime(LocalDateTime.of(2025, 5, 12, 19, 0))
-            .file(mockFile)
-            .build();
+        mockPerformance = new Performance(
+            100L, "라따뚜이", "라따뚜이는 픽시의 영화입니다.", place,
+            LocalDateTime.of(2025, 6, 1, 19, 0),
+            LocalDateTime.of(2025, 6, 1, 21, 0),
+            Category.MOVIE,
+            false,
+            false,
+            LocalDateTime.of(2025, 5, 12, 19, 0),
+            mockFile
+        );
 
         mockBook = Book.builder()
             .id(1L)
@@ -123,13 +116,7 @@ class BookServiceTest {
             .bookStatus(BookStatus.CONFIRMED)
             .build();
 
-        modckGrade = Grade.builder()
-            .id(1L)
-            .grade("A")
-            .place(place)
-            .defaultPrice(5000)
-            .seatCount(10)
-            .build();
+        modckGrade = new Grade(1L, place, "A", 5000, 10);
 
         mockSeat = new Seat(1L, mockPerformance, "A1", 5000, modckGrade, SeatStatus.BOOKED);
 

@@ -1,5 +1,6 @@
 package com.fifo.ticketing.domain.performance.repository
 
+import com.fifo.ticketing.domain.performance.dto.AdminPerformanceBookDetailDto
 import com.fifo.ticketing.domain.performance.dto.AdminPerformanceStaticsDto
 import com.fifo.ticketing.domain.performance.entity.Category
 import com.fifo.ticketing.domain.performance.entity.Performance

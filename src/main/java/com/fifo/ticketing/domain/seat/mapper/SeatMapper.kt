@@ -11,7 +11,7 @@ object SeatMapper {
         return BookSeatViewDto(
             seatId = (seat.getId()),
             seatNumber = (seat.getSeatNumber()),
-            grade = (grade.getGrade()),
+            grade = (grade.grade),
             price = (seat.getPrice()),
             seatStatus = (seat.getSeatStatus()),
         )

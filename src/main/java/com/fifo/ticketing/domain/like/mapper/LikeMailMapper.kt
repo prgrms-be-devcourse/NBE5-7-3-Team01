@@ -11,8 +11,8 @@ object LikeMailMapper {
         return ReservationStartMailDto(
             email= user.getEmail(),
             username = user.getUsername(),
-            performanceTitle = performance.getTitle(),
-            reservationStartTime =performance.getReservationStartTime()
+            performanceTitle = performance.title,
+            reservationStartTime =performance.reservationStartTime,
         )
     }
 
@@ -21,7 +21,7 @@ object LikeMailMapper {
         return NoPayedMailDto(
             email = user.getEmail(),
             username = user.getUsername(),
-            performanceTitle = performance.getTitle(),
+            performanceTitle = performance.title,
             availableSeats = availableSeats,
         )
     }

@@ -100,7 +100,7 @@ interface PerformanceRepository : JpaRepository<Performance, Long> {
     )
     fun findPerformanceBookDetails(
         @Param("performanceId") performanceId: Long
-    ): AdminPerformanceBookDetailDto
+    ): AdminPerformanceBookDetailDto?
 
     @Modifying
     @Query(

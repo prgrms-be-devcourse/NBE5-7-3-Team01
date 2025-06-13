@@ -1,5 +1,20 @@
 package com.fifo.ticketing.domain.performance.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willDoNothing;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyList;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+
 import com.fifo.ticketing.domain.book.service.BookService;
 import com.fifo.ticketing.domain.like.entity.LikeCount;
 import com.fifo.ticketing.domain.like.repository.LikeCountRepository;
@@ -10,13 +25,19 @@ import com.fifo.ticketing.domain.performance.entity.Performance;
 import com.fifo.ticketing.domain.performance.entity.Place;
 import com.fifo.ticketing.domain.performance.mapper.PerformanceMapper;
 import com.fifo.ticketing.domain.performance.repository.GradeRepository;
-import com.fifo.ticketing.domain.performance.repository.PerformanceRepository;
+import com.fifo.ticketing.domain.performance.repository.PerformanceAdminRepository;
 import com.fifo.ticketing.domain.performance.repository.PlaceRepository;
 import com.fifo.ticketing.domain.seat.service.SeatService;
 import com.fifo.ticketing.global.entity.File;
 import com.fifo.ticketing.global.exception.ErrorCode;
 import com.fifo.ticketing.global.exception.ErrorException;
 import com.fifo.ticketing.global.service.ImageFileService;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -30,20 +51,6 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.willDoNothing;
-import static org.mockito.Mockito.*;
-
 @ActiveProfiles("ci")
 @ExtendWith(MockitoExtension.class)
 class PerformanceServiceTests {
@@ -55,7 +62,7 @@ class PerformanceServiceTests {
     private GradeRepository gradeRepository;
 
     @Mock
-    private PerformanceRepository performanceRepository;
+    private PerformanceAdminRepository performanceAdminRepository;
 
     @Mock
     private LikeCountRepository likeCountRepository;
@@ -83,17 +90,18 @@ class PerformanceServiceTests {
 
     @BeforeEach
     void setUp() {
+
         place = new Place(1L, "서울특별시 서초구 서초동 1307", "강남아트홀", 100);
 
         performanceRequestDto = new PerformanceRequestDto(
-                "라따뚜이",
-                "라따뚜이는 픽사의 영화입니다.",
-                Category.MOVIE,
-                false,
-                LocalDateTime.of(2025, 6, 1, 19, 0),
-                LocalDateTime.of(2025, 6, 1, 21, 0),
-                LocalDateTime.of(2025, 5, 12, 19, 0),
-                place.getId()
+            "라따뚜이",
+            "라따뚜이는 픽사의 영화입니다.",
+            Category.MOVIE,
+            false,
+            LocalDateTime.of(2025, 6, 1, 19, 0),
+            LocalDateTime.of(2025, 6, 1, 21, 0),
+            LocalDateTime.of(2025, 5, 12, 19, 0),
+            place.getId()
         );
     }
 
@@ -104,26 +112,29 @@ class PerformanceServiceTests {
         when(placeRepository.findById(any(Long.class))).thenReturn(Optional.of(place));
 
         Performance performance = PerformanceMapper.toEntity(performanceRequestDto, place);
-        when(performanceRepository.save(any(Performance.class))).thenReturn(performance);
+        when(performanceAdminRepository.save(any(Performance.class))).thenReturn(performance);
 
         File uploadedFile = new File(null, "encoded-uuid.webp", "default.webp");
         when(imageFileService.uploadFile(file)).thenReturn(uploadedFile);
 
-        Grade grade = new Grade(1L, place, "S", 20, 20000);
-        when(gradeRepository.findAllByPlaceId(any(Long.class))).thenReturn(Arrays.asList(grade));
+        Grade grade = new Grade(null, place, "S", 20, 20000);
+        when(gradeRepository.findAllByPlaceId(any(Long.class))).thenReturn(List.of(grade));
 
         doNothing().when(seatService).createSeats(anyList());
 
         ArgumentCaptor<LikeCount> likeCountCaptor = ArgumentCaptor.forClass(LikeCount.class);
-        when(likeCountRepository.save(likeCountCaptor.capture())).thenReturn(LikeCount.builder().id(1L).likeCount(0L).performance(performance).build());
+        when(likeCountRepository.save(likeCountCaptor.capture())).thenReturn(
+            LikeCount.builder().id(1L).likeCount(0L).performance(performance).build());
 
         // When
-        Performance savePerformance = adminPerformanceService.createPerformance(performanceRequestDto, file);
+        Performance savePerformance = adminPerformanceService.createPerformance(
+            performanceRequestDto, file);
 
         // Then
         assertThat(savePerformance).isNotNull();
         assertThat(savePerformance.getTitle()).isEqualTo(performanceRequestDto.getTitle());
-        assertThat(savePerformance.getDescription()).isEqualTo(performanceRequestDto.getDescription());
+        assertThat(savePerformance.getDescription()).isEqualTo(
+            performanceRequestDto.getDescription());
         assertThat(savePerformance.getPlace()).isEqualTo(place);
         assertThat(savePerformance.getFile()).isEqualTo(uploadedFile);
         LikeCount savedLikeCount = likeCountCaptor.getValue();
@@ -132,7 +143,7 @@ class PerformanceServiceTests {
 
         // Verify
         verify(placeRepository).findById(any(Long.class));
-        verify(performanceRepository).save(any(Performance.class));
+        verify(performanceAdminRepository).save(any(Performance.class));
         verify(imageFileService).uploadFile(file);
         verify(gradeRepository).findAllByPlaceId(any(Long.class));
         verify(seatService).createSeats(anyList());
@@ -141,18 +152,20 @@ class PerformanceServiceTests {
 
     @Test
     @DisplayName("공연 등록 시 장소가 존재하지 않는 경우 예외 처리")
-    void test_create_performance_not_found_place() throws Exception {
+    void test_create_performance_not_found_place() {
         // Given
         when(placeRepository.findById(any(Long.class))).thenReturn(Optional.empty());
 
         // When & Then
-        assertThatThrownBy(() -> adminPerformanceService.createPerformance(performanceRequestDto, file))
-                .isInstanceOf(ErrorException.class)
-                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.NOT_FOUND_PLACES);
+        assertThatThrownBy(
+            () -> adminPerformanceService.createPerformance(performanceRequestDto, file))
+            .isInstanceOf(ErrorException.class)
+            .hasFieldOrPropertyWithValue("errorCode", ErrorCode.NOT_FOUND_PLACES);
 
         // Verify
         verify(placeRepository).findById(any(Long.class));
-        verifyNoInteractions(performanceRepository, imageFileService, gradeRepository, seatService);
+        verifyNoInteractions(performanceAdminRepository, imageFileService, gradeRepository,
+            seatService);
     }
 
     @Test
@@ -160,13 +173,15 @@ class PerformanceServiceTests {
     void test_create_performance_file_upload_failed() throws Exception {
         // Given
         when(placeRepository.findById(any(Long.class))).thenReturn(Optional.of(place));
-        when(performanceRepository.save(any(Performance.class))).thenReturn(PerformanceMapper.toEntity(performanceRequestDto, place));
+        when(performanceAdminRepository.save(any(Performance.class))).thenReturn(
+            PerformanceMapper.toEntity(performanceRequestDto, place));
         when(imageFileService.uploadFile(file)).thenThrow(new IOException("파일 업로드 실패"));
 
         // When & Then
-        assertThatThrownBy(() -> adminPerformanceService.createPerformance(performanceRequestDto, file))
-                .isInstanceOf(ErrorException.class)
-                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.FILE_UPLOAD_FAILED);
+        assertThatThrownBy(
+            () -> adminPerformanceService.createPerformance(performanceRequestDto, file))
+            .isInstanceOf(ErrorException.class)
+            .hasFieldOrPropertyWithValue("errorCode", ErrorCode.FILE_UPLOAD_FAILED);
 
         // Verify : 파일 업로드는 호출, 좌석 생성은 호출되지 않습니다!
         verify(imageFileService).uploadFile(file);
@@ -178,14 +193,17 @@ class PerformanceServiceTests {
     void test_create_performance_not_found_grade() throws Exception {
         // Given
         when(placeRepository.findById(any(Long.class))).thenReturn(Optional.of(place));
-        when(performanceRepository.save(any(Performance.class))).thenReturn(PerformanceMapper.toEntity(performanceRequestDto, place));
-        when(imageFileService.uploadFile(file)).thenReturn(new File(null, "encoded-uuid.webp", "default.webp"));
-        when(gradeRepository.findAllByPlaceId(any(Long.class))).thenReturn(Arrays.asList());
+        when(performanceAdminRepository.save(any(Performance.class))).thenReturn(
+            PerformanceMapper.toEntity(performanceRequestDto, place));
+        when(imageFileService.uploadFile(file)).thenReturn(
+            new File(null, "encoded-uuid.webp", "default.webp"));
+        when(gradeRepository.findAllByPlaceId(any(Long.class))).thenReturn(List.of());
 
         // When & Then
-        assertThatThrownBy(() -> adminPerformanceService.createPerformance(performanceRequestDto, file))
-                .isInstanceOf(ErrorException.class)
-                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.NOT_FOUND_GRADE);
+        assertThatThrownBy(
+            () -> adminPerformanceService.createPerformance(performanceRequestDto, file))
+            .isInstanceOf(ErrorException.class)
+            .hasFieldOrPropertyWithValue("errorCode", ErrorCode.NOT_FOUND_GRADE);
 
         // Verify : 등급 조회는 호출, 좌석 생성은 호출되지 않습니다!
         verify(gradeRepository).findAllByPlaceId(place.getId());
@@ -198,15 +216,20 @@ class PerformanceServiceTests {
 
         // Given
         when(placeRepository.findById(any(Long.class))).thenReturn(Optional.of(place));
-        when(performanceRepository.save(any(Performance.class))).thenReturn(PerformanceMapper.toEntity(performanceRequestDto, place));
-        when(imageFileService.uploadFile(file)).thenReturn(new File(null, "encoded-uuid.webp", "default.webp"));
-        when(gradeRepository.findAllByPlaceId(any(Long.class))).thenReturn(Arrays.asList(new Grade(1L, place, "S", 10, 10000)));
-        doThrow(new RuntimeException("Seat create failed")).when(seatService).createSeats(anyList());
+        when(performanceAdminRepository.save(any(Performance.class))).thenReturn(
+            PerformanceMapper.toEntity(performanceRequestDto, place));
+        when(imageFileService.uploadFile(file)).thenReturn(
+            new File(null, "encoded-uuid.webp", "default.webp"));
+        when(gradeRepository.findAllByPlaceId(any(Long.class))).thenReturn(
+            List.of(new Grade(1L, place, "S", 10, 10000)));
+        doThrow(new RuntimeException("Seat create failed")).when(seatService)
+            .createSeats(anyList());
 
         // When & Then
-        assertThatThrownBy(() -> adminPerformanceService.createPerformance(performanceRequestDto, file))
-                .isInstanceOf(ErrorException.class)
-                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.SEAT_CREATE_FAILED);
+        assertThatThrownBy(
+            () -> adminPerformanceService.createPerformance(performanceRequestDto, file))
+            .isInstanceOf(ErrorException.class)
+            .hasFieldOrPropertyWithValue("errorCode", ErrorCode.SEAT_CREATE_FAILED);
 
         verify(seatService).createSeats(anyList());
         verifyNoMoreInteractions(seatService);
@@ -218,30 +241,45 @@ class PerformanceServiceTests {
 
         // Given
         Long performanceId = 1L;
-        Long newPlaceId = 2L;
+        Long newPlaceId = 3L;
 
+        Place oldPlace = new Place(2L, "서울특별시 서초구 서초동 1307", "구 공연장", 100);
+        Place newPlace = new Place(3L, "서울특별시 서초구 서초동 1307", "신 공연장", 100);
 
-        Place oldPlace = Place.builder().id(1L).name("구 공연장").build();
-        Place newPlace = Place.builder().id(newPlaceId).name("신 공연장").build();
+        Performance performance = new Performance
+            (performanceId, "구 공연 제목",
+                "구 공연입니다.",
+                oldPlace,
+                LocalDateTime.now().plusHours(1),
+                LocalDateTime.now().plusHours(3),
+                Category.MOVIE,
+                false,
+                false,
+                LocalDateTime.now().minusDays(3),
+                new File(
+                    10L,
+                    "encoded_oldFile.jpg",
+                    "oldFile.jpg"
+                )
+            );
 
-        Performance performance = Performance.builder()
-                .id(performanceId)
-                .title("구 공연 제목")
-                .place(oldPlace)
-                .file(File.builder().id(1L).originalFileName("oldFile.jpg").build())
-                .build();
+        List<Grade> grades = List.of(new Grade(1L, newPlace, "S", 900000, 50));
 
-        List<Grade> grades = List.of(Grade.builder().id(1L).seatCount(10).build());
+        MultipartFile newFile = new MockMultipartFile("file", "new.jpg", "image/jpeg",
+            "new image".getBytes());
 
-        MultipartFile newFile = new MockMultipartFile("file", "new.jpg", "image/jpeg", "new image".getBytes());
-
-        PerformanceRequestDto requestDto = PerformanceRequestDto.builder()
-                .title("신 공연 제목")
-                .placeId(newPlaceId)
-                .build();
+        PerformanceRequestDto requestDto = new PerformanceRequestDto(
+            "신 공연 제목", "신 공연입니다.",
+            Category.CONCERT, false,
+            LocalDateTime.now().plusHours(5),
+            LocalDateTime.now().plusHours(8),
+            LocalDateTime.now().minusDays(2),
+            newPlaceId
+        );
 
         // When
-        given(performanceRepository.findById(performanceId)).willReturn(Optional.of(performance));
+        given(performanceAdminRepository.findById(performanceId)).willReturn(
+            Optional.of(performance));
         given(placeRepository.findById(newPlaceId)).willReturn(Optional.of(newPlace));
         given(gradeRepository.findAllByPlaceId(newPlaceId)).willReturn(grades);
 
@@ -251,7 +289,8 @@ class PerformanceServiceTests {
         willDoNothing().given(imageFileService).updateFile(any(), any());
 
         // Then
-        Performance updated = adminPerformanceService.updatePerformance(performanceId, requestDto, newFile);
+        Performance updated = adminPerformanceService.updatePerformance(performanceId, requestDto,
+            newFile);
 
         // Verify
         verify(seatService).deleteSeatsByPerformanceId(performanceId);
@@ -267,34 +306,54 @@ class PerformanceServiceTests {
 
         // Given
         Long performanceId = 1L;
-        Place oldPlace = Place.builder().id(1L).name("구 공연장").build();
-        Performance performance = Performance.builder()
-                .id(performanceId)
-                .title("구 공연 제목")
-                .place(oldPlace)
-                .file(File.builder().id(10L).originalFileName("001.png").build())
-                .build();
+        Place oldPlace = new Place(1L, "서울특별시 서초구 서초동 1307", "구 공연장", 100);
+        Performance performance = new Performance
+            (performanceId, "구 공연 제목",
+                "구 공연입니다.",
+                oldPlace,
+                LocalDateTime.now().plusHours(1),
+                LocalDateTime.now().plusHours(3),
+                Category.MOVIE,
+                false,
+                false,
+                LocalDateTime.now().minusDays(3),
+                new File(
+                    10L,
+                    "encoded_001.jpg",
+                    "001.jpg"
+                )
+            );
 
-        PerformanceRequestDto requestDto = PerformanceRequestDto.builder()
-                .title("구 공연 제목")
-                .placeId(1L)
-                .build();
-
-        MultipartFile newFile = new MockMultipartFile(
-                "encodedFile",
-                "001.png",
-                "image/png",
-                Files.readAllBytes(Path.of("src/test/resources/uploads/001.png"))  // 실제 이미지 파일 바이트
+        PerformanceRequestDto requestDto = new PerformanceRequestDto(
+            "구 공연 제목", "구 공연입니다.",
+            Category.MOVIE, false,
+            LocalDateTime.now().plusHours(1),
+            LocalDateTime.now().plusHours(3),
+            LocalDateTime.now().minusDays(3),
+            oldPlace.getId()
         );
 
-        File uploadedFile = File.builder().id(10L).originalFileName("001.png").build();
+        MultipartFile newFile = new MockMultipartFile(
+            "encodedFile",
+            "001.png",
+            "image/png",
+            Files.readAllBytes(Path.of("src/test/resources/uploads/001.png"))  // 실제 이미지 파일 바이트
+        );
 
-        given(performanceRepository.findById(performanceId)).willReturn(Optional.of(performance));
+        File uploadedFile = new File(
+            10L,
+            "encoded_001.jpg",
+            "001.jpg"
+        );
+
+        given(performanceAdminRepository.findById(performanceId)).willReturn(
+            Optional.of(performance));
         given(placeRepository.findById(1L)).willReturn(Optional.of(oldPlace));
         doNothing().when(imageFileService).updateFile(any(), eq(newFile));
 
         // When
-        Performance updated = adminPerformanceService.updatePerformance(performanceId, requestDto, newFile);
+        Performance updated = adminPerformanceService.updatePerformance(performanceId, requestDto,
+            newFile);
 
         // Verify
         verify(imageFileService).updateFile(any(), eq(newFile));

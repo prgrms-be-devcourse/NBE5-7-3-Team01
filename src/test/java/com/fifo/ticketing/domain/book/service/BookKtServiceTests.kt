@@ -73,33 +73,20 @@ class BookKtServiceTests {
             .username("테스트 유저")
             .build()
 
-        place = Place.builder()
-            .id(1L)
-            .address("서울특별시 서초구 서초동 1307")
-            .name("강남아트홀")
-            .totalSeats(100)
-            .build()
+        place = Place(1L, "서울특별시 서초구 서초동 1307", "강남아트홀", 100)
 
-        mockFile = File.builder()
-            .id(1L)
-            .encodedFileName("poster.jpg")
-            .originalFileName("sample.jpg")
-            .build()
+        mockFile = File(1L, "poster.jpg", "sample.jpg")
 
-        mockPerformance = Performance.builder()
-            .id(1L)
-            .title("라따뚜이")
-            .description("라따뚜이는 픽사의 영화입니다.")
-            .place(place)
-            .startTime(LocalDateTime.of(2025, 6, 1, 19, 0))
-            .endTime(LocalDateTime.of(2025, 6, 1, 21, 0))
-            .category(Category.MOVIE)
-            .performanceStatus(false)
-            .deletedFlag(false)
-            .reservationStartTime(LocalDateTime.of(2025, 5, 12, 19, 0))
-            .file(mockFile)
-            .build()
-
+        mockPerformance = Performance(
+            1L, "라따뚜이", "라따뚜이는 픽시의 영화입니다.", place,
+            LocalDateTime.of(2025, 6, 1, 19, 0),
+            LocalDateTime.of(2025, 6, 1, 21, 0),
+            Category.MOVIE,
+            false,
+            false,
+            LocalDateTime.of(2025, 5, 12, 19, 0),
+            mockFile
+        )
 
         mockBook = Book.builder()
             .id(1L)
@@ -110,13 +97,7 @@ class BookKtServiceTests {
             .bookStatus(BookStatus.CONFIRMED)
             .build()
 
-        mockGrade = Grade.builder()
-            .id(1L)
-            .grade("A")
-            .place(place)
-            .defaultPrice(5000)
-            .seatCount(10)
-            .build()
+        mockGrade = Grade(1L, place, "A", 5000, 10)
 
         mockSeat = Seat(1L, mockPerformance, "A1", 5000, mockGrade, SeatStatus.BOOKED)
 
