@@ -7,7 +7,10 @@ import com.fifo.ticketing.global.util.UserValidator;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
@@ -16,10 +19,9 @@ public class UserLikeController {
 
     private final LikeService likeService;
 
-
     @PostMapping
     public ResponseEntity<String> toggleLike(@RequestBody LikeRequest likeRequest
-        ,HttpSession httpSession){
+            , HttpSession httpSession) {
         //LoginSuccessHandler에서 SessionUser로 저장했기 때문에
         SessionUser sessionUser = UserValidator.validateSessionUser(httpSession);
 
@@ -29,4 +31,3 @@ public class UserLikeController {
     }
 
 }
-
