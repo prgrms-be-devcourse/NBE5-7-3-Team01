@@ -2,6 +2,7 @@ package com.fifo.ticketing.domain.performance.controller.api;
 
 import com.fifo.ticketing.domain.like.entity.LikeCount;
 import com.fifo.ticketing.domain.like.repository.LikeCountRepository;
+import com.fifo.ticketing.domain.performance.entity.Category;
 import com.fifo.ticketing.domain.performance.entity.Grade;
 import com.fifo.ticketing.domain.performance.entity.Performance;
 import com.fifo.ticketing.domain.performance.entity.Place;
@@ -64,6 +65,8 @@ class PerformanceApiControllerTests {
 
     private Place savedPlace;
 
+    private File mockFile;
+
     @Value("${file.upload-dir}")
     private String uploadDir;
     @Autowired
@@ -72,26 +75,17 @@ class PerformanceApiControllerTests {
     @BeforeEach
     void setUp() throws IOException {
 
-        Place place = Place.builder()
-            .address("서울특별시 서초구 서초동 1307")
-            .name("강남아트홀")
-            .totalSeats(50)
-            .build();
+        Place place = new Place(null, "서울특별시 서초구 서초동 1307", "강남아트홀", 50);
         savedPlace = placeRepository.save(place);
 
-        Grade gradeS = Grade.builder()
-            .place(savedPlace)
-            .grade("S")
-            .defaultPrice(120000)
-            .seatCount(20)
-            .build();
+        Grade gradeS = new Grade(null, place, "S", 120000, 20);
+        Grade gradeA = new Grade(null, place, "A", 90000, 30);
 
-        Grade gradeA = Grade.builder()
-            .place(savedPlace)
-            .grade("A")
-            .defaultPrice(90000)
-            .seatCount(30)
-            .build();
+        mockFile = File.builder()
+                .id(null)
+                .encodedFileName("poster.jpg")
+                .originalFileName("sample.jpg")
+                .build();
 
         gradeRepository.saveAll(List.of(gradeS, gradeA));
         when(imageFileService.uploadFile(any(MultipartFile.class))).thenReturn(File.builder().encodedFileName("test.webp").originalFileName("test.webp").build());
@@ -241,16 +235,16 @@ class PerformanceApiControllerTests {
     @Test
     void test_performance_delete_success_likeCount_remains() throws Exception {
         // Given: 공연 생성 및 저장
-        Performance performance = Performance.builder()
-            .title("공연 삭제 테스트")
-            .description("테스트용 공연 설명")
-            .category(MOVIE)
-            .performanceStatus(true)
-            .startTime(LocalDateTime.of(2025, 6, 1, 19, 0))
-            .endTime(LocalDateTime.of(2025, 6, 1, 21, 0))
-            .reservationStartTime(LocalDateTime.of(2025, 5, 20, 19, 0))
-            .place(savedPlace)
-            .build();
+        Performance performance = new Performance(
+                null, "공연 삭제 테스트", "테스트용 공연 설명", savedPlace,
+                LocalDateTime.of(2025, 6, 1, 19, 0),
+                LocalDateTime.of(2025, 6, 1, 21, 0),
+                Category.MOVIE,
+                true,
+                false,
+                LocalDateTime.of(2025, 5, 12, 19, 0),
+                mockFile
+        );
         performance = performanceRepository.save(performance);
 
         // LikeCount 생성 및 저장
@@ -273,7 +267,7 @@ class PerformanceApiControllerTests {
         // Then 1: Performance는 soft delete 처리됨
         Performance deletedPerformance = performanceRepository.findById(performanceId)
             .orElseThrow(() -> new IllegalStateException("공연이 존재하지 않음"));
-        assertThat(deletedPerformance.isDeletedFlag()).isTrue();
+        assertThat(deletedPerformance.getDeletedFlag()).isTrue();
 
         // Then 2: LikeCount는 여전히 존재함
         List<LikeCount> likeCounts = likeCountRepository.findAll();

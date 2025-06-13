@@ -5,10 +5,14 @@ import com.fifo.ticketing.domain.like.entity.Like;
 import com.fifo.ticketing.domain.like.entity.LikeCount;
 import com.fifo.ticketing.domain.like.repository.LikeCountRepository;
 import com.fifo.ticketing.domain.like.repository.LikeRepository;
+import com.fifo.ticketing.domain.performance.entity.Category;
 import com.fifo.ticketing.domain.performance.entity.Performance;
+import com.fifo.ticketing.domain.performance.entity.Place;
 import com.fifo.ticketing.domain.performance.repository.PerformanceRepository;
 import com.fifo.ticketing.domain.user.entity.User;
 import com.fifo.ticketing.domain.user.repository.UserRepository;
+import com.fifo.ticketing.global.entity.File;
+import java.time.LocalDateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -39,6 +43,8 @@ class LikeServiceTest {
     private final Long performanceId = 100L;
 
     private User user;
+    private Place place;
+    private File mockFile;
     private Performance performance;
     private LikeCount likeCount;
 
@@ -48,7 +54,25 @@ class LikeServiceTest {
         MockitoAnnotations.openMocks(this);
 
         user = User.builder().id(1L).build();
-        performance = Performance.builder().id(100L).build();
+        place = new Place(1L, "서울특별시 서초구 서초동 1307", "강남아트홀", 100);
+
+        mockFile = File.builder()
+                .id(1L)
+                .encodedFileName("poster.jpg")
+                .originalFileName("sample.jpg")
+                .build();
+
+        performance = new Performance(
+                100L, "라따뚜이", "라따뚜이는 픽시의 영화입니다.", place,
+                LocalDateTime.of(2025, 6, 1, 19, 0),
+                LocalDateTime.of(2025, 6, 1, 21, 0),
+                Category.MOVIE,
+                false,
+                false,
+                LocalDateTime.of(2025, 5, 12, 19, 0),
+                mockFile
+        );
+
         likeCount = LikeCount.builder().performance(performance).likeCount(1L).build();
     }
 

@@ -1,16 +1,19 @@
 package com.fifo.ticketing.domain.performance.service;
 
-import com.fifo.ticketing.domain.book.entity.Book;
 import com.fifo.ticketing.domain.book.repository.BookRepository;
 import com.fifo.ticketing.domain.book.service.BookService;
 import com.fifo.ticketing.domain.like.repository.LikeCountRepository;
+import com.fifo.ticketing.domain.performance.entity.Category;
 import com.fifo.ticketing.domain.performance.entity.Performance;
+import com.fifo.ticketing.domain.performance.entity.Place;
 import com.fifo.ticketing.domain.performance.repository.PerformanceAdminRepository;
 import com.fifo.ticketing.domain.performance.repository.PerformanceRepository;
 import com.fifo.ticketing.domain.performance.repository.PlaceRepository;
 import com.fifo.ticketing.domain.seat.service.SeatService;
+import com.fifo.ticketing.global.entity.File;
 import com.fifo.ticketing.global.event.PerformanceCanceledEvent;
 import com.fifo.ticketing.global.exception.ErrorException;
+import java.time.LocalDateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,7 +21,6 @@ import org.mockito.*;
 import org.springframework.context.ApplicationEventPublisher;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 
 import static com.fifo.ticketing.global.exception.ErrorCode.NOT_FOUND_PERFORMANCE;
@@ -50,12 +52,20 @@ class AdminPerformanceServiceUnitTest {
     void test_deletePerformance_softDelete_success() {
         // Given
         Long performanceId = 1L;
+        Place oldPlace = new Place(1L, "서울특별시 서초구 서초동 1307", "구 공연장", 100);
 
-        Performance performance = Performance.builder()
-            .id(performanceId)
-            .title("삭제 테스트")
-            .deletedFlag(false)
-            .build();
+        Performance performance = new Performance (
+                performanceId, "구 공연 제목",
+                "구 공연입니다.",
+                oldPlace,
+                LocalDateTime.now().plusHours(1),
+                LocalDateTime.now().plusHours(3),
+                Category.MOVIE,
+                false,
+                false,
+                LocalDateTime.now().minusDays(3),
+                File.builder().id(10L).originalFileName("001.jpg").build()
+        );
 
         when(performanceAdminRepository.findByIdAndDeletedFlagFalse(performanceId))
             .thenReturn(Optional.of(performance));
@@ -71,8 +81,8 @@ class AdminPerformanceServiceUnitTest {
         adminPerformanceService.deletePerformance(performanceId);
 
         // Then
-        verify(performanceRepository).flush(); // flush가 호출되었는지
-        assertTrue(performance.isDeletedFlag(), "soft delete 플래그가 true로 설정되어야 합니다.");
+        verify(performanceAdminRepository).flush(); // flush가 호출되었는지
+        assertTrue(performance.getDeletedFlag(), "soft delete 플래그가 true로 설정되어야 합니다.");
 
         // 추가적으로 필요한 동작 검증
         verify(bookService).cancelAllBook(performance);

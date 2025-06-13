@@ -8,10 +8,13 @@ import com.fifo.ticketing.domain.book.repository.BookRepository;
 import com.fifo.ticketing.domain.like.entity.Like;
 import com.fifo.ticketing.domain.like.mapper.LikeMailMapper;
 import com.fifo.ticketing.domain.like.repository.LikeRepository;
+import com.fifo.ticketing.domain.performance.entity.Category;
 import com.fifo.ticketing.domain.performance.entity.Performance;
+import com.fifo.ticketing.domain.performance.entity.Place;
 import com.fifo.ticketing.domain.performance.repository.PerformanceRepository;
 import com.fifo.ticketing.domain.seat.repository.SeatRepository;
 import com.fifo.ticketing.domain.user.entity.User;
+import com.fifo.ticketing.global.entity.File;
 import com.fifo.ticketing.global.event.NoPayMailEvent;
 import com.fifo.ticketing.global.event.ReservationEvent;
 
@@ -41,6 +44,8 @@ class LikeMailNotificationServiceTest {
 
     private User user;
     private Performance performance;
+    private Place place;
+    private File mockFile;
     private Like like;
 
     @BeforeEach
@@ -52,11 +57,27 @@ class LikeMailNotificationServiceTest {
             .provider("google")
             .build();
 
-        performance = Performance.builder()
-            .id(1L)
-            .title("테스트 공연")
-            .startTime(LocalDateTime.now().plusHours(1))
-            .build();
+        place = new Place(1L, "서울특별시 서초구 서초동 1307", "강남아트홀", 100);
+
+        mockFile = File.builder()
+                .id(1L)
+                .encodedFileName("poster.jpg")
+                .originalFileName("sample.jpg")
+                .build();
+
+        performance = new Performance(
+                1L,
+                "테스트 공연",
+                "라따뚜이는 픽시의 영화입니다.",
+                place,
+                LocalDateTime.now().plusHours(1),
+                LocalDateTime.now().plusHours(3),
+                Category.MOVIE,
+                false,
+                false,
+                LocalDateTime.now().minusDays(1),
+                mockFile
+        );
 
         like = Like.builder()
             .id(1L)
