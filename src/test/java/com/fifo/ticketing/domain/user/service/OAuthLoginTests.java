@@ -81,7 +81,7 @@ class OAuthLoginTests {
         oAuth2LoginSuccessHandler.onAuthenticationSuccess(request, response, token);
 
         verify(session).setAttribute("loginUser", new SessionUser(1L, "테스트 유저", Role.USER));
-        verify(response).sendRedirect("/");
+        verify(response).sendRedirect("/performances");
     }
 
     @Test
