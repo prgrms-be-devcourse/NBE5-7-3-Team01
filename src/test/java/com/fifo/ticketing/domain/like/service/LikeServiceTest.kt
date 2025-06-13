@@ -5,12 +5,16 @@ import com.fifo.ticketing.domain.like.entity.Like
 import com.fifo.ticketing.domain.like.entity.LikeCount
 import com.fifo.ticketing.domain.like.repository.LikeCountRepository
 import com.fifo.ticketing.domain.like.repository.LikeRepository
-import com.fifo.ticketing.domain.performance.entity.*
+import com.fifo.ticketing.domain.performance.entity.Category
+import com.fifo.ticketing.domain.performance.entity.Performance
+import com.fifo.ticketing.domain.performance.entity.Place
 import com.fifo.ticketing.domain.performance.repository.PerformanceRepository
 import com.fifo.ticketing.domain.user.entity.User
 import com.fifo.ticketing.domain.user.repository.UserRepository
 import com.fifo.ticketing.global.entity.File
-import io.mockk.*
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -50,11 +54,7 @@ class LikeServiceTest {
 
         place = Place(1L, "서울특별시 서초구 서초동 1307", "강남아트홀", 100)
 
-        mockFile = File.builder()
-            .id(1L)
-            .encodedFileName("poster.png")
-            .originalFileName("poster-original.png")
-            .build()
+        mockFile = File(1L, "poster.png", "poster-original.png")
 
         mockPerformance = Performance(
             performanceId,

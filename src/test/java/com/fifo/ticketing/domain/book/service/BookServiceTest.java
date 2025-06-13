@@ -94,21 +94,17 @@ class BookServiceTest {
             .build();
 
         place = new Place(1L, "서울특별시 서초구 서초동 1307", "강남아트홀", 100);
-        File mockFile = File.builder()
-            .id(1L)
-            .encodedFileName("poster.jpg")
-            .originalFileName("sample.jpg")
-            .build();
+        File mockFile = new File(1L, "poster.jpg", "sample.jpg");
 
         mockPerformance = new Performance(
-                100L, "라따뚜이", "라따뚜이는 픽시의 영화입니다.", place,
-                LocalDateTime.of(2025, 6, 1, 19, 0),
-                LocalDateTime.of(2025, 6, 1, 21, 0),
-                Category.MOVIE,
-                false,
-                false,
-                LocalDateTime.of(2025, 5, 12, 19, 0),
-                mockFile
+            100L, "라따뚜이", "라따뚜이는 픽시의 영화입니다.", place,
+            LocalDateTime.of(2025, 6, 1, 19, 0),
+            LocalDateTime.of(2025, 6, 1, 21, 0),
+            Category.MOVIE,
+            false,
+            false,
+            LocalDateTime.of(2025, 5, 12, 19, 0),
+            mockFile
         );
 
         mockBook = Book.builder()
