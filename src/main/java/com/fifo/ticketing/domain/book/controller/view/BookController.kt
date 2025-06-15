@@ -58,8 +58,8 @@ class BookController(
         val bookCompleteInfo = bookService.getBookCompleteInfo(bookId)
         bookCompleteInfo.paymentCompleted = paid
 
-        model["book"] =  bookCompleteInfo
-        model["bookId"] =  bookId
+        model["book"] = bookCompleteInfo
+        model["bookId"] = bookId
 
         return "book/complete"
     }
