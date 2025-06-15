@@ -9,7 +9,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @EnableAsync
 @EnableScheduling
-@EnableJpaAuditing
 @SpringBootApplication
 public class TicketingApplication {
 
