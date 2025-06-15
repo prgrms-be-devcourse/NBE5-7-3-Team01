@@ -7,7 +7,6 @@ import com.fifo.ticketing.global.repository.FileRepository
 import com.fifo.ticketing.global.util.ImageTypeChecker.isImage
 import com.fifo.ticketing.global.util.ImageTypeChecker.validImageExtension
 import jakarta.transaction.Transactional
-import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
