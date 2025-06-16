@@ -10,14 +10,14 @@ class BookScheduledTask(
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private val id: Long? = null,
+    val id: Long? = null,
 
-    private val bookId: Long,
+    val bookId: Long,
 
-    private val scheduledTime: LocalDateTime,
+    val scheduledTime: LocalDateTime,
 
     @Enumerated(EnumType.STRING)
-    private var taskStatus: TaskStatus = TaskStatus.PENDING,
+    var taskStatus: TaskStatus = TaskStatus.PENDING,
 
     ) : BaseDateEntity() {
 

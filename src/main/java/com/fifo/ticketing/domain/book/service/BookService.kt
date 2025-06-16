@@ -98,7 +98,7 @@ class BookService(
 
         book.canceled()
 
-        SeatService.changeSeatStatus(bookSeats, SeatStatus.AVAILABLE)
+        seatService.changeSeatStatus(bookSeats, SeatStatus.AVAILABLE)
 
         return bookId
     }
@@ -163,7 +163,7 @@ class BookService(
 
         book.payed()
 
-        SeatService.changeSeatStatus(bookSeats, SeatStatus.OCCUPIED)
+        seatService.changeSeatStatus(bookSeats, SeatStatus.OCCUPIED)
     }
 
     @Transactional
@@ -196,7 +196,7 @@ class BookService(
 
         val bookSeats = bookSeatRepository.findAllByBookId(bookId)
 
-        SeatService.changeSeatStatus(bookSeats, SeatStatus.AVAILABLE)
+        seatService.changeSeatStatus(bookSeats, SeatStatus.AVAILABLE)
     }
 
 }
