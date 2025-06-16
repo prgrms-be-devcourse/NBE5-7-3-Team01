@@ -2,8 +2,8 @@ package com.fifo.ticketing.domain.book.controller.view
 
 import com.fifo.ticketing.domain.book.dto.BookCreateRequest
 import com.fifo.ticketing.domain.book.service.BookKtService
-import com.fifo.ticketing.domain.book.service.BookMailService
 import com.fifo.ticketing.domain.book.service.BookService
+import com.fifo.ticketing.global.service.MailService
 import com.fifo.ticketing.global.util.UserValidator.validateSessionUser
 import jakarta.servlet.http.HttpSession
 import lombok.RequiredArgsConstructor
@@ -20,7 +20,7 @@ import org.springframework.web.servlet.view.RedirectView
 class BookController(
     private val bookService: BookService,
     private val bookKtService: BookKtService,
-    private val bookMailService: BookMailService,
+    private val mailService: MailService,
 ) {
 
     @PostMapping
@@ -43,7 +43,7 @@ class BookController(
         bookService.completePayment(bookId)
 
         val bookMailInfo = bookService.getBookMailInfo(bookId)
-        bookMailService.sendBookCompleteMail(bookMailInfo)
+        mailService.sendBookInformationNoticeMail(bookMailInfo)
 
         redirectAttributes["paid"] = true
         return "redirect:/performances/$performanceId/book/complete/$bookId"

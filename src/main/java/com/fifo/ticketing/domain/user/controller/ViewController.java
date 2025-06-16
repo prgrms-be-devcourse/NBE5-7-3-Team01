@@ -4,11 +4,11 @@ import com.fifo.ticketing.domain.book.dto.BookMailSendDto;
 import com.fifo.ticketing.domain.book.dto.BookedView;
 import com.fifo.ticketing.domain.book.entity.BookStatus;
 import com.fifo.ticketing.domain.book.service.BookKtService;
-import com.fifo.ticketing.domain.book.service.BookMailService;
 import com.fifo.ticketing.domain.book.service.BookService;
 import com.fifo.ticketing.domain.user.dto.SessionUser;
 import com.fifo.ticketing.domain.user.dto.form.SignUpForm;
 import com.fifo.ticketing.domain.user.service.UserFormService;
+import com.fifo.ticketing.global.service.MailService;
 import com.fifo.ticketing.global.util.UserValidator;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -34,7 +34,7 @@ public class ViewController {
     private final UserFormService userFormService;
     private final BookService bookService;
     private final BookKtService bookKtService;
-    private final BookMailService bookMailService;
+    private final MailService mailService;
 
     @GetMapping("/")
     public String homePage(HttpSession session, Model model) {
@@ -128,7 +128,7 @@ public class ViewController {
         bookKtService.cancelBook(bookId, loginUser.id);
 
         BookMailSendDto bookMailInfo = bookService.getBookMailInfo(bookId);
-        bookMailService.sendBookCompleteMail(bookMailInfo);
+        mailService.sendBookInformationNoticeMail(bookMailInfo);
 
         redirectAttributes.addFlashAttribute("alertMessage", "예매가 성공적으로 취소되었습니다.");
         return "redirect:/users/books";
