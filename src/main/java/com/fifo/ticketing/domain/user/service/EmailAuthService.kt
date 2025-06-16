@@ -1,5 +1,6 @@
 package com.fifo.ticketing.domain.user.service
 
+import com.fifo.ticketing.global.service.RedisService
 import jakarta.mail.MessagingException
 import jakarta.mail.internet.MimeMessage
 import jakarta.servlet.http.HttpSession

@@ -1,6 +1,6 @@
 package com.fifo.ticketing.global.capcha
 
-import com.fifo.ticketing.domain.user.service.RedisService
+import com.fifo.ticketing.global.service.RedisService
 import com.fifo.ticketing.global.capcha.dto.CaptchaResponse
 import com.fifo.ticketing.global.capcha.dto.CaptchaVerifyRequest
 import org.springframework.http.ResponseEntity
