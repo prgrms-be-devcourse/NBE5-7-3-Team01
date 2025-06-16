@@ -15,12 +15,12 @@ class CaptchaController(
 
     @GetMapping
     fun generateCaptcha(): CaptchaResponse {
-        val randText = generateRandomText()
+        val randomText = generateRandomText()
         val id = UUID.randomUUID().toString()
 
-        captchaStorage[id] = randText;
+        captchaStorage[id] = randomText;
 
-        val image = createCaptchaImage(randText)
+        val image = createCaptchaImage(randomText)
         val imageBase64 = Base64.getEncoder().encodeToString(image)
 
         return CaptchaResponse(id, "data:image/png;base64,$imageBase64")
