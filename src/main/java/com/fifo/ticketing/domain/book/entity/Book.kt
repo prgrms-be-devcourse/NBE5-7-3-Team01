@@ -40,7 +40,7 @@ class Book(
 
     @OneToOne
     @JoinColumn(name = "task_id")
-    val scheduledTask: BookScheduledTask? = null
+    var scheduledTask: BookScheduledTask? = null
 ) : BaseDateEntity() {
 
     fun canceled() {

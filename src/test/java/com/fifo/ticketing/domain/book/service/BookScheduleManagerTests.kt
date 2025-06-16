@@ -106,6 +106,8 @@ class BookScheduleManagerTests {
                 bookStatus = BookStatus.CONFIRMED
             )
 
+            mockBook.scheduledTask = mockTask
+
             var mockBookSeat = BookSeat(
                 id = 1L,
                 book = mockBook,

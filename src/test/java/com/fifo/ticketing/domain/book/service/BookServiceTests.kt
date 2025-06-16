@@ -261,6 +261,7 @@ class BookServiceTests {
 
         every { bookRepository.findByUserIdAndId(actualUserId, actualBookId) } returns mockBook
         every { bookSeatRepository.findAllByBookId(actualBookId) } returns listOf(mockBookSeat)
+        every { seatService.changeSeatStatus(listOf(mockBookSeat), SeatStatus.AVAILABLE) } returns Unit
 
         val cancelBookId = bookService.cancelBook(actualBookId, actualUserId)
 

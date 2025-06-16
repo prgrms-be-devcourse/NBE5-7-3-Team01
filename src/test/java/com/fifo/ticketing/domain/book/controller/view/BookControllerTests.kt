@@ -43,14 +43,6 @@ class BookControllerTests {
     @MockitoBean
     lateinit var bookService: BookService
 
-    @MockitoBean
-
-    @MockitoBean
-    lateinit var mailService: MailService
-
-    @Autowired
-    lateinit var om: ObjectMapper
-
     @Test
     fun `createBook - 예매 생성 요청을 보내면 createBook 메서드가 정상적으로 실행된다`() = runTest {
 
