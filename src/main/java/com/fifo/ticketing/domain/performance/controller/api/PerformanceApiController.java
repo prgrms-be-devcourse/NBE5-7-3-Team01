@@ -36,7 +36,7 @@ public class PerformanceApiController {
     public ResponseEntity<?> updatePerformance(
             @PathVariable Long id,
             @RequestPart(value = "file", required = false) MultipartFile file,
-            @RequestPart("request") PerformanceRequestDto request) throws IOException {
+            @RequestPart("request") @Valid PerformanceRequestDto request) throws IOException {
         adminPerformanceService.updatePerformance(id, request, file);
         return ResponseEntity.ok("공연이 수정되었습니다.");
     }
