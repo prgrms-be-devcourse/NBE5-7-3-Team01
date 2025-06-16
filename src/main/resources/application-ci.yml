@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:h2:mem:testdb;MODE=MYSQL;INIT=CREATE SCHEMA IF NOT EXISTS "fifo-db"\;SET SCHEMA "fifo-db"
+    url: jdbc:h2:mem:testdb
     driver-class-name: org.h2.Driver
     username: sa
     password:
@@ -74,3 +74,9 @@ spring:
 file:
   upload-dir: /tmp/uploads/
   url-prefix: /uploads/
+
+logging:
+  level:
+    org.hibernate.SQL: debug
+    org.hibernate.type.descriptor.sql.BasicBinder: trace
+    org.springframework.jdbc.datasource.init.ScriptUtils: debug
