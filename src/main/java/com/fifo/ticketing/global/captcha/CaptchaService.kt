@@ -1,4 +1,4 @@
-package com.fifo.ticketing.global.capcha
+package com.fifo.ticketing.global.captcha
 
 import java.awt.Color
 import java.awt.Font

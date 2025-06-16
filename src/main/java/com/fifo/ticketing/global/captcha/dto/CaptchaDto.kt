@@ -1,4 +1,4 @@
-package com.fifo.ticketing.global.capcha.dto
+package com.fifo.ticketing.global.captcha.dto
 
 data class CaptchaResponse(
     val captchaId: String,
