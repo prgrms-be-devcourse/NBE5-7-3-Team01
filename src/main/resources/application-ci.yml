@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:h2:mem:testdb
+    url: jdbc:h2:mem:testdb;MODE=MYSQL;INIT=CREATE SCHEMA IF NOT EXISTS "fifo-db"\;SET SCHEMA "fifo-db"
     driver-class-name: org.h2.Driver
     username: sa
     password:
