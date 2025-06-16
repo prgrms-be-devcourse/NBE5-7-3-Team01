@@ -32,8 +32,8 @@ class LikeMailNotificationService(
         val end = targetTime.plusMinutes(30)
 
         likeRepository.findLikesByTargetTime(start, end)
-            .filter { isEmailSendTarget(it.getUser()) }
-            .map { toReservationStartMailDto(it.getUser(), it.getPerformance()) }
+            .filter { isEmailSendTarget(it.user) }
+            .map { toReservationStartMailDto(it.user, it.performance) }
             .forEach { dto -> eventPublisher.publishEvent(dto) }
     }
 

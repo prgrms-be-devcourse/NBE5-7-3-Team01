@@ -1,32 +1,31 @@
-package com.fifo.ticketing.domain.like.controller;
+package com.fifo.ticketing.domain.like.controller
 
-import com.fifo.ticketing.domain.like.dto.LikeRequest;
-import com.fifo.ticketing.domain.like.service.LikeService;
-import com.fifo.ticketing.domain.user.dto.SessionUser;
-import com.fifo.ticketing.global.util.UserValidator;
-import jakarta.servlet.http.HttpSession;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import com.fifo.ticketing.domain.like.dto.LikeRequest
+import com.fifo.ticketing.domain.like.service.LikeService
+import com.fifo.ticketing.global.util.UserValidator.validateSessionUser
+import jakarta.servlet.http.HttpSession
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("/user/like")
-public class UserLikeController {
-
-    private final LikeService likeService;
-
-
+class UserLikeController(
+    private val likeService: LikeService
+) {
     @PostMapping
-    public ResponseEntity<String> toggleLike(@RequestBody LikeRequest likeRequest
-        ,HttpSession httpSession){
+    fun toggleLike(
+        @RequestBody likeRequest: LikeRequest,
+        httpSession: HttpSession
+    ): ResponseEntity<String> {
         //LoginSuccessHandler에서 SessionUser로 저장했기 때문에
-        SessionUser sessionUser = UserValidator.validateSessionUser(httpSession);
+        val sessionUser = validateSessionUser(httpSession)
 
         // record라서 .getId()가 아니라 .id()
-        boolean liked = likeService.toggleLike(sessionUser.id, likeRequest);
-        return ResponseEntity.ok(liked ? "Liked" : "Unliked");
+        val liked = likeService.toggleLike(sessionUser.id, likeRequest)
+        return ResponseEntity.ok(if (liked) "Liked" else "Unliked")
     }
-
 }
 

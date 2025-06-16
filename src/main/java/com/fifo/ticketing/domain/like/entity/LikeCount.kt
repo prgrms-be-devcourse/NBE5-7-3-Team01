@@ -1,39 +1,21 @@
-package com.fifo.ticketing.domain.like.entity;
+package com.fifo.ticketing.domain.like.entity
 
-import com.fifo.ticketing.domain.performance.entity.Performance;
-import com.fifo.ticketing.global.entity.BaseDateEntity;
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import com.fifo.ticketing.domain.performance.entity.Performance
+import jakarta.persistence.*
+
 
 @Entity
-@Getter
-@Builder
 @Table(name = "like_count")
-@NoArgsConstructor
-@AllArgsConstructor
-public class LikeCount extends BaseDateEntity {
+class LikeCount(
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    val id: Long? = null,
 
     @OneToOne
-    @JoinColumn(name = "performance_id", nullable = false, foreignKey = @ForeignKey(name = "fk_like_count_performance"))
-    private Performance performance;
+    @JoinColumn(name = "performance_id", nullable = false, foreignKey = ForeignKey(name = "fk_like_count_performance"))
+    val performance: Performance,
 
     @Column(nullable = false)
-    private Long likeCount;
-
-    public void setLikeCount(long likeCount) {
-        this.likeCount = likeCount;
-    }
-
-    public long getLikeCount() {
-        return this.likeCount;
-    }
-
-
-}
+    var likeCount: Long,
+)

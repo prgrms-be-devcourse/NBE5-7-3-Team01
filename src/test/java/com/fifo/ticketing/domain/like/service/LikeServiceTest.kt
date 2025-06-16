@@ -70,11 +70,8 @@ class LikeServiceTest {
             mockFile
         );
 
-        mockLikeCount = LikeCount.builder()
-            .id(1L)
-            .performance(mockPerformance)
-            .likeCount(1)
-            .build()
+        mockLikeCount = LikeCount(1L, mockPerformance, 1)
+
     }
 
     @Test
@@ -101,11 +98,12 @@ class LikeServiceTest {
     fun `이미 좋아요 누른 상태면 취소되고 likeCount 감소`() {
         val request = LikeRequest(performanceId)
 
-        val existingLike = Like.builder()
-            .user(mockUser)
-            .performance(mockPerformance)
-            .isLiked(true)
-            .build()
+        val existingLike = Like(
+            id = null,
+            user = mockUser,
+            performance = mockPerformance,
+            isLiked = true
+        )
 
         every { userRepository.findById(userId) } returns Optional.of(mockUser)
         every { performanceRepository.findById(performanceId) } returns Optional.of(mockPerformance)
@@ -122,7 +120,7 @@ class LikeServiceTest {
         val result = likeService.toggleLike(userId, request)
 
         assertThat(result).isFalse()
-        assertThat(existingLike.getIsLiked()).isFalse()
+        assertThat(existingLike.isLiked).isFalse()
         assertThat(mockLikeCount.likeCount).isEqualTo(0L)
     }
 
@@ -130,11 +128,12 @@ class LikeServiceTest {
     fun `좋아요 취소한 상태에서 다시 누르면 likeCount 증가`() {
         val request = LikeRequest(performanceId)
 
-        val existingLike = Like.builder()
-            .user(mockUser)
-            .performance(mockPerformance)
-            .isLiked(false)
-            .build()
+        val existingLike = Like(
+            id = null,
+            user = mockUser,
+            performance = mockPerformance,
+            isLiked = false
+        )
 
         every { userRepository.findById(userId) } returns Optional.of(mockUser)
         every { performanceRepository.findById(performanceId) } returns Optional.of(mockPerformance)
@@ -151,7 +150,7 @@ class LikeServiceTest {
         val result = likeService.toggleLike(userId, request)
 
         assertThat(result).isTrue()
-        assertThat(existingLike.getIsLiked()).isTrue()
+        assertThat(existingLike.isLiked).isTrue()
         assertThat(mockLikeCount.likeCount).isEqualTo(2L)
     }
 }
