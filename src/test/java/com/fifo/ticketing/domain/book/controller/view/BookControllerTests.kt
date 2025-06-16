@@ -2,7 +2,6 @@ package com.fifo.ticketing.domain.book.controller.view
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fifo.ticketing.domain.book.dto.BookCreateRequest
-import com.fifo.ticketing.domain.book.service.BookKtService
 import com.fifo.ticketing.domain.book.service.BookMailService
 import com.fifo.ticketing.domain.book.service.BookService
 import com.fifo.ticketing.domain.user.dto.SessionUser
@@ -45,7 +44,6 @@ class BookControllerTests {
     lateinit var bookService: BookService
 
     @MockitoBean
-    lateinit var bookKtService: BookKtService
 
     @MockitoBean
     lateinit var bookMailService: BookMailService
@@ -69,7 +67,7 @@ class BookControllerTests {
             .exchange()
             .returnResult<Void>()
             .responseCookies["JSESSIONID"]?.first()
-        `when`(bookKtService.createBook(performanceId, userId, request))
+        `when`(bookService.createBook(performanceId, userId, request))
             .thenReturn(bookId)
 
         // when
@@ -82,7 +80,7 @@ class BookControllerTests {
             .valueMatches("Location", ".*/performances/$performanceId/book/complete/$bookId")
 
         // then
-        verify(bookKtService).createBook(performanceId, userId, request)
+        verify(bookService).createBook(performanceId, userId, request)
 
     }
 }
