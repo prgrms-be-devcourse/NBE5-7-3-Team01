@@ -227,8 +227,8 @@ class AdminPerformanceServiceTests {
             category = Category.CONCERT,
             performanceStatus = true,
             startTime = LocalDateTime.of(2025, 9, 1, 17, 0),
-            endTime = LocalDateTime.of(2025, 9, 1, 19, 0), // 종료시간보다 시작시간이 늦음
-            reservationStartTime = LocalDateTime.of(2025, 9, 2, 10, 0),
+            endTime = LocalDateTime.of(2025, 9, 1, 19, 0),
+            reservationStartTime = LocalDateTime.of(2025, 9, 2, 10, 0), // 예약 시작 시간보다 공연 시작 시작이 늦음
             placeId = 1L
         )
 
