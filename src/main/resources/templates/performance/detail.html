@@ -76,6 +76,28 @@
     justify-content: flex-start;
   }
 </style>
+
+<div id="captchaModal"
+     class="fixed inset-0 bg-black bg-opacity-50 hidden flex justify-center items-center z-50">
+  <div class="bg-white p-6 rounded shadow max-w-sm w-full text-center">
+    <h2 class="text-lg font-semibold mb-4">자동입력 방지 확인</h2>
+    <img id="captchaImage" src="" alt="captcha" class="mx-auto mb-3"/>
+    <input type="text" id="captchaInput" placeholder="위에 보이는 문자를 입력하세요"
+           class="border px-3 py-1 w-full rounded mb-3"/>
+    <input type="hidden" id="captchaId"/>
+    <div class="flex justify-between gap-2">
+      <button id="captchaConfirmBtn"
+              class="flex-1 bg-tickethub text-white py-2 rounded hover:bg-tickethub-dark">
+        확인
+      </button>
+      <button id="captchaCancelBtn"
+              class="flex-1 bg-gray-400 text-white py-2 rounded hover:bg-gray-500">
+        취소
+      </button>
+    </div>
+  </div>
+</div>
+
 <div
     class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-10 bg-white rounded-lg shadow p-6">
   <!-- 왼쪽: 포스터 -->
@@ -115,9 +137,11 @@
             class="w-full bg-tickethub text-white py-2 rounded hover:bg-tickethub-dark">좌석 선택
     </button>
 
-    <div th:unless="${performanceDetail.performanceStatus}" class="w-full bg-gray-200 text-gray-700 py-2 px-4 rounded text-center">
-      예매는<br />
-      <span th:text="${#temporals.format(performanceDetail.reservationStartTime, 'yyyy년 MM월 dd일 HH시')}"></span><br />
+    <div th:unless="${performanceDetail.performanceStatus}"
+         class="w-full bg-gray-200 text-gray-700 py-2 px-4 rounded text-center">
+      예매는<br/>
+      <span
+          th:text="${#temporals.format(performanceDetail.reservationStartTime, 'yyyy년 MM월 dd일 HH시')}"></span><br/>
       부터 가능합니다.
     </div>
 
@@ -177,12 +201,55 @@
   const modalList = document.getElementById("selected-seat-list-modal");
   const seatsPerRow = 10;
 
-  // 모달 열기
-  openModalBtn.addEventListener("click", () => {
-    modal.classList.remove("hidden");
-    overlay.classList.remove("hidden");
-    renderSeats();
+  const captchaModal = document.getElementById("captchaModal")
+  const captchaImage = document.getElementById("captchaImage")
+  const captchaInput = document.getElementById("captchaInput");
+  const captchaIdInput = document.getElementById("captchaId");
+  const captchaConfirmBtn = document.getElementById("captchaConfirmBtn");
+  const captchaCancelBtn = document.getElementById("captchaCancelBtn");
+
+  openModalBtn.addEventListener("click", () => fetchCaptcha());
+
+  captchaConfirmBtn.addEventListener("click", () => {
+    const input = captchaInput.value.trim();
+    const captchaId = captchaIdInput.value;
+
+    fetch("/api/captcha/verify", {
+      method: "POST",
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({captchaId, input})
+    }).then(res => {
+      if (res.ok) {
+        captchaModal.classList.add("hidden");
+        modal.classList.remove("hidden");
+        overlay.classList.remove("hidden");
+        renderSeats();
+      } else {
+        res.text().then(msg => {
+          alert(msg || "캡차가 틀렸습니다.");
+          fetchCaptcha();
+        });
+      }
+    }).catch(err => {
+      alert("서버 오류가 발생했습니다.");
+      console.error(err);
+    })
+  })
+
+  captchaCancelBtn.addEventListener("click", () => {
+    captchaModal.classList.add("hidden");
   });
+
+  function fetchCaptcha() {
+    fetch("/api/captcha")
+    .then(res => res.json())
+    .then(data => {
+      captchaImage.src = data.image;
+      captchaIdInput.value = data.captchaId;
+      captchaInput.value = "";
+      captchaModal.classList.remove("hidden");
+    })
+  }
 
   // 모달 닫기
   closeModalBtn.addEventListener("click", () => {

@@ -50,12 +50,8 @@ class LikeMailNotificationServiceTest {
             LocalDateTime.now().minusDays(1)
         )
 
-        like = Like.builder()
-            .id(1L)
-            .user(user)
-            .performance(performance)
-            .isLiked(true)
-            .build()
+        like = Like(1L, user, performance, true)
+
 
         service = LikeMailNotificationService(
             likeRepository, eventPublisher, bookRepository, seatRepository

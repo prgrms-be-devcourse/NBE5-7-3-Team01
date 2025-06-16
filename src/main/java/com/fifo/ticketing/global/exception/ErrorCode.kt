@@ -33,6 +33,7 @@ enum class ErrorCode(
         ErrorStatus.BAD_REQUEST
     ),
     INVALID_DATETIME_TYPE("DATETIME-002", "날짜 형식이 올바르지 않습니다.", ErrorStatus.BAD_REQUEST),
+    INVALID_DATETIME_RESERVATION("DATETIME-003", "예약 시작 시간은 공연 시작 시간 이전이어야 합니다.", ErrorStatus.BAD_REQUEST),
     EMAIL_ALREADY_REGISTERED_WITH_DIFFERENT_PROVIDER(
         "AUTH-004",
         "이미 가입된 이메일입니다. 일반 로그인 방식으로 로그인 해주세요.",

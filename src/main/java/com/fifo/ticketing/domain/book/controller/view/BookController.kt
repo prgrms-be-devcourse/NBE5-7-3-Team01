@@ -11,6 +11,7 @@ import org.springframework.ui.Model
 import org.springframework.ui.set
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
+import org.springframework.web.servlet.view.RedirectView
 
 @Controller
 @RequiredArgsConstructor
@@ -25,11 +26,11 @@ class BookController(
         @PathVariable performanceId: Long,
         session: HttpSession,
         @RequestParam seatIds: List<Long>
-    ): String {
+    ): RedirectView {
         val loginUser = validateSessionUser(session)
         val request = BookCreateRequest(seatIds)
         val bookId = bookService.createBook(performanceId, loginUser.id, request)
-        return "redirect:/performances/$performanceId/book/complete/$bookId"
+        return RedirectView("/performances/$performanceId/book/complete/$bookId")
     }
 
     @PostMapping("/complete/{bookId}/paid")
@@ -55,8 +56,8 @@ class BookController(
         val bookCompleteInfo = bookService.getBookCompleteInfo(bookId)
         bookCompleteInfo.paymentCompleted = paid
 
-        model["book"] =  bookCompleteInfo
-        model["bookId"] =  bookId
+        model["book"] = bookCompleteInfo
+        model["bookId"] = bookId
 
         return "book/complete"
     }
