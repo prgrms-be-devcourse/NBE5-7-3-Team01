@@ -1,4 +1,4 @@
-package com.fifo.ticketing.domain.user.service
+package com.fifo.ticketing.global.service
 
 import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.stereotype.Service
