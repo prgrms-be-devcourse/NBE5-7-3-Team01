@@ -83,7 +83,7 @@
     <h2 class="text-lg font-semibold mb-4">자동입력 방지 확인</h2>
     <img id="captchaImage" src="" alt="captcha" class="mx-auto mb-3"/>
     <input type="text" id="captchaInput" placeholder="위에 보이는 문자를 입력하세요"
-      class="border px-3 py-1 w-full rounded mb-3"/>
+           class="border px-3 py-1 w-full rounded mb-3"/>
     <input type="hidden" id="captchaId"/>
     <div class="flex justify-between gap-2">
       <button id="captchaConfirmBtn"
@@ -137,9 +137,11 @@
             class="w-full bg-tickethub text-white py-2 rounded hover:bg-tickethub-dark">좌석 선택
     </button>
 
-    <div th:unless="${performanceDetail.performanceStatus}" class="w-full bg-gray-200 text-gray-700 py-2 px-4 rounded text-center">
-      예매는<br />
-      <span th:text="${#temporals.format(performanceDetail.reservationStartTime, 'yyyy년 MM월 dd일 HH시')}"></span><br />
+    <div th:unless="${performanceDetail.performanceStatus}"
+         class="w-full bg-gray-200 text-gray-700 py-2 px-4 rounded text-center">
+      예매는<br/>
+      <span
+          th:text="${#temporals.format(performanceDetail.reservationStartTime, 'yyyy년 MM월 dd일 HH시')}"></span><br/>
       부터 가능합니다.
     </div>
 
@@ -206,13 +208,6 @@
   const captchaConfirmBtn = document.getElementById("captchaConfirmBtn");
   const captchaCancelBtn = document.getElementById("captchaCancelBtn");
 
-  // 모달 열기
-  // openModalBtn.addEventListener("click", () => {
-  //   modal.classList.remove("hidden");
-  //   overlay.classList.remove("hidden");
-  //   renderSeats();
-  // });
-
   openModalBtn.addEventListener("click", () => fetchCaptcha());
 
   captchaConfirmBtn.addEventListener("click", () => {
@@ -224,12 +219,12 @@
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({captchaId, input})
     }).then(res => {
-      if(res.ok){
+      if (res.ok) {
         captchaModal.classList.add("hidden");
         modal.classList.remove("hidden");
         overlay.classList.remove("hidden");
         renderSeats();
-      }else{
+      } else {
         res.text().then(msg => {
           alert(msg || "캡차가 틀렸습니다.");
           fetchCaptcha();
@@ -245,7 +240,7 @@
     captchaModal.classList.add("hidden");
   });
 
-  function fetchCaptcha(){
+  function fetchCaptcha() {
     fetch("/api/captcha")
     .then(res => res.json())
     .then(data => {
