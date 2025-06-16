@@ -79,7 +79,7 @@ object BookMapper {
 
 
     @JvmStatic
-    fun toBookScheduledTaskEntity(bookId: Long?, runtime: LocalDateTime?): BookScheduledTask {
+    fun toBookScheduledTaskEntity(bookId: Long, runtime: LocalDateTime): BookScheduledTask {
         return BookScheduledTask.create(bookId, runtime)
     }
 
