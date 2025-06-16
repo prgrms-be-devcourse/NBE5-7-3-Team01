@@ -2,13 +2,14 @@ package com.fifo.ticketing.domain.book.service
 
 import com.fifo.ticketing.domain.book.entity.BookScheduledTask
 import com.fifo.ticketing.domain.book.entity.BookStatus
-import com.fifo.ticketing.domain.book.mapper.BookMapper.toBookScheduledTaskEntity
+import com.fifo.ticketing.domain.book.mapper.toBookScheduledTask
 import com.fifo.ticketing.domain.book.repository.BookRepository
 import com.fifo.ticketing.domain.book.repository.BookScheduleRepository
 import com.fifo.ticketing.domain.book.repository.BookSeatRepository
 import com.fifo.ticketing.domain.seat.repository.SeatRepository
 import com.fifo.ticketing.global.exception.ErrorCode
 import com.fifo.ticketing.global.exception.ErrorException
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -16,9 +17,9 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
 import java.util.*
-import io.github.oshai.kotlinlogging.KotlinLogging
 
 private val log = KotlinLogging.logger {}
+
 @Service
 class BookScheduleManager(
     private val bookScheduleRepository: BookScheduleRepository,
@@ -34,9 +35,9 @@ class BookScheduleManager(
 
     @Transactional
     suspend fun scheduleCancelTask(bookId: Long, runTime: LocalDateTime) {
-        bookScheduleRepository.save(toBookScheduledTaskEntity(bookId, runTime))
+        bookScheduleRepository.save(bookId.toBookScheduledTask(runTime))
 
-        log.info{"${bookId}번 예매 생성됨 | ${LocalDateTime.now()}"}
+        log.info { "${bookId}번 예매 생성됨 | ${LocalDateTime.now()}" }
 
 
         // 레포지토리에 작업이 저장되면 실행됨
@@ -59,7 +60,7 @@ class BookScheduleManager(
 
             bookRepository.save(book)
 
-            log.info{"${bookId}번 예매 취소됨 | ${LocalDateTime.now()}"}
+            log.info { "${bookId}번 예매 취소됨 | ${LocalDateTime.now()}" }
 
             val bookSeats = bookSeatRepository.findAllByBookIdWithSeat(book.id)
             bookSeats.map {

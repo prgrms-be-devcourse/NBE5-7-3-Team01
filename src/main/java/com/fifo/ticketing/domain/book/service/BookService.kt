@@ -4,12 +4,7 @@ import com.fifo.ticketing.domain.book.dto.*
 import com.fifo.ticketing.domain.book.entity.Book
 import com.fifo.ticketing.domain.book.entity.BookSeat
 import com.fifo.ticketing.domain.book.entity.BookStatus
-import com.fifo.ticketing.domain.book.mapper.BookMapper
-import com.fifo.ticketing.domain.book.mapper.BookMapper.getBookMailInfo
-import com.fifo.ticketing.domain.book.mapper.BookMapper.toBookCompleteDto
-import com.fifo.ticketing.domain.book.mapper.BookMapper.toBookEntity
-import com.fifo.ticketing.domain.book.mapper.BookMapper.toBookSeatEntities
-import com.fifo.ticketing.domain.book.mapper.BookMapper.toBookedViewDtoList
+import com.fifo.ticketing.domain.book.mapper.*
 import com.fifo.ticketing.domain.book.repository.BookRepository
 import com.fifo.ticketing.domain.book.repository.BookSeatRepository
 import com.fifo.ticketing.domain.performance.entity.Performance
@@ -77,11 +72,11 @@ class BookService(
         quantity: Int,
         selectedSeats: List<Seat>
     ): Book {
-        val book = toBookEntity(user, performance, totalPrice, quantity)
+        val book = user.toBook(performance, totalPrice, quantity)
         bookRepository.save(book)
         bookRepository.flush()
 
-        val bookSeatList = toBookSeatEntities(book, selectedSeats)
+        val bookSeatList = book.toBookSeatList(selectedSeats)
 
         bookSeatRepository.saveAll(bookSeatList)
         return book
@@ -110,7 +105,7 @@ class BookService(
             "예매 정보가 존재하지 않습니다."
         )
 
-        return BookMapper.toBookedViewDto(book, urlPrefix)
+        return book.toBookedView(urlPrefix)
     }
 
     fun getBookedList(
@@ -130,12 +125,12 @@ class BookService(
                 bookRepository.findAllByUserIdOrderByCreatedAtDesc(userId, pageable)
         }
 
-        return toBookedViewDtoList(bookPage, urlPrefix)
+        return bookPage.toBookedViewDtoList(urlPrefix)
     }
 
     @Transactional(readOnly = true)
     fun getBookUserDetail(bookId: Long, performanceId: Long): BookUserDetailDto {
-        val bookDetailByBookId = bookRepository.findBookDetailByBookId( bookId, performanceId )
+        val bookDetailByBookId = bookRepository.findBookDetailByBookId(bookId, performanceId)
 
         return bookDetailByBookId?.apply { urlPrefix = this@BookService.urlPrefix }
             ?: throw ErrorException(ErrorCode.NOT_FOUND_BOOK)
@@ -151,7 +146,7 @@ class BookService(
         val book = bookRepository.findById(bookId)
             .orElseThrow { ErrorException(ErrorCode.NOT_FOUND_BOOK) }
 
-        return toBookCompleteDto(book, urlPrefix)
+        return book.toBookCompleteDto(urlPrefix)
     }
 
     @Transactional
@@ -184,7 +179,7 @@ class BookService(
         val book = bookRepository.findById(bookId)
             .orElseThrow { ErrorException(ErrorCode.NOT_FOUND_BOOK) }
 
-        return getBookMailInfo(book)
+        return book.toBookMailSendDto()
     }
 
     @Transactional

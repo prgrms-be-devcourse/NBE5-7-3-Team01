@@ -29,7 +29,7 @@ public class SeatService {
     private final SeatRepository seatRepository;
     private final EntityManager entityManager;
 
-    public static void changeSeatStatus(List<BookSeat> bookSeats, SeatStatus newStatus) {
+    public void changeSeatStatus(List<BookSeat> bookSeats, SeatStatus newStatus) {
         for (BookSeat bookSeat : bookSeats) {
             Seat seat = bookSeat.getSeat();
             switch (newStatus) {
