@@ -23,7 +23,7 @@ class UserLikeController(
         //LoginSuccessHandler에서 SessionUser로 저장했기 때문에
         val sessionUser = validateSessionUser(httpSession)
 
-        // record라서 .getId()가 아니라 .id()
+
         val liked = likeService.toggleLike(sessionUser.id, likeRequest)
         return ResponseEntity.ok(if (liked) "Liked" else "Unliked")
     }
