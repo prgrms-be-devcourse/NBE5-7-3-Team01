@@ -43,7 +43,7 @@ class LikeService(
         }
 
         val isNowLiked = !existingLike.isLiked
-        existingLike.setLiked(isNowLiked)
+        existingLike.isLiked = isNowLiked
         likeRepository.save(existingLike)
         updateLike(performance, if (isNowLiked) 1 else -1)
         return isNowLiked
@@ -53,8 +53,8 @@ class LikeService(
         val likeCount =
             likeCountRepository.findByPerformance(performance) ?: throw ErrorException(ErrorCode.NOT_FOUND_PERFORMANCES)
 
-        val updatedCnt = max(0L, likeCount.getLikeCount() + cnt)
-        likeCount.setLikeCount(updatedCnt)
+        val updatedCnt = max(0L, likeCount.likeCount + cnt)
+        likeCount.likeCount = updatedCnt
         likeCountRepository.save(likeCount)
     }
 
