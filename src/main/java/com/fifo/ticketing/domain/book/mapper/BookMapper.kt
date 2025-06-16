@@ -79,7 +79,7 @@ object BookMapper {
 
 
     @JvmStatic
-    fun toBookScheduledTaskEntity(bookId: Long?, runtime: LocalDateTime?): BookScheduledTask {
+    fun toBookScheduledTaskEntity(bookId: Long, runtime: LocalDateTime): BookScheduledTask {
         return BookScheduledTask.create(bookId, runtime)
     }
 
@@ -88,7 +88,7 @@ object BookMapper {
         val performance = book.performance
         val user = book.user
 
-        val status = book.getBookStatus()
+        val status = book.bookStatus
 
         val mailTitle = when (status) {
             BookStatus.PAYED -> performance.title + MAIL_TITLE_PAYED
