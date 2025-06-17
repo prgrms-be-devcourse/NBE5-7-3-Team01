@@ -1,4 +1,4 @@
-package com.fifo.ticketing.domain.user.controller;
+package com.fifo.ticketing.domain.user.controller.view;
 
 import com.fifo.ticketing.domain.book.dto.BookMailSendDto;
 import com.fifo.ticketing.domain.book.dto.BookedView;
