@@ -7,7 +7,7 @@ fun Seat.toBookSeatViewDto(): BookSeatViewDto {
     val grade = this.grade
 
     return BookSeatViewDto(
-        seatId = (this.id),
+        seatId = (this.id!!),
         seatNumber = (this.seatNumber),
         grade = (grade.grade),
         price = (this.price),

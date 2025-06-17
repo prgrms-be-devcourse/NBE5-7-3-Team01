@@ -1,119 +1,82 @@
-package com.fifo.ticketing.domain.seat.entity;
+package com.fifo.ticketing.domain.seat.entity
 
-import com.fifo.ticketing.domain.performance.entity.Grade;
-import com.fifo.ticketing.domain.performance.entity.Performance;
-import com.fifo.ticketing.global.entity.BaseDateEntity;
-import com.fifo.ticketing.global.exception.AlertDetailException;
-import com.fifo.ticketing.global.exception.ErrorCode;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.ForeignKey;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import jakarta.persistence.Version;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import org.hibernate.annotations.BatchSize;
+import com.fifo.ticketing.domain.performance.entity.Grade
+import com.fifo.ticketing.domain.performance.entity.Performance
+import com.fifo.ticketing.global.entity.BaseDateEntity
+import com.fifo.ticketing.global.exception.AlertDetailException
+import com.fifo.ticketing.global.exception.ErrorCode
+import jakarta.persistence.*
+import lombok.Getter
+import lombok.NoArgsConstructor
+import org.hibernate.annotations.BatchSize
 
 @Entity
 @Getter
 @Table(name = "seats")
 @NoArgsConstructor
 @BatchSize(size = 100)
-public class Seat extends BaseDateEntity {
-
+class Seat // Version의 경우는 JPA가 Persist 시에 자동으로 생성하기 때문에 생성자에 추가하지 않아도 됩니다!
+    (
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    val id: Long?,
 
+    @JoinColumn(name = "performance_id", foreignKey = ForeignKey(name = "fk_seat_to_performance"))
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "performance_id", foreignKey = @ForeignKey(name = "fk_seat_to_performance"))
-    private Performance performance;
+    val performance: Performance,
 
-    @Column(name = "seat_number", nullable = false)
-    private String seatNumber;
+    @Column(
+        name = "seat_number",
+        nullable = false
+    )
+    var seatNumber: String,
 
     @Column(nullable = false)
-    private Integer price;
+    var price: Int,
 
+    @JoinColumn(
+        name = "grade_id",
+        foreignKey = ForeignKey(name = "fk_seat_to_grade")
+    )
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "grade_id", foreignKey = @ForeignKey(name = "fk_seat_to_grade"))
-    private Grade grade;
+    val grade: Grade,
 
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private SeatStatus seatStatus;
+    var seatStatus: SeatStatus
 
+) : BaseDateEntity() {
     @Version
-    private Long version;
+    val version: Long? = null
 
-    public void book() {
-        this.seatStatus = SeatStatus.BOOKED;
+    fun book() {
+        this.seatStatus = SeatStatus.BOOKED
     }
 
-    public void available() {
-        this.seatStatus = SeatStatus.AVAILABLE;
+    fun available() {
+        this.seatStatus = SeatStatus.AVAILABLE
     }
 
-    public void occupy() {
-        this.seatStatus = SeatStatus.OCCUPIED;
+    fun occupy() {
+        this.seatStatus = SeatStatus.OCCUPIED
     }
 
-    // Version의 경우는 JPA가 Persist 시에 자동으로 생성하기 때문에 생성자에 추가하지 않아도 됩니다!
-    public Seat(Long id, Performance performance, String seatNumber, Integer price,
-        Grade grade, SeatStatus seatStatus) {
-        this.id = id;
-        this.performance = performance;
-        this.seatNumber = seatNumber;
-        this.price = price;
-        this.grade = grade;
-        this.seatStatus = seatStatus;
-    }
-
-    public static Seat of(Performance performance, Grade grade, int number) {
-        return new Seat(null, performance, grade.getGrade() + number, grade.getDefaultPrice(),
-            grade, SeatStatus.AVAILABLE);
-    }
-
-    public void validateAvailable() {
-        if (!this.getSeatStatus().equals(SeatStatus.AVAILABLE)) {
-            throw new AlertDetailException(String.format("%d번 좌석은 이미 예약되었습니다.", this.id),
-                ErrorCode.SEAT_ALREADY_BOOKED);
+    fun validateAvailable() {
+        if (seatStatus != SeatStatus.AVAILABLE) {
+            throw AlertDetailException(
+                message = "${id}번 좌석은 예약할 수 없는 상태입니다. (현재 상태: $seatStatus)",
+                errorCode = ErrorCode.SEAT_ALREADY_BOOKED
+            )
         }
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public Performance getPerformance() {
-        return performance;
-    }
-
-    public String getSeatNumber() {
-        return seatNumber;
-    }
-
-    public Integer getPrice() {
-        return price;
-    }
-
-    public Grade getGrade() {
-        return grade;
-    }
-
-    public SeatStatus getSeatStatus() {
-        return seatStatus;
-    }
-
-    public Long getVersion() {
-        return version;
+    companion object {
+        @JvmStatic
+        fun of(performance: Performance, grade: Grade, number: Int): Seat {
+            return Seat(
+                null, performance, grade.grade + number, grade.defaultPrice,
+                grade, SeatStatus.AVAILABLE
+            )
+        }
     }
 }

@@ -1,6 +1,6 @@
-package com.fifo.ticketing.domain.seat.entity;
+package com.fifo.ticketing.domain.seat.entity
 
-public enum SeatStatus {
+enum class SeatStatus {
     BOOKED,
     AVAILABLE,
     SELECTED,
