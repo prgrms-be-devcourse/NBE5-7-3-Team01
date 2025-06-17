@@ -11,6 +11,7 @@ import com.fifo.ticketing.domain.performance.entity.Place
 import com.fifo.ticketing.domain.seat.entity.Seat
 import com.fifo.ticketing.domain.seat.entity.SeatStatus
 import com.fifo.ticketing.domain.seat.repository.SeatRepository
+import com.fifo.ticketing.domain.user.entity.Role
 import com.fifo.ticketing.domain.user.entity.User
 import com.fifo.ticketing.global.entity.File
 import io.kotest.matchers.shouldBe
@@ -58,12 +59,15 @@ class BookScheduleManagerTests {
     @BeforeEach
     fun setUp() {
 
-        mockUser = User.builder()
-            .id(1L)
-            .email("example@gmail.com")
-            .password("123")
-            .username("테스트 유저")
-            .build()
+        mockUser = User(
+            id = 1L,
+            email = "example@gmail.com",
+            password = "123",
+            username = "테스트 유저",
+            provider = null,
+            role = Role.USER,
+            isBlocked = false
+        )
 
         place = Place(1L, "서울특별시 서초구 서초동 1307", "강남아트홀", 100)
 

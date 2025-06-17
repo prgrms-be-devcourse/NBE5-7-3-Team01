@@ -16,6 +16,7 @@ import com.fifo.ticketing.domain.performance.repository.PerformanceRepository
 import com.fifo.ticketing.domain.seat.entity.Seat
 import com.fifo.ticketing.domain.seat.entity.SeatStatus
 import com.fifo.ticketing.domain.seat.service.SeatService
+import com.fifo.ticketing.domain.user.entity.Role
 import com.fifo.ticketing.domain.user.entity.User
 import com.fifo.ticketing.domain.user.repository.UserRepository
 import com.fifo.ticketing.global.entity.File
@@ -73,12 +74,15 @@ class BookServiceTests {
         urlPrefix = "https://picsum.photos/200"
         ReflectionTestUtils.setField(bookService, "urlPrefix", urlPrefix)
 
-        mockUser = User.builder()
-            .id(1L)
-            .email("example@gmail.com")
-            .password("123")
-            .username("테스트 유저")
-            .build()
+        mockUser = User(
+            id = 1L,
+            email = "example@gmail.com",
+            password = "123",
+            username = "테스트 유저",
+            provider = null,
+            role = Role.USER,
+            isBlocked = false
+        )
 
         place = Place(1L, "서울특별시 서초구 서초동 1307", "강남아트홀", 100)
 
@@ -186,9 +190,9 @@ class BookServiceTests {
         val actualBookId = mockBook.id!!
         val actualPerformanceId = mockPerformance.id
 
-        every { bookRepository.findByUserIdAndId(actualUserId, actualBookId) } returns mockBook
+        every { bookRepository.findByUserIdAndId(actualUserId!!, actualBookId) } returns mockBook
 
-        val expectedBookDetail = bookService.getBookDetail(actualUserId, actualBookId)
+        val expectedBookDetail = bookService.getBookDetail(actualUserId!!, actualBookId)
 
         expectedBookDetail.bookId shouldBe actualBookId
         expectedBookDetail.performanceId shouldBe actualPerformanceId
@@ -259,11 +263,11 @@ class BookServiceTests {
         val actualUserId = mockUser.id
         val actualBookId = mockBook.id!!
 
-        every { bookRepository.findByUserIdAndId(actualUserId, actualBookId) } returns mockBook
+        every { bookRepository.findByUserIdAndId(actualUserId!!, actualBookId) } returns mockBook
         every { bookSeatRepository.findAllByBookId(actualBookId) } returns listOf(mockBookSeat)
         every { seatService.changeSeatStatus(listOf(mockBookSeat), SeatStatus.AVAILABLE) } returns Unit
 
-        val cancelBookId = bookService.cancelBook(actualBookId, actualUserId)
+        val cancelBookId = bookService.cancelBook(actualBookId, actualUserId!!)
 
         cancelBookId shouldBe actualBookId
         mockBook.bookStatus shouldBe BookStatus.CANCELED

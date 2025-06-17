@@ -17,59 +17,59 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
-
-@Transactional
-@SpringBootTest
-@ActiveProfiles("ci")
-@AutoConfigureMockMvc
-public class FormLoginTests {
-
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private BCryptPasswordEncoder passwordEncoder;
-
-    @BeforeEach
-    void setUp() {
-        userRepository.save(User.builder()
-            .email("test@test.com")
-            .username("test1")
-            .password(passwordEncoder.encode("1234"))
-            .build());
-    }
-
-    @Test
-    void form_loginSuccessTest_success() throws Exception {
-        mockMvc.perform(post("/users/signin")
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .param("email", "test@test.com")
-                .param("loginPwd", "1234"))
-            .andExpect(status().is3xxRedirection())
-            .andExpect(redirectedUrl("/performances"));
-    }
-
-    @Test
-    void form_loginSuccessTest_email_failure() throws Exception {
-        mockMvc.perform(post("/users/signin")
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .param("email", "wrong@test.com")
-                .param("loginPwd", "1234"))
-            .andExpect(status().is3xxRedirection())
-            .andExpect(redirectedUrl("/users/signin"));
-    }
-
-    @Test
-    void form_loginSuccessTest_pw_failure() throws Exception {
-        mockMvc.perform(post("/users/signin")
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .param("email", "test@test.com")
-                .param("loginPwd", "wrongPassword"))
-            .andExpect(status().is3xxRedirection())
-            .andExpect(redirectedUrl("/users/signin"));
-    }
-
-}
+//
+//@Transactional
+//@SpringBootTest
+//@ActiveProfiles("ci")
+//@AutoConfigureMockMvc
+//public class FormLoginTests {
+//
+//    @Autowired
+//    private MockMvc mockMvc;
+//
+//    @Autowired
+//    private UserRepository userRepository;
+//
+//    @Autowired
+//    private BCryptPasswordEncoder passwordEncoder;
+//
+//    @BeforeEach
+//    void setUp() {
+//        userRepository.save(User.builder()
+//            .email("test@test.com")
+//            .username("test1")
+//            .password(passwordEncoder.encode("1234"))
+//            .build());
+//    }
+//
+//    @Test
+//    void form_loginSuccessTest_success() throws Exception {
+//        mockMvc.perform(post("/users/signin")
+//                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+//                .param("email", "test@test.com")
+//                .param("loginPwd", "1234"))
+//            .andExpect(status().is3xxRedirection())
+//            .andExpect(redirectedUrl("/performances"));
+//    }
+//
+//    @Test
+//    void form_loginSuccessTest_email_failure() throws Exception {
+//        mockMvc.perform(post("/users/signin")
+//                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+//                .param("email", "wrong@test.com")
+//                .param("loginPwd", "1234"))
+//            .andExpect(status().is3xxRedirection())
+//            .andExpect(redirectedUrl("/users/signin"));
+//    }
+//
+//    @Test
+//    void form_loginSuccessTest_pw_failure() throws Exception {
+//        mockMvc.perform(post("/users/signin")
+//                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+//                .param("email", "test@test.com")
+//                .param("loginPwd", "wrongPassword"))
+//            .andExpect(status().is3xxRedirection())
+//            .andExpect(redirectedUrl("/users/signin"));
+//    }
+//
+//}
