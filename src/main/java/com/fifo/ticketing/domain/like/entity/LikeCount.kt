@@ -1,6 +1,7 @@
 package com.fifo.ticketing.domain.like.entity
 
 import com.fifo.ticketing.domain.performance.entity.Performance
+import com.fifo.ticketing.global.entity.BaseDateEntity
 import jakarta.persistence.*
 
 
@@ -18,4 +19,4 @@ class LikeCount(
 
     @Column(nullable = false)
     var likeCount: Long,
-)
+) : BaseDateEntity()
