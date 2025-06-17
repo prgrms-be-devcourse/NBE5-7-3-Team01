@@ -6,6 +6,7 @@ import com.fifo.ticketing.domain.like.repository.LikeCountRepository
 import com.fifo.ticketing.domain.performance.dto.PerformanceRequestDto
 import com.fifo.ticketing.domain.performance.entity.Category
 import com.fifo.ticketing.domain.performance.entity.Grade
+import com.fifo.ticketing.domain.performance.entity.Performance
 import com.fifo.ticketing.domain.performance.entity.Place
 import com.fifo.ticketing.domain.performance.mapper.PerformanceMapper
 import com.fifo.ticketing.domain.performance.repository.GradeRepository
@@ -14,6 +15,7 @@ import com.fifo.ticketing.domain.performance.repository.PerformanceRepository
 import com.fifo.ticketing.domain.performance.repository.PlaceRepository
 import com.fifo.ticketing.domain.seat.service.SeatService
 import com.fifo.ticketing.global.entity.File
+import com.fifo.ticketing.global.event.PerformanceCanceledEvent
 import com.fifo.ticketing.global.exception.ErrorCode
 import com.fifo.ticketing.global.exception.ErrorException
 import com.fifo.ticketing.global.service.ImageFileService
@@ -23,15 +25,14 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.ArgumentCaptor
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
+import org.junit.jupiter.api.Assertions
+import org.mockito.*
 import org.mockito.kotlin.*
 import org.mockito.ArgumentMatchers.anyList
 import org.mockito.BDDMockito.given
 import org.mockito.BDDMockito.willDoNothing
-import org.mockito.InjectMocks
-import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.web.multipart.MultipartFile
@@ -242,5 +243,81 @@ class AdminPerformanceServiceTests {
         // then
         assertThat(violations).isNotEmpty()
         assertThat(violations.any { it.message == "INVALID_DATETIME_RESERVATION" }).isTrue()
+    }
+
+    @DisplayName("공연 삭제 성공 - soft delete 플래그만 true로 변경됨")
+    @Test
+    fun test_deletePerformance_softDelete_success() {
+        // Given
+        val performanceId = 1L
+        val oldPlace = Place(1L, "서울특별시 서초구 서초동 1307", "구 공연장", 100)
+
+        val performance = Performance(
+            performanceId, "구 공연 제목",
+            "구 공연입니다.",
+            oldPlace,
+            LocalDateTime.now().plusHours(1),
+            LocalDateTime.now().plusHours(3),
+            Category.MOVIE,
+            false,
+            false,
+            LocalDateTime.now().minusDays(3),
+            File(
+                10L,
+                "encoded_001.jpg",
+                "001.jpg"
+            )
+        )
+
+        Mockito.`when`(performanceAdminRepository!!.findByIdAndDeletedFlagFalse(performanceId))
+            .thenReturn(Optional.of(performance))
+
+        // 예약 취소 → 빈 리스트 반환
+        Mockito.`when`(
+            bookService!!.cancelAllBook(performance)
+        ).thenReturn(emptyList())
+
+        // 좌석 삭제, 이벤트 발행 → 아무 동작 안 함
+        Mockito.doNothing().`when`(seatService)?.deleteSeatsByPerformanceId(performanceId)
+        Mockito.doNothing().`when`(eventPublisher)?.publishEvent(
+            ArgumentMatchers.any(
+                PerformanceCanceledEvent::class.java
+            )
+        )
+
+        // When
+        adminPerformanceService!!.deletePerformance(performanceId)
+
+        // Then
+        Mockito.verify(performanceAdminRepository).flush() // flush가 호출되었는지
+        Assertions.assertTrue(performance.deletedFlag, "soft delete 플래그가 true로 설정되어야 합니다.")
+
+        // 추가적으로 필요한 동작 검증
+        Mockito.verify(bookService).cancelAllBook(performance)
+        Mockito.verify(seatService)?.deleteSeatsByPerformanceId(performanceId)
+        Mockito.verify(eventPublisher)?.publishEvent(
+            ArgumentMatchers.any(
+                PerformanceCanceledEvent::class.java
+            )
+        )
+    }
+
+    @DisplayName("삭제하려는 공연이 존재하지 않으면 예외 발생")
+    @Test
+    fun test_deletePerformance_notFound_throwsError() {
+        // Given
+        val invalidId = 999L
+        Mockito.`when`(performanceAdminRepository!!.findByIdAndDeletedFlagFalse(invalidId))
+            .thenReturn(Optional.empty())
+
+        // When & Then
+        val exception = Assertions.assertThrows(
+            ErrorException::class.java
+        ) {
+            adminPerformanceService!!.deletePerformance(invalidId)
+        }
+
+        org.assertj.core.api.Assertions.assertThat(exception.errorCode)
+            .isEqualTo(ErrorCode.NOT_FOUND_PERFORMANCE)
     }
 }
