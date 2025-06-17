@@ -1,35 +1,40 @@
-package com.fifo.ticketing.domain.performance.service;
+package com.fifo.ticketing.domain.performance.service
 
-import com.fifo.ticketing.domain.performance.repository.PerformanceRepository;
-import com.fifo.ticketing.domain.seat.repository.SeatRepository;
-import java.time.LocalDateTime;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import com.fifo.ticketing.domain.performance.repository.PerformanceRepository
+import com.fifo.ticketing.domain.seat.repository.SeatRepository
+import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDateTime
 
 @Service
-@RequiredArgsConstructor
-public class PerformanceReservationSystemService {
-
-    private final PerformanceRepository performanceRepository;
-    private final SeatRepository seatRepository;
+class PerformanceReservationSystemService(
+    private val performanceRepository: PerformanceRepository,
+    private val seatRepository: SeatRepository
+) {
 
     @Transactional
-    public void updateStatusIfReservationStart() {
-        performanceRepository.updatePerformanceStatusToReservationStart(LocalDateTime.now());
+    fun updateStatusIfReservationStart() {
+        performanceRepository.updatePerformanceStatusToReservationStart(LocalDateTime.now())
     }
 
     @Transactional
-    public void updateStatusIfSoldOutOrCanceled() {
-        performanceRepository.findActivePerformances((LocalDateTime.now())).forEach(performance -> {
-            Long performanceId = performance.getId();
-            int availableSeats = seatRepository.countAvailableSeatsByPerformanceId(performanceId);
+    fun updateStatusIfSoldOutOrCanceled() {
+        val now = LocalDateTime.now()
+        val activePerformances = performanceRepository.findActivePerformances(now)
 
-            if (availableSeats == 0) {
-                performanceRepository.updatePerformanceStatusReservationUnavailable(performanceId);
-            } else if (availableSeats > 0) {
-                performanceRepository.updatePerformanceStatusReservationAvailable(performanceId);
+        activePerformances.forEach { performance ->
+            val performanceId = performance.id
+            val availableSeats = seatRepository.countAvailableSeatsByPerformanceId(performanceId!!)
+
+            when {
+                availableSeats == 0 -> performanceRepository.updatePerformanceStatusReservationUnavailable(
+                    performanceId
+                )
+
+                availableSeats > 0 -> performanceRepository.updatePerformanceStatusReservationAvailable(
+                    performanceId
+                )
             }
-        });
+        }
     }
 }
