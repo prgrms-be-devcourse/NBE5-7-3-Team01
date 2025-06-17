@@ -1,4 +1,4 @@
-package com.fifo.ticketing.domain.user.controller;
+package com.fifo.ticketing.domain.user.controller.api;
 
 import com.fifo.ticketing.domain.book.service.BookService;
 import com.fifo.ticketing.domain.performance.dto.LikedPerformanceDto;
