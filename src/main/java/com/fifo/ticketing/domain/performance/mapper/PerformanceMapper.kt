@@ -32,10 +32,7 @@ object PerformanceMapper {
 
     @JvmStatic
     fun toSeatGradeDto(grade: Grade): PerformanceSeatGradeDto {
-        return PerformanceSeatGradeDto(
-            grade.grade, grade.defaultPrice,
-            grade.seatCount
-        )
+        return PerformanceSeatGradeDto(grade.grade, grade.seatCount, grade.defaultPrice)
     }
 
     @JvmStatic
