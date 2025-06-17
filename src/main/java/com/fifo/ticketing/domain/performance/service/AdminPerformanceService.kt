@@ -25,7 +25,6 @@ import com.fifo.ticketing.global.event.PerformanceCanceledEvent
 import com.fifo.ticketing.global.exception.ErrorCode
 import com.fifo.ticketing.global.exception.ErrorException
 import com.fifo.ticketing.global.service.ImageFileService
-import lombok.RequiredArgsConstructor
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.domain.Page
@@ -37,7 +36,6 @@ import java.io.IOException
 import java.time.LocalDateTime
 
 @Service
-@RequiredArgsConstructor
 class AdminPerformanceService(
     private val placeRepository: PlaceRepository,
     private val performanceRepository: PerformanceRepository,
@@ -49,7 +47,6 @@ class AdminPerformanceService(
     private val bookService: BookService,
     private val eventPublisher: ApplicationEventPublisher,
 ) {
-
     @Value("\${file.url-prefix}")
     private val urlPrefix: String? = null
 

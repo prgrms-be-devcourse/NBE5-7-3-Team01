@@ -10,6 +10,7 @@ import com.fifo.ticketing.domain.performance.entity.Place
 import com.fifo.ticketing.domain.performance.mapper.PerformanceMapper
 import com.fifo.ticketing.domain.performance.repository.GradeRepository
 import com.fifo.ticketing.domain.performance.repository.PerformanceAdminRepository
+import com.fifo.ticketing.domain.performance.repository.PerformanceRepository
 import com.fifo.ticketing.domain.performance.repository.PlaceRepository
 import com.fifo.ticketing.domain.seat.service.SeatService
 import com.fifo.ticketing.global.entity.File
@@ -50,19 +51,22 @@ class AdminPerformanceServiceTests {
     private lateinit var performanceAdminRepository: PerformanceAdminRepository
 
     @Mock
+    private lateinit var performanceRepository: PerformanceRepository
+
+    @Mock
     private lateinit var likeCountRepository: LikeCountRepository
 
     @Mock
     private lateinit var seatService: SeatService
 
     @Mock
+    private lateinit var imageFileService: ImageFileService
+
+    @Mock
     private lateinit var bookService: BookService
 
     @Mock
     private lateinit var eventPublisher: ApplicationEventPublisher
-
-    @Mock
-    private lateinit var imageFileService: ImageFileService
 
     @InjectMocks
     private lateinit var adminPerformanceService: AdminPerformanceService
