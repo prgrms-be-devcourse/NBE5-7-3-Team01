@@ -1,7 +1,6 @@
 package com.fifo.ticketing.domain.book.controller.view
 
 import com.fifo.ticketing.domain.book.dto.BookCreateRequest
-import com.fifo.ticketing.domain.book.service.BookKtService
 import com.fifo.ticketing.domain.book.service.BookService
 import com.fifo.ticketing.global.service.MailService
 import com.fifo.ticketing.global.util.UserValidator.validateSessionUser
@@ -19,7 +18,6 @@ import org.springframework.web.servlet.view.RedirectView
 @RequestMapping("/performances/{performanceId}/book")
 class BookController(
     private val bookService: BookService,
-    private val bookKtService: BookKtService,
     private val mailService: MailService,
 ) {
 
@@ -31,7 +29,7 @@ class BookController(
     ): RedirectView {
         val loginUser = validateSessionUser(session)
         val request = BookCreateRequest(seatIds)
-        val bookId = bookKtService.createBook(performanceId, loginUser.id, request)
+        val bookId = bookService.createBook(performanceId, loginUser.id, request)
         return RedirectView("/performances/$performanceId/book/complete/$bookId")
     }
 

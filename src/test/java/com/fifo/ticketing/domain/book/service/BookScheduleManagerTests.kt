@@ -79,12 +79,12 @@ class BookScheduleManagerTests {
             LocalDateTime.of(2025, 5, 12, 19, 0),
             mockFile
         )
-        mockTask = BookScheduledTask.builder()
-            .id(1L)
-            .bookId(1L)
-            .taskStatus(TaskStatus.PENDING)
-            .scheduledTime(LocalDateTime.now())
-            .build()
+        mockTask = BookScheduledTask(
+            id = 1L,
+            bookId = 1L,
+            taskStatus = TaskStatus.PENDING,
+            scheduledTime = LocalDateTime.now(),
+        )
 
         mockGrade = Grade(1L, place, "A", 5000, 10)
 
@@ -97,23 +97,24 @@ class BookScheduleManagerTests {
     fun `cancelIfUnpaid - 예매 상태가 CONFIRMED라면 예매를 취소하고 좌석을 AVAILABLE로 변경 후 BookScheduledTask 완료 처리한다`() =
         runTest {
 
-            var mockBook = Book.builder()
-                .id(1L)
-                .performance(mockPerformance)
-                .user(mockUser)
-                .totalPrice(20000)
-                .quantity(2)
-                .bookStatus(BookStatus.CONFIRMED)
-                .scheduledTask(mockTask)
-                .build()
+            var mockBook = Book(
+                id = 1L,
+                performance = mockPerformance,
+                user = mockUser,
+                totalPrice = 20000,
+                quantity = 2,
+                bookStatus = BookStatus.CONFIRMED
+            )
 
-            var mockBookSeat = BookSeat.builder()
-                .id(1L)
-                .book(mockBook)
-                .seat(mockSeat)
-                .build()
+            mockBook.scheduledTask = mockTask
 
-            val actualBookId = mockBook.id
+            var mockBookSeat = BookSeat(
+                id = 1L,
+                book = mockBook,
+                seat = mockSeat,
+            )
+
+            val actualBookId = mockBook.id!!
 
             every { bookRepository.findById(actualBookId) } returns Optional.of(mockBook)
             every { bookRepository.save(mockBook) } returns mockBook
@@ -126,7 +127,7 @@ class BookScheduleManagerTests {
 
             mockBook.bookStatus shouldBe BookStatus.CANCELED
             mockSeat.seatStatus shouldBe SeatStatus.AVAILABLE
-            mockBook.scheduledTask.taskStatus shouldBe TaskStatus.COMPLETED
+            mockBook.scheduledTask!!.taskStatus shouldBe TaskStatus.COMPLETED
 
         }
 
