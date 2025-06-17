@@ -6,7 +6,7 @@ import com.fifo.ticketing.domain.book.dto.BookedView
 import com.fifo.ticketing.domain.book.entity.*
 import com.fifo.ticketing.domain.performance.entity.Performance
 import com.fifo.ticketing.domain.seat.entity.Seat
-import com.fifo.ticketing.domain.seat.mapper.SeatMapper
+import com.fifo.ticketing.domain.seat.mapper.toBookSeatViewDto
 import com.fifo.ticketing.domain.user.entity.User
 import org.springframework.data.domain.Page
 import java.time.LocalDateTime
@@ -29,7 +29,7 @@ fun Book.toBookCompleteDto(urlPrefix: String): BookCompleteDto {
         performanceEndTime = performance.endTime,
         placeName = performance.place.name,
         encodedFileName = performance.file!!.encodedFileName,
-        seats = this.bookSeats.map { SeatMapper.toBookSeatViewDto(it.seat) },
+        seats = this.bookSeats.map { it.seat.toBookSeatViewDto() },
         totalPrice = this.totalPrice,
         quantity = this.quantity,
         paymentCompleted = false,
@@ -45,7 +45,7 @@ fun Book.toBookedView(urlPrefix: String): BookedView {
         performanceTitle = performance.title,
         placeName = performance.place.name,
         encodedFileName = performance.file!!.encodedFileName,
-        seats = this.bookSeats.map { SeatMapper.toBookSeatViewDto(it.seat) },
+        seats = this.bookSeats.map { it.seat.toBookSeatViewDto() },
         quantity = this.quantity,
         totalPrice = this.totalPrice,
         bookStatus = this.bookStatus,
@@ -77,7 +77,7 @@ fun Book.toBookMailSendDto(): BookMailSendDto {
         performanceStartTime = performance.startTime,
         performanceEndTime = performance.endTime,
         placeName = performance.place.name,
-        seats = this.bookSeats.map { SeatMapper.toBookSeatViewDto(it.seat) },
+        seats = this.bookSeats.map { it.seat.toBookSeatViewDto() },
         totalPrice = this.totalPrice,
         quantity = this.quantity,
         bookStatus = this.bookStatus,
