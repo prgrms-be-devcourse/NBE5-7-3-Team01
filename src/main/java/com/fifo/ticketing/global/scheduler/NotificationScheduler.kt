@@ -26,4 +26,9 @@ class NotificationScheduler(
     fun updatePerformanceStatus() {
         performanceReservationOpenService.updateStatusIfReservationStart()
     }
+
+    @Scheduled(cron = "0 */10 * * * *")
+    fun updatePerformanceStatusIfSoldOutOrCanceled() {
+        performanceReservationOpenService.updateStatusIfSoldOutOrCanceled()
+    }
 }
