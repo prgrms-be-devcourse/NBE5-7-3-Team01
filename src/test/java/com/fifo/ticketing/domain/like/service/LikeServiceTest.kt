@@ -12,12 +12,15 @@ import com.fifo.ticketing.domain.performance.repository.PerformanceRepository
 import com.fifo.ticketing.domain.user.entity.User
 import com.fifo.ticketing.domain.user.repository.UserRepository
 import com.fifo.ticketing.global.entity.File
+import com.fifo.ticketing.global.exception.ErrorCode
+import com.fifo.ticketing.global.exception.ErrorException
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import java.time.LocalDateTime
 import java.util.*
 
@@ -152,5 +155,22 @@ class LikeServiceTest {
         assertThat(result).isTrue()
         assertThat(existingLike.isLiked).isTrue()
         assertThat(mockLikeCount.likeCount).isEqualTo(2L)
+    }
+
+
+    @Test
+    fun `존재하지 않는 공연일 경우 ErrorException 발생`() {
+        // given
+        val request = LikeRequest(performanceId)
+
+        every { userRepository.findById(userId) } returns Optional.of(mockUser)
+        every { performanceRepository.findById(performanceId) } returns Optional.empty()
+
+        // when & then
+        val exception = assertThrows<ErrorException> {
+            likeService.toggleLike(userId, request)
+        }
+
+        assertThat(exception.errorCode).isEqualTo(ErrorCode.NOT_FOUND_PERFORMANCES)
     }
 }
