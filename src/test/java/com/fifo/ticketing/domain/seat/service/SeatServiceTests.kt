@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.time.LocalDateTime
 
-class SeatServiceTest {
+class SeatServiceTests {
 
     val seatRepository = mockk<SeatRepository>()
 
