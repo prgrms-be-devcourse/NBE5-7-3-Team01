@@ -121,8 +121,8 @@ class PerformanceApiControllerKotlinTests {
     fun `performance create success mocking`() {
         val requestJson = """
             {
-              "title": "라따뚜이",
-              "description": "픽사의 명작 애니메이션",
+              "title": "라따뚜이1",
+              "description": "픽사의 명작 애니메이션1",
               "category": "MOVIE",
               "performanceStatus": true,
               "startTime": "2025-06-01T19:00:00",
@@ -156,7 +156,7 @@ class PerformanceApiControllerKotlinTests {
             "SELECT p FROM Performance p JOIN FETCH p.file WHERE p.title = :title",
             Performance::class.java
         )
-            .setParameter("title", "라따뚜이")
+            .setParameter("title", "라따뚜이1")
             .singleResult
         assertThat(saved.file).isNotNull
         assertThat(saved.file!!.encodedFileName).isEqualTo("encoded.webp")
@@ -239,6 +239,7 @@ class PerformanceApiControllerKotlinTests {
     @Test
     @DisplayName("H2 Database에 저장된 공연 삭제 시 LikeCount는 삭제되지 않음")
     fun `test performance delete success likeCount remains`() {
+        likeCountRepository.deleteAll()
         val performance = Performance(
             null,
             "공연 삭제 테스트",
@@ -253,7 +254,7 @@ class PerformanceApiControllerKotlinTests {
             mockFile
         )
         val saved = performanceAdminRepository.save(performance)
-        likeCountRepository.save(LikeCount(null, saved, 0L))
+        val savedCount = likeCountRepository.save(LikeCount(null, saved, 0L))
 
         mockMvc.perform(delete("/api/performances/${saved.id}"))
             .andExpect(status().isOk)
