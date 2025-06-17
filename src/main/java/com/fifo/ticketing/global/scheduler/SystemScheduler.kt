@@ -1,16 +1,15 @@
 package com.fifo.ticketing.global.scheduler
 
 import com.fifo.ticketing.domain.like.service.LikeMailNotificationService
-import com.fifo.ticketing.domain.performance.service.PerformanceReservationOpenService
+import com.fifo.ticketing.domain.performance.service.PerformanceReservationSystemService
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 
 
 @Component
-
-class NotificationScheduler(
+class SystemScheduler(
     private val likeMailNotificationService: LikeMailNotificationService,
-    private val performanceReservationOpenService: PerformanceReservationOpenService
+    private val performanceReservationSystemService: PerformanceReservationSystemService
 ) {
     @Scheduled(cron = "0 30 12 * * *")
     fun likeMailNotification() {
@@ -24,11 +23,11 @@ class NotificationScheduler(
 
     @Scheduled(cron = "0 0 13 * * *")
     fun updatePerformanceStatus() {
-        performanceReservationOpenService.updateStatusIfReservationStart()
+        performanceReservationSystemService.updateStatusIfReservationStart()
     }
 
     @Scheduled(cron = "0 */10 * * * *")
     fun updatePerformanceStatusIfSoldOutOrCanceled() {
-        performanceReservationOpenService.updateStatusIfSoldOutOrCanceled()
+        performanceReservationSystemService.updateStatusIfSoldOutOrCanceled()
     }
 }

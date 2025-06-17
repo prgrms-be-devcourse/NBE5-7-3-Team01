@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class PerformanceReservationOpenService {
+public class PerformanceReservationSystemService {
 
     private final PerformanceRepository performanceRepository;
     private final SeatRepository seatRepository;
