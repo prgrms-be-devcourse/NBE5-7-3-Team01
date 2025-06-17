@@ -10,6 +10,7 @@ import com.fifo.ticketing.domain.performance.entity.Category
 import com.fifo.ticketing.domain.performance.entity.Performance
 import com.fifo.ticketing.domain.performance.entity.Place
 import com.fifo.ticketing.domain.seat.repository.SeatRepository
+import com.fifo.ticketing.domain.user.entity.Role
 import com.fifo.ticketing.domain.user.entity.User
 import io.mockk.every
 import io.mockk.mockk
@@ -33,12 +34,15 @@ class LikeMailNotificationServiceTest {
 
     @BeforeEach
     fun setUp() {
-        user = User.builder()
-            .id(1L)
-            .email("test@example.com")
-            .username("홍길동")
-            .provider("google")
-            .build()
+        user = User(
+            id = 1L,
+            email = "test@example.com",
+            password = null,
+            username = "홍길동",
+            provider = "google",
+            role = Role.USER,
+            isBlocked = false
+        )
 
         val place = Place(1L, "서울시 강남구", "강남아트홀", 100)
 

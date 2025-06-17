@@ -9,7 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails
 class UserFormDetails(user: User) : UserDetails {
     //이메일과 비밀번호를 통해 인증을 진행중으로 username에는 email 값 할당
     private val email: String = user.email
-    private val password: String = user.password
+    private val password: String? = user.password
     val role: Role = user.role
     val id: Long? = user.id
     val name: String = user.username
@@ -18,7 +18,7 @@ class UserFormDetails(user: User) : UserDetails {
         return listOf(SimpleGrantedAuthority(role.name))
     }
 
-    override fun getPassword(): String = password
+    override fun getPassword(): String? = password
 
     override fun getUsername(): String = email
 }

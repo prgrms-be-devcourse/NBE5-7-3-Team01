@@ -22,7 +22,8 @@
 <body class="flex items-center justify-center h-screen bg-gray-100">
 <div class="text-center">
   <img src="/images/tickethub_logo.JPG" alt="TicketHub 로고" class="mx-auto mb-8 w-72 md:w-96">
-  <a href="/users/signin"
+  <a th:href="${userRole} == null ? '/users/signin' :
+              (${userRole} == 'ADMIN' ? '/admin/menu' : '/performances')"
      class="inline-block bg-tickethub text-white text-lg font-semibold py-3 px-8 rounded-lg shadow hover:bg-tickethub-dark transition">
     시작하기
   </a>

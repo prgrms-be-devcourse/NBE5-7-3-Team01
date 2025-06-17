@@ -260,7 +260,7 @@ class PerformanceApiControllerKotlinTests {
             .andExpect(status().isOk)
             .andExpect(content().string("공연이 삭제되었습니다."))
 
-        val deletedPerformance = performanceAdminRepository.findById(saved.id)
+        val deletedPerformance = performanceAdminRepository.findById(saved.id!!)
             .orElseThrow { ErrorException(ErrorCode.NOT_FOUND_PERFORMANCE) }
         assertThat(deletedPerformance.deletedFlag).isTrue()
 

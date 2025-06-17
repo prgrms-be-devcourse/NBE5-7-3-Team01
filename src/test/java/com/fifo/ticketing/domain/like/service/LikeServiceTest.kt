@@ -9,6 +9,7 @@ import com.fifo.ticketing.domain.performance.entity.Category
 import com.fifo.ticketing.domain.performance.entity.Performance
 import com.fifo.ticketing.domain.performance.entity.Place
 import com.fifo.ticketing.domain.performance.repository.PerformanceRepository
+import com.fifo.ticketing.domain.user.entity.Role
 import com.fifo.ticketing.domain.user.entity.User
 import com.fifo.ticketing.domain.user.repository.UserRepository
 import com.fifo.ticketing.global.entity.File
@@ -48,12 +49,15 @@ class LikeServiceTest {
             likeRepository, likeCountRepository, userRepository, performanceRepository
         )
 
-        mockUser = User.builder()
-            .id(userId)
-            .email("test@fifo.com")
-            .username("테스트 유저")
-            .password("secure")
-            .build()
+        mockUser = User(
+            id = userId,
+            email = "test@fifo.com",
+            username = "테스트 유저",
+            password = "secure",
+            provider = null,
+            role = Role.USER,
+            isBlocked = false
+        )
 
         place = Place(1L, "서울특별시 서초구 서초동 1307", "강남아트홀", 100)
 

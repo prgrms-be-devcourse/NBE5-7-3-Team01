@@ -32,7 +32,7 @@ class OAuth2LoginSuccessHandler(
         request.session
             .setAttribute(
                 "loginUser",
-                SessionUser(user!!.id, user.username, user.role)
+                SessionUser(user!!.id!!, user.username, user.role)
             )
 
         val savedRequest = requestCache.getRequest(request, response)
