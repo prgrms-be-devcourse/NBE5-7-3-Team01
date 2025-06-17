@@ -1,84 +1,94 @@
-package com.fifo.ticketing.domain.performance.service;
+package com.fifo.ticketing.domain.performance.service
 
-import static com.fifo.ticketing.global.exception.ErrorCode.NOT_FOUND_PERFORMANCE;
-
-import com.fifo.ticketing.domain.performance.dto.PerformanceDetailResponse;
-import com.fifo.ticketing.domain.performance.dto.PerformanceResponseDto;
-import com.fifo.ticketing.domain.performance.dto.PerformanceSeatGradeDto;
-import com.fifo.ticketing.domain.performance.entity.Category;
-import com.fifo.ticketing.domain.performance.entity.Grade;
-import com.fifo.ticketing.domain.performance.entity.Performance;
-import com.fifo.ticketing.domain.performance.mapper.PerformanceMapper;
-import com.fifo.ticketing.domain.performance.repository.GradeRepository;
-import com.fifo.ticketing.domain.performance.repository.PerformanceRepository;
-import com.fifo.ticketing.global.exception.ErrorException;
-import java.time.LocalDateTime;
-import java.util.List;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import com.fifo.ticketing.domain.performance.dto.PerformanceDetailResponse
+import com.fifo.ticketing.domain.performance.dto.PerformanceResponseDto
+import com.fifo.ticketing.domain.performance.dto.PerformanceSeatGradeDto
+import com.fifo.ticketing.domain.performance.entity.Category
+import com.fifo.ticketing.domain.performance.mapper.PerformanceMapper
+import com.fifo.ticketing.domain.performance.mapper.PerformanceMapper.toDetailResponseDto
+import com.fifo.ticketing.domain.performance.mapper.PerformanceMapper.toPagePerformanceResponseDto
+import com.fifo.ticketing.domain.performance.repository.GradeRepository
+import com.fifo.ticketing.domain.performance.repository.PerformanceRepository
+import com.fifo.ticketing.global.exception.ErrorCode
+import com.fifo.ticketing.global.exception.ErrorException
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
+import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDateTime
 
 @Service
-@RequiredArgsConstructor
-public class PerformanceService {
-
-    @Value("${file.url-prefix}")
-    private String urlPrefix;
-
-    private final PerformanceRepository performanceRepository;
-    private final GradeRepository gradeRepository;
+class PerformanceService(
+    private val performanceRepository: PerformanceRepository,
+    private val gradeRepository: GradeRepository,
+    @Value("\${file.url-prefix}") private val urlPrefix: String
+) {
 
     @Transactional(readOnly = true)
-    public PerformanceDetailResponse getPerformanceDetail(Long performanceId) {
-        Performance performance = performanceRepository.findById(performanceId)
-            .orElseThrow(() -> new ErrorException(NOT_FOUND_PERFORMANCE));
+    fun getPerformanceDetail(performanceId: Long): PerformanceDetailResponse {
+        val performance = performanceRepository.findById(performanceId)
+            .orElseThrow { ErrorException(ErrorCode.NOT_FOUND_PERFORMANCE) }
 
-        List<Grade> grades = gradeRepository.findAllByPlaceId(performance.getPlace().getId());
-        List<PerformanceSeatGradeDto> seatGrades = grades.stream()
-            .map(PerformanceMapper::toSeatGradeDto)
-            .toList();
+        val grades = gradeRepository.findAllByPlaceId(performance.place.id!!)
+        val seatGrades: List<PerformanceSeatGradeDto> =
+            grades.map(PerformanceMapper::toSeatGradeDto)
 
-        return PerformanceMapper.toDetailResponseDto(performance, seatGrades, urlPrefix);
+        return toDetailResponseDto(performance, seatGrades, urlPrefix)
     }
 
     @Transactional(readOnly = true)
-    public Page<PerformanceResponseDto> getPerformancesSortedByLatest(Pageable pageable) {
-        Page<Performance> performances = performanceRepository.findUpcomingPerformancesOrderByStartTime(
-            LocalDateTime.now(), pageable);
-        return PerformanceMapper.toPagePerformanceResponseDto(performances, urlPrefix);
+    fun getPerformancesSortedByLatest(pageable: Pageable): Page<PerformanceResponseDto> {
+        val performances = performanceRepository.findUpcomingPerformancesOrderByStartTime(
+            LocalDateTime.now(),
+            pageable
+        )
+        return toPagePerformanceResponseDto(performances, urlPrefix)
     }
 
     @Transactional(readOnly = true)
-    public Page<PerformanceResponseDto> searchPerformancesByKeyword(String keyword,
-        Pageable pageable) {
-        Page<Performance> performances = performanceRepository.findUpcomingPerformancesByKeywordContaining(
-            LocalDateTime.now(), keyword, pageable);
-        return PerformanceMapper.toPagePerformanceResponseDto(performances, urlPrefix);
+    fun searchPerformancesByKeyword(
+        keyword: String,
+        pageable: Pageable
+    ): Page<PerformanceResponseDto> {
+        val performances = performanceRepository.findUpcomingPerformancesByKeywordContaining(
+            LocalDateTime.now(),
+            keyword,
+            pageable
+        )
+        return toPagePerformanceResponseDto(performances, urlPrefix)
     }
 
     @Transactional(readOnly = true)
-    public Page<PerformanceResponseDto> getPerformancesSortedByLikes(Pageable pageable) {
-        Page<Performance> performances = performanceRepository.findUpcomingPerformancesOrderByLikes(
-            LocalDateTime.now(), pageable);
-        return PerformanceMapper.toPagePerformanceResponseDto(performances, urlPrefix);
+    fun getPerformancesSortedByLikes(pageable: Pageable): Page<PerformanceResponseDto> {
+        val performances = performanceRepository.findUpcomingPerformancesOrderByLikes(
+            LocalDateTime.now(),
+            pageable
+        )
+        return toPagePerformanceResponseDto(performances, urlPrefix)
     }
 
     @Transactional(readOnly = true)
-    public Page<PerformanceResponseDto> getPerformancesByReservationPeriod(LocalDateTime start,
-        LocalDateTime end, Pageable pageable) {
-        Page<Performance> performances = performanceRepository.findUpcomingPerformancesByReservationPeriod(
-            start, end, pageable);
-        return PerformanceMapper.toPagePerformanceResponseDto(performances, urlPrefix);
+    fun getPerformancesByReservationPeriod(
+        start: LocalDateTime,
+        end: LocalDateTime,
+        pageable: Pageable
+    ): Page<PerformanceResponseDto> {
+        val performances =
+            performanceRepository.findUpcomingPerformancesByReservationPeriod(start, end, pageable)
+        return toPagePerformanceResponseDto(performances, urlPrefix)
     }
 
     @Transactional(readOnly = true)
-    public Page<PerformanceResponseDto> getPerformancesByCategory(Category category,
-        Pageable pageable) {
-        Page<Performance> performances = performanceRepository.findUpcomingPerformancesByCategory(
-            LocalDateTime.now(), category, pageable);
-        return PerformanceMapper.toPagePerformanceResponseDto(performances, urlPrefix);
+    fun getPerformancesByCategory(
+        category: Category,
+        pageable: Pageable
+    ): Page<PerformanceResponseDto> {
+        val performances = performanceRepository.findUpcomingPerformancesByCategory(
+            LocalDateTime.now(),
+            category,
+            pageable
+        )
+        return toPagePerformanceResponseDto(performances, urlPrefix)
     }
 }
