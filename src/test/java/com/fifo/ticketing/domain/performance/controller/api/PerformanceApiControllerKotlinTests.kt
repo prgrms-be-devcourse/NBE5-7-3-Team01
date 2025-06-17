@@ -17,7 +17,6 @@ import com.fifo.ticketing.global.exception.ErrorException
 import com.fifo.ticketing.global.service.ImageFileService
 import jakarta.persistence.EntityManager
 import org.assertj.core.api.Assertions.assertThat
-import org.hamcrest.Matchers
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -35,7 +34,6 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 import java.io.InputStream
 import java.time.LocalDateTime
@@ -433,5 +431,187 @@ class PerformanceApiControllerKotlinTests {
             .andExpect(jsonPath("$.code").value("DATETIME-003"))
     }
 
+    @Test
+    @DisplayName("H2 Database에 공연 수정 실패 (startTime <= endTime)")
+    fun `performance update failed when startTime after endTime`() {
+        val requestJson = """
+            {
+              "title": "수정을 위한",
+              "description": "픽사의 명작 애니메이션",
+              "category": "MOVIE",
+              "performanceStatus": true,
+              "startTime": "2025-06-01T19:00:00",
+              "endTime": "2025-06-01T21:00:00",
+              "reservationStartTime": "2025-05-12T19:00:00",
+              "placeId": ${savedPlace.id}
+            }
+        """.trimIndent()
 
+        val resource: InputStream = ClassPathResource("uploads/default.webp").inputStream
+        val filePart =
+            MockMultipartFile("file", "default.webp", MediaType.IMAGE_JPEG_VALUE, resource)
+        val jsonPart =
+            MockMultipartFile(
+                "request",
+                "",
+                MediaType.APPLICATION_JSON_VALUE,
+                requestJson.toByteArray()
+            )
+
+        mockMvc.perform(
+            multipart("/api/performances")
+                .file(filePart)
+                .file(jsonPart)
+                .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
+        )
+            .andExpect(status().isOk)
+            .andExpect(
+                content().string("공연이 등록되었습니다.")
+            )
+
+        val saved = entityManager.createQuery(
+            "SELECT p FROM Performance p JOIN FETCH p.file WHERE p.title = :title",
+            Performance::class.java
+        )
+            .setParameter("title", "수정을 위한")
+            .singleResult
+        assertThat(saved.file).isNotNull
+        assertThat(saved.file!!.encodedFileName).isEqualTo("encoded.webp")
+
+        val likeCounts = entityManager.createQuery(
+            "SELECT lc FROM LikeCount lc WHERE lc.performance = :performance", LikeCount::class.java
+        )
+            .setParameter("performance", saved)
+            .resultList
+        assertThat(likeCounts).isNotEmpty
+        assertThat(likeCounts[0].likeCount).isEqualTo(0L)
+
+        val updateRequestJson = """
+            {
+              "title": "수정된 제목",
+              "description": "수정된 설명입니다.",
+              "category": "MOVIE",
+              "performanceStatus": true,
+              "startTime": "2025-06-01T22:00:00",
+              "endTime": "2025-06-01T21:00:00",
+              "reservationStartTime": "2025-05-12T19:00:00",
+              "placeId": ${savedPlace.id}
+            }
+        """.trimIndent()
+
+        val updateJsonPart =
+            MockMultipartFile(
+                "request",
+                "",
+                MediaType.APPLICATION_JSON_VALUE,
+                updateRequestJson.toByteArray()
+            )
+
+        mockMvc.perform(
+            multipart(HttpMethod.PUT, "/api/performances/${saved.id}")
+                .file(filePart)
+                .file(updateJsonPart)
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+        )
+            .andExpect(status().isBadRequest)
+            .andExpect(jsonPath("$.code").value("DATETIME-001"))
+
+        val updated = performanceRepository.findById(saved.id!!)
+            .orElseThrow { ErrorException(ErrorCode.NOT_FOUND_PERFORMANCE) }
+
+        assertThat(updated.title).isEqualTo("수정을 위한")
+        assertThat(updated.description).isEqualTo("픽사의 명작 애니메이션")
+    }
+
+    @Test
+    @DisplayName("H2 Database에 공연 수정 실패 (startTime <= reservation)")
+    fun `performance update failed when startTime after reservation`() {
+        val requestJson = """
+            {
+              "title": "수정을 위한 실패 테스트",
+              "description": "픽사의 명작 애니메이션",
+              "category": "MOVIE",
+              "performanceStatus": true,
+              "startTime": "2025-06-01T19:00:00",
+              "endTime": "2025-06-01T21:00:00",
+              "reservationStartTime": "2025-05-12T19:00:00",
+              "placeId": ${savedPlace.id}
+            }
+        """.trimIndent()
+
+        val resource: InputStream = ClassPathResource("uploads/default.webp").inputStream
+        val filePart =
+            MockMultipartFile("file", "default.webp", MediaType.IMAGE_JPEG_VALUE, resource)
+        val jsonPart =
+            MockMultipartFile(
+                "request",
+                "",
+                MediaType.APPLICATION_JSON_VALUE,
+                requestJson.toByteArray()
+            )
+
+        mockMvc.perform(
+            multipart("/api/performances")
+                .file(filePart)
+                .file(jsonPart)
+                .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
+        )
+            .andExpect(status().isOk)
+            .andExpect(
+                content().string("공연이 등록되었습니다.")
+            )
+
+        val saved = entityManager.createQuery(
+            "SELECT p FROM Performance p JOIN FETCH p.file WHERE p.title = :title",
+            Performance::class.java
+        )
+            .setParameter("title", "수정을 위한 실패 테스트")
+            .singleResult
+        assertThat(saved.file).isNotNull
+        assertThat(saved.file!!.encodedFileName).isEqualTo("encoded.webp")
+
+        val likeCounts = entityManager.createQuery(
+            "SELECT lc FROM LikeCount lc WHERE lc.performance = :performance", LikeCount::class.java
+        )
+            .setParameter("performance", saved)
+            .resultList
+        assertThat(likeCounts).isNotEmpty
+        assertThat(likeCounts[0].likeCount).isEqualTo(0L)
+
+        val updateRequestJson = """
+            {
+              "title": "수정된 제목",
+              "description": "수정된 설명입니다.",
+              "category": "MOVIE",
+              "performanceStatus": true,
+              "startTime": "2025-06-01T19:00:00",
+              "endTime": "2025-06-01T21:00:00",
+              "reservationStartTime": "2025-06-12T19:00:00",
+              "placeId": ${savedPlace.id}
+            }
+        """.trimIndent()
+
+        val updateJsonPart =
+            MockMultipartFile(
+                "request",
+                "",
+                MediaType.APPLICATION_JSON_VALUE,
+                updateRequestJson.toByteArray()
+            )
+
+        mockMvc.perform(
+            multipart(HttpMethod.PUT, "/api/performances/${saved.id}")
+                .file(filePart)
+                .file(updateJsonPart)
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+        )
+            .andExpect(status().isBadRequest)
+            .andExpect(jsonPath("$.code").value("DATETIME-003"))
+
+        val updated = performanceRepository.findById(saved.id!!)
+            .orElseThrow { ErrorException(ErrorCode.NOT_FOUND_PERFORMANCE) }
+
+        assertThat(updated.title).isEqualTo("수정을 위한 실패 테스트")
+        assertThat(updated.description).isEqualTo("픽사의 명작 애니메이션")
+    }
 }
