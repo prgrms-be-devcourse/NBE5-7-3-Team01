@@ -17,6 +17,7 @@ import com.fifo.ticketing.global.exception.ErrorException
 import com.fifo.ticketing.global.service.ImageFileService
 import jakarta.persistence.EntityManager
 import org.assertj.core.api.Assertions.assertThat
+import org.hamcrest.Matchers
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -35,8 +36,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 import java.io.InputStream
 import java.time.LocalDateTime
 
@@ -360,5 +360,78 @@ class PerformanceApiControllerKotlinTests {
         assertThat(updated.title).isEqualTo("수정된 제목")
         assertThat(updated.description).isEqualTo("수정된 설명입니다.")
     }
+
+    @Test
+    @DisplayName("H2 Database 공연 등록 실패 (startTime <= endTime)")
+    fun `performance create failed when startTime after endTime` () {
+        val requestJson = """
+            {
+                "title": "공연 시작시간이 늦음",
+                "description": "공연 시작 시간이 공연 종료 시간보다 늦음",
+                "category": "MOVIE",
+                "performanceStatus": true,
+                "startTime": "2025-06-01T22:00:00",
+                "endTime": "2025-06-01T21:00:00",
+                "reservationStartTime": "2025-05-12T19:00:00",
+                "placeId": ${savedPlace.id}
+            }
+        """.trimIndent()
+        val resource: InputStream = ClassPathResource("uploads/default.webp").inputStream
+        val filePart =
+            MockMultipartFile("file", "default.webp", MediaType.IMAGE_JPEG_VALUE, resource)
+        val jsonPart =
+            MockMultipartFile(
+                "request",
+                "",
+                MediaType.APPLICATION_JSON_VALUE,
+                requestJson.toByteArray()
+            )
+
+        mockMvc.perform(
+            multipart("/api/performances")
+                .file(filePart)
+                .file(jsonPart)
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+        )
+            .andExpect(status().isBadRequest)
+            .andExpect(jsonPath("$.code").value("DATETIME-001"))
+    }
+
+    @Test
+    @DisplayName("H2 Database 공연 등록 실패 (startTime <= reservationStartTime)")
+    fun `performance create failed when startTime after reservationStartTime` () {
+        val requestJson = """
+            {
+                "title": "공연 시작시간이 늦음",
+                "description": "공연 시작 시간이 공연 예약 시작 시간보다 늦음",
+                "category": "MOVIE",
+                "performanceStatus": true,
+                "startTime": "2025-06-01T19:00:00",
+                "endTime": "2025-06-01T21:00:00",
+                "reservationStartTime": "2025-06-02T19:00:00",
+                "placeId": ${savedPlace.id}
+            }
+        """.trimIndent()
+        val resource: InputStream = ClassPathResource("uploads/default.webp").inputStream
+        val filePart =
+            MockMultipartFile("file", "default.webp", MediaType.IMAGE_JPEG_VALUE, resource)
+        val jsonPart =
+            MockMultipartFile(
+                "request",
+                "",
+                MediaType.APPLICATION_JSON_VALUE,
+                requestJson.toByteArray()
+            )
+
+        mockMvc.perform(
+            multipart("/api/performances")
+                .file(filePart)
+                .file(jsonPart)
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+        )
+            .andExpect(status().isBadRequest)
+            .andExpect(jsonPath("$.code").value("DATETIME-003"))
+    }
+
 
 }
