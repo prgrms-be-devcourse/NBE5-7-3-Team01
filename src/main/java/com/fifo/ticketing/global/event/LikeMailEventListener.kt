@@ -17,7 +17,7 @@ class LikeMailEventListener(
     @Async("mailExecutor")
     @EventListener
     fun handleLikeMailEvent(dto: ReservationStartMailDto) {
-        log.info("📨 [${Thread.currentThread().name}] 예약 시작 알림 메일 전송 시작 - ${dto.email}")
+        log.info("예약 시작 알림 메일 전송 시작 ")
         mailService.sendReservationStartNoticeMail(dto)
     }
 
