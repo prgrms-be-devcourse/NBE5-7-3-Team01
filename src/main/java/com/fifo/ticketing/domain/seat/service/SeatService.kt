@@ -10,21 +10,18 @@ import com.fifo.ticketing.global.exception.ErrorCode
 import com.fifo.ticketing.global.exception.ErrorException
 import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
-import lombok.RequiredArgsConstructor
 import org.springframework.orm.ObjectOptimisticLockingFailureException
 import org.springframework.stereotype.Service
-import java.util.function.Function
-import java.util.stream.Collectors
 
 @Service
 class SeatService(
     val seatRepository: SeatRepository,
     val entityManager: EntityManager,
 
-) {
+    ) {
 
     fun changeSeatStatus(bookSeats: List<BookSeat>, newStatus: SeatStatus) {
-        for (bookSeat in bookSeats) {
+        bookSeats.forEach { bookSeat ->
             val seat = bookSeat.seat
             when (newStatus) {
                 SeatStatus.OCCUPIED -> seat.occupy()
@@ -53,7 +50,7 @@ class SeatService(
 
     fun getSeatsForPerformance(performanceId: Long): List<BookSeatViewDto> {
         return seatRepository.findValidSeatsByPerformanceId(performanceId)
-            .map{ it.toBookSeatViewDto() }
+            .map { it.toBookSeatViewDto() }
     }
 
 
