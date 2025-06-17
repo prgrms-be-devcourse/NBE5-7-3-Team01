@@ -34,7 +34,7 @@ class RestExceptionAdvice {
 
 
         val errorCode = when(message) {
-            "INVALID_DATETIME_TYPE" -> ErrorCode.INVALID_DATETIME_PERIOD
+            "INVALID_DATETIME_PERIOD" -> ErrorCode.INVALID_DATETIME_PERIOD
             "INVALID_DATETIME_RESERVATION" -> ErrorCode.INVALID_DATETIME_RESERVATION
             else -> ErrorCode.INVALID_DATETIME_TYPE
         }
