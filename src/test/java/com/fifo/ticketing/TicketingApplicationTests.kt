@@ -1,18 +1,16 @@
-package com.fifo.ticketing;
+package com.fifo.ticketing
 
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.jdbc.Sql;
+import org.junit.jupiter.api.Test
+import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.test.context.ActiveProfiles
+import org.springframework.test.context.TestPropertySource
 
 @SpringBootTest
 @ActiveProfiles("ci")
-@TestPropertySource(locations = "classpath:application-ci.yml")
+@TestPropertySource(locations = ["classpath:application-ci.yml"])
 class TicketingApplicationTests {
 
     @Test
-    void contextLoads() {
+    fun contextLoads() {
     }
-
 }
