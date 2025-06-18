@@ -1,7 +1,6 @@
 package com.fifo.ticketing.domain.performance.repository
 
 import com.fifo.ticketing.domain.performance.dto.AdminPerformanceBookDetailDto
-import com.fifo.ticketing.domain.performance.dto.AdminPerformanceStaticsDto
 import com.fifo.ticketing.domain.performance.entity.Category
 import com.fifo.ticketing.domain.performance.entity.Performance
 import org.springframework.data.domain.Page
@@ -13,7 +12,6 @@ import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
 import java.time.LocalDateTime
-import java.util.*
 
 @Repository
 interface PerformanceRepository : JpaRepository<Performance, Long> {
@@ -109,4 +107,30 @@ interface PerformanceRepository : JpaRepository<Performance, Long> {
                 "WHERE p.reservationStartTime <= :now AND p.performanceStatus = false ")
     )
     fun updatePerformanceStatusToReservationStart(@Param("now") now: LocalDateTime)
+
+    @Query(
+        """
+        SELECT p FROM Performance p 
+        WHERE p.deletedFlag = false AND p.startTime > :now
+        """
+    )
+    fun findActivePerformances(@Param("now") now: LocalDateTime): List<Performance>
+
+    @Modifying
+    @Query(
+        """
+        UPDATE Performance p 
+        SET p.performanceStatus = false
+        WHERE p.id = :id
+        """)
+    fun updatePerformanceStatusReservationUnavailable(id: Long)
+
+    @Modifying
+    @Query(
+        """
+        UPDATE Performance p 
+        SET p.performanceStatus = true
+        WHERE p.id = :id
+        """)
+    fun updatePerformanceStatusReservationAvailable(id: Long)
 }
