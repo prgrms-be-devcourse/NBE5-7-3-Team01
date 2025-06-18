@@ -94,7 +94,7 @@ class AdminPerformanceService(
 
 
     @Transactional
-    @Throws(IOException::class)
+    @Throws(IOException::class, ErrorException::class)
     fun createPerformance(dto: PerformanceRequestDto, file: MultipartFile): Performance {
         // Place 조회 및 존재여부 확인
         val place = findPlace(dto.placeId)

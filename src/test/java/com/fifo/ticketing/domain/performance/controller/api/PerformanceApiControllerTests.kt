@@ -41,7 +41,7 @@ import java.time.LocalDateTime
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("ci")
-class PerformanceApiControllerKotlinTests {
+class PerformanceApiControllerTests {
 
     @Autowired
     private lateinit var performanceAdminRepository: PerformanceAdminRepository
@@ -361,7 +361,7 @@ class PerformanceApiControllerKotlinTests {
 
     @Test
     @DisplayName("H2 Database 공연 등록 실패 (startTime <= endTime)")
-    fun `performance create failed when startTime after endTime` () {
+    fun `performance create failed when startTime after endTime`() {
         val requestJson = """
             {
                 "title": "공연 시작시간이 늦음",
@@ -397,7 +397,7 @@ class PerformanceApiControllerKotlinTests {
 
     @Test
     @DisplayName("H2 Database 공연 등록 실패 (startTime <= reservationStartTime)")
-    fun `performance create failed when startTime after reservationStartTime` () {
+    fun `performance create failed when startTime after reservationStartTime`() {
         val requestJson = """
             {
                 "title": "공연 시작시간이 늦음",

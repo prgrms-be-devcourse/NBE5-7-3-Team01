@@ -8,6 +8,7 @@ import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.ResponseBody
+import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.method.HandlerMethod
 import org.springframework.web.servlet.NoHandlerFoundException
 
@@ -23,7 +24,9 @@ class ExceptionAdvice {
         handlerMethod: HandlerMethod
     ): Any {
         val isApiRequest =
-            AnnotatedElementUtils.hasAnnotation(handlerMethod.method, ResponseBody::class.java)
+            AnnotatedElementUtils.hasAnnotation(handlerMethod.method, ResponseBody::class.java) ||
+            AnnotatedElementUtils.hasAnnotation(handlerMethod.beanType, ResponseBody::class.java) ||
+            AnnotatedElementUtils.hasAnnotation(handlerMethod.beanType, RestController::class.java)
 
         return when (ex) {
             is ErrorException -> handleCommonException(
