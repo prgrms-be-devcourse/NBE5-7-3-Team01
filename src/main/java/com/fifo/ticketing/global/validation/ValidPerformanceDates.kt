@@ -7,9 +7,9 @@ import kotlin.reflect.KClass
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
 @Constraint(validatedBy = [ValidPerformanceDatesValidator::class])
+@MustBeDocumented
 annotation class ValidPerformanceDates(
-    val message: String =
-        "날짜 순서가 올바르지 않습니다.",
+    val message: String = "",
     val groups: Array<KClass<*>> = [],
     val payload: Array<KClass<out Payload>> = []
 )

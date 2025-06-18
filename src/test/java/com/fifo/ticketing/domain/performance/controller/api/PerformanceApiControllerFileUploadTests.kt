@@ -1,0 +1,203 @@
+package com.fifo.ticketing.domain.performance.controller.api
+
+import com.fifo.ticketing.domain.performance.entity.Grade
+import com.fifo.ticketing.domain.performance.entity.Performance
+import com.fifo.ticketing.domain.performance.entity.Place
+import com.fifo.ticketing.domain.performance.repository.GradeRepository
+import com.fifo.ticketing.domain.performance.repository.PerformanceAdminRepository
+import com.fifo.ticketing.domain.performance.repository.PlaceRepository
+import com.fifo.ticketing.domain.seat.repository.SeatRepository
+import com.fifo.ticketing.global.entity.File
+import com.fifo.ticketing.global.exception.ErrorCode
+import com.fifo.ticketing.global.repository.FileRepository
+import com.fifo.ticketing.global.service.ImageFileService
+import jakarta.persistence.EntityManager
+import org.assertj.core.api.Assertions
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Test
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
+import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.core.io.ClassPathResource
+import org.springframework.http.MediaType
+import org.springframework.mock.web.MockMultipartFile
+import org.springframework.test.context.ActiveProfiles
+import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers
+import java.io.IOException
+import java.nio.file.Files
+import java.nio.file.Paths
+
+@SpringBootTest
+@AutoConfigureMockMvc
+@ActiveProfiles("ci")
+class PerformanceApiControllerFileUploadTests {
+
+    @Autowired
+    private lateinit var mockMvc: MockMvc
+
+    @Autowired
+    private lateinit var placeRepository: PlaceRepository
+
+    @Autowired
+    private lateinit var gradeRepository: GradeRepository
+
+    @Autowired
+    private lateinit var performanceAdminRepository: PerformanceAdminRepository
+
+    @Autowired
+    private lateinit var fileRepository: FileRepository
+
+    @Autowired
+    private lateinit var entityManager: EntityManager
+
+    @Autowired
+    private lateinit var seatRepository: SeatRepository
+
+    @Autowired
+    private lateinit var imageFileService: ImageFileService
+
+    private lateinit var savedPlace: Place
+
+    @Value("\${file.upload-dir}")
+    private lateinit var uploadDir: String
+
+
+    @BeforeEach
+    @Throws(IOException::class)
+    fun setUp() {
+        performanceAdminRepository.deleteAll()
+        seatRepository.deleteAll()
+        fileRepository.deleteAll()
+
+        val place = Place(null, "서울특별시 서초구 서초동 1307", "강남아트홀", 50)
+        savedPlace = placeRepository.save(place)
+
+        val gradeS = Grade(null, place, "S", 120000, 20)
+        val gradeA = Grade(null, place, "A", 90000, 30)
+        gradeRepository.saveAll(listOf(gradeS, gradeA))
+
+        val uploadPath = Paths.get(uploadDir)
+        if (!Files.exists(uploadPath)) {
+            Files.createDirectories(uploadPath)
+        }
+    }
+
+    @Test
+    @DisplayName("공연 등록 시 실제 파일이 저장되고 데이터베이스에 반영되는지 확인 (001.png 사용)")
+    fun `test performance create real file upload 001 png`() {
+        // Given
+        val requestJson = """
+            {
+                "title": "실제 파일 저장 공연 (png)",
+                "description": "실제 파일 저장 테스트 (png)",
+                "category": "CONCERT",
+                "performanceStatus": true,
+                "startTime": "2025-06-05T20:00:00",
+                "endTime": "2025-06-05T22:00:00",
+                "reservationStartTime": "2025-05-20T10:00:00",
+                "placeId": ${savedPlace.id}
+            }
+            
+            """.trimIndent()
+
+        val resource = ClassPathResource("uploads/001.png") // 사용할 이미지 파일 경로 변경
+        val inputStream = resource.inputStream
+
+        val file = MockMultipartFile(
+            "file",
+            "001.png",
+            MediaType.IMAGE_PNG_VALUE,  // 사용할 이미지 Content-Type에 맞게 변경
+            inputStream
+        )
+
+        val request = MockMultipartFile(
+            "request",
+            "",
+            MediaType.APPLICATION_JSON_VALUE,
+            requestJson.toByteArray()
+        )
+
+        // When
+        val resultActions = mockMvc.perform(
+            MockMvcRequestBuilders.multipart("/api/performances")
+                .file(file)
+                .file(request)
+                .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
+        )
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().string("공연이 등록되었습니다."))
+
+        // Then
+        // 1. 저장된 Performance 정보 확인
+        val savedPerformance = entityManager.createQuery(
+            "SELECT p FROM Performance p WHERE p.title = :title", Performance::class.java
+        )
+            .setParameter("title", "실제 파일 저장 공연 (png)")
+            .setMaxResults(1)
+            .singleResult
+        Assertions.assertThat(savedPerformance).isNotNull()
+        Assertions.assertThat(savedPerformance.file).isNotNull()
+
+        // 2. 실제 파일 저장 경로에 파일이 존재하는지 확인
+        val storedFilePath = Paths.get(uploadDir, savedPerformance.file!!.encodedFileName)
+        Assertions.assertThat(Files.exists(storedFilePath)).isTrue()
+        Assertions.assertThat(Files.isRegularFile(storedFilePath)).isTrue()
+
+        // 3. 데이터베이스에 File 정보가 정확하게 저장되었는지 확인
+        val dbFile: File? = fileRepository.findById(savedPerformance.file!!.id).orElse(null)
+        Assertions.assertThat(dbFile).isNotNull()
+        Assertions.assertThat(dbFile?.originalFileName).isEqualTo("001.png") // 원래 파일 이름 확인
+
+        // [선택 사항] 저장된 파일 삭제 (테스트 후 정리)
+        Files.deleteIfExists(storedFilePath)
+    }
+
+    @Test
+    @DisplayName("공연 등록 실패 - 텍스트 파일(txt) 업로드 시 INVALID_IMAGE_TYPE 에러 발생")
+    fun `test performance create fail with text file`() {
+        // Given
+        val requestJson = """
+            {
+                "title": "텍스트 파일 업로드 테스트",
+                "description": "txt 파일 업로드 시 실패해야 함",
+                "category": "CONCERT",
+                "performanceStatus": true,
+                "startTime": "2025-07-01T20:00:00",
+                "endTime": "2025-07-01T22:00:00",
+                "reservationStartTime": "2025-06-01T10:00:00",
+                "placeId": ${savedPlace.id}
+            }
+        """.trimIndent()
+
+        // 텍스트 파일 생성
+        val fileContent = "This is a plain text file"
+        val file = MockMultipartFile(
+            "file",
+            "invalid.txt",
+            MediaType.TEXT_PLAIN_VALUE,
+            fileContent.toByteArray()
+        )
+
+        val request = MockMultipartFile(
+            "request",
+            "",
+            MediaType.APPLICATION_JSON_VALUE,
+            requestJson.toByteArray()
+        )
+
+        // When & Then
+        mockMvc.perform(
+            MockMvcRequestBuilders.multipart("/api/performances")
+                .file(file)
+                .file(request)
+                .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
+        )
+            .andExpect(MockMvcResultMatchers.status().isBadRequest)
+            .andExpect(MockMvcResultMatchers.jsonPath("$.code").value(ErrorCode.INVALID_IMAGE_TYPE.code))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.message").value(ErrorCode.INVALID_IMAGE_TYPE.message))
+    }
+}

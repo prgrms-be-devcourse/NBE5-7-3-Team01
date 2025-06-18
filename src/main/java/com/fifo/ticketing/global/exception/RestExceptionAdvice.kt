@@ -1,25 +1,21 @@
 package com.fifo.ticketing.global.exception
 
-import com.fifo.ticketing.domain.performance.controller.api.PerformanceApiController
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.slf4j.LoggerFactory
-import org.springframework.core.annotation.AnnotatedElementUtils
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
-import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.method.HandlerMethod
 
 
-@RestControllerAdvice(assignableTypes = [PerformanceApiController::class])
+@RestControllerAdvice
 class RestExceptionAdvice {
     private val log = LoggerFactory.getLogger(this::class.java)
 
     @ExceptionHandler(MethodArgumentNotValidException::class)
     fun handleValidationException(
-        ex: MethodArgumentNotValidException,
-        handlerMethod: HandlerMethod
+        ex: MethodArgumentNotValidException
     ): Any {
         // Class Level Error Handling (현재는 @ValidPerformanceDates에 해당)
         val classLevelError = ex.bindingResult.globalErrors.firstOrNull()

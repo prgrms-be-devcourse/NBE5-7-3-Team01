@@ -59,7 +59,7 @@ class BookScheduleManager(
 
             log.info { "${bookId}번 예매 취소됨 | ${LocalDateTime.now()}" }
 
-            val bookSeats = bookSeatRepository.findAllByBookIdWithSeat(book.id)
+            val bookSeats = bookSeatRepository.findAllByBookIdWithSeat(book.id!!)
             bookSeats.map {
                 it.seat.available()
                 seatRepository.save(it.seat)
