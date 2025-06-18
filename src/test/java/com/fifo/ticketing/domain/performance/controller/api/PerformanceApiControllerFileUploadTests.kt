@@ -8,6 +8,7 @@ import com.fifo.ticketing.domain.performance.repository.PerformanceAdminReposito
 import com.fifo.ticketing.domain.performance.repository.PlaceRepository
 import com.fifo.ticketing.domain.seat.repository.SeatRepository
 import com.fifo.ticketing.global.entity.File
+import com.fifo.ticketing.global.exception.ErrorCode
 import com.fifo.ticketing.global.repository.FileRepository
 import com.fifo.ticketing.global.service.ImageFileService
 import jakarta.persistence.EntityManager
@@ -85,8 +86,8 @@ class PerformanceApiControllerFileUploadTests {
         }
     }
 
-    @DisplayName("공연 등록 시 실제 파일이 저장되고 데이터베이스에 반영되는지 확인 (001.png 사용)")
     @Test
+    @DisplayName("공연 등록 시 실제 파일이 저장되고 데이터베이스에 반영되는지 확인 (001.png 사용)")
     fun `test performance create real file upload 001 png`() {
         // Given
         val requestJson = """
@@ -153,5 +154,50 @@ class PerformanceApiControllerFileUploadTests {
 
         // [선택 사항] 저장된 파일 삭제 (테스트 후 정리)
         Files.deleteIfExists(storedFilePath)
+    }
+
+    @Test
+    @DisplayName("공연 등록 실패 - 텍스트 파일(txt) 업로드 시 INVALID_IMAGE_TYPE 에러 발생")
+    fun `test performance create fail with text file`() {
+        // Given
+        val requestJson = """
+            {
+                "title": "텍스트 파일 업로드 테스트",
+                "description": "txt 파일 업로드 시 실패해야 함",
+                "category": "CONCERT",
+                "performanceStatus": true,
+                "startTime": "2025-07-01T20:00:00",
+                "endTime": "2025-07-01T22:00:00",
+                "reservationStartTime": "2025-06-01T10:00:00",
+                "placeId": ${savedPlace.id}
+            }
+        """.trimIndent()
+
+        // 텍스트 파일 생성
+        val fileContent = "This is a plain text file"
+        val file = MockMultipartFile(
+            "file",
+            "invalid.txt",
+            MediaType.TEXT_PLAIN_VALUE,
+            fileContent.toByteArray()
+        )
+
+        val request = MockMultipartFile(
+            "request",
+            "",
+            MediaType.APPLICATION_JSON_VALUE,
+            requestJson.toByteArray()
+        )
+
+        // When & Then
+        mockMvc.perform(
+            MockMvcRequestBuilders.multipart("/api/performances")
+                .file(file)
+                .file(request)
+                .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
+        )
+            .andExpect(MockMvcResultMatchers.status().isBadRequest)
+            .andExpect(MockMvcResultMatchers.jsonPath("$.code").value(ErrorCode.INVALID_IMAGE_TYPE.code))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.message").value(ErrorCode.INVALID_IMAGE_TYPE.message))
     }
 }

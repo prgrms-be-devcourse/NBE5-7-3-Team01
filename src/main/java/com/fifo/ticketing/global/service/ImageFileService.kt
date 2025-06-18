@@ -26,7 +26,11 @@ class ImageFileService(
     @Transactional
     @Throws(IOException::class)
     fun uploadFile(file: MultipartFile): File {
-        validateImageType(file)
+        try {
+            validateImageType(file)
+        } catch (e: Exception) {
+            throw ErrorException(ErrorCode.INVALID_IMAGE_TYPE)
+        }
         val originalFileName =
             file.originalFilename ?: throw ErrorException(ErrorCode.FILE_UPLOAD_FAILED)
         val uuidFileName = generateUuidFileName(originalFileName)
