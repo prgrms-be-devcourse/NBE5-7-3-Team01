@@ -1,44 +1,49 @@
 package com.fifo.ticketing.global.service
 
+import io.mockk.*
+import io.mockk.impl.annotations.MockK
+import io.mockk.junit5.MockKExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.Mock
-import org.mockito.junit.jupiter.MockitoExtension
-import org.mockito.kotlin.verify
-import org.mockito.kotlin.whenever
 import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.data.redis.core.ValueOperations
 import java.util.concurrent.TimeUnit
 
-@ExtendWith(MockitoExtension::class)
+@ExtendWith(MockKExtension::class)
 class RedisServiceTest {
 
-    @Mock
-    lateinit var redisTemplate: RedisTemplate<String, String>
+    @MockK
+    private lateinit var redisTemplate: RedisTemplate<String, String>
 
-    @Mock
-    lateinit var valueOps: ValueOperations<String, String>
+    @MockK
+    private lateinit var valueOps: ValueOperations<String, String>
 
-    lateinit var redisService: RedisService
+    private lateinit var redisService: RedisService
 
     @BeforeEach
     fun setup() {
+        MockKAnnotations.init(this)
         redisService = RedisService(redisTemplate)
     }
 
     @Test
     fun setValue() {
-        whenever(redisTemplate.opsForValue()).thenReturn(valueOps)
+        every { redisTemplate.opsForValue() } returns valueOps
+        every { valueOps.set("captcha:random", "randomNum", 3000L, TimeUnit.MILLISECONDS) } just runs
+
         redisService.setValuesWithTimeout("captcha:random", "randomNum", 3000L)
-        verify(valueOps).set("captcha:random", "randomNum", 3000L, TimeUnit.MILLISECONDS)
+
+        verify {
+            valueOps.set("captcha:random", "randomNum", 3000L, TimeUnit.MILLISECONDS)
+        }
     }
 
     @Test
     fun readValue() {
-        whenever(redisTemplate.opsForValue()).thenReturn(valueOps)
-        whenever(valueOps["captcha:random"]).thenReturn("randomNum")
+        every { redisTemplate.opsForValue() } returns valueOps
+        every { valueOps["captcha:random"] } returns "randomNum"
 
         val result = redisService.getValues("captcha:random")
         assertThat(result).isEqualTo("randomNum")
@@ -46,8 +51,13 @@ class RedisServiceTest {
 
     @Test
     fun deleteValue() {
+
+        every { redisTemplate.delete("captcha:random") } returns true
+
         redisService.deleteValues("captcha:random")
 
-        verify(redisTemplate).delete("captcha:random")
+        verify {
+            redisTemplate.delete("captcha:random")
+        }
     }
 }

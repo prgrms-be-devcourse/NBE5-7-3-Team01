@@ -3,13 +3,14 @@ package com.fifo.ticketing.global.captcha
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fifo.ticketing.global.captcha.dto.CaptchaVerifyRequest
 import com.fifo.ticketing.global.service.RedisService
+import io.mockk.MockKAnnotations
+import io.mockk.every
+import io.mockk.impl.annotations.InjectMockKs
+import io.mockk.impl.annotations.MockK
+import io.mockk.junit5.MockKExtension
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.InjectMocks
-import org.mockito.Mock
-import org.mockito.junit.jupiter.MockitoExtension
-import org.mockito.kotlin.whenever
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
@@ -17,26 +18,31 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPat
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 
-@ExtendWith(MockitoExtension::class)
+@ExtendWith(MockKExtension::class)
 class CaptchaControllerTest {
 
-    @Mock
-    lateinit var redisService: RedisService
+    @MockK
+    private lateinit var redisService: RedisService
 
-    @InjectMocks
-    lateinit var captchaController: CaptchaController
+    @InjectMockKs
+    private lateinit var captchaController: CaptchaController
 
-    lateinit var mockMvc: MockMvc
+    private lateinit var mockMvc: MockMvc
+    private var objectMapper: ObjectMapper = ObjectMapper()
 
     @BeforeEach
     fun setup() {
+        MockKAnnotations.init(this)
+        captchaController = CaptchaController(redisService)
         mockMvc = MockMvcBuilders.standaloneSetup(captchaController).build()
     }
 
-    var objectMapper: ObjectMapper = ObjectMapper()
 
     @Test
     fun `captcha 생성 테스트`() {
+
+        every { redisService.setValuesWithTimeout(any(), any(), any()) } returns Unit
+
         mockMvc.perform(MockMvcRequestBuilders.get("/api/captcha"))
             .andExpect {
                 status().isOk
@@ -50,7 +56,8 @@ class CaptchaControllerTest {
         val captchaId = "captcha:test"
         val input = "TEST12"
 
-        whenever(redisService.getValues(captchaId)).thenReturn(input)
+        every { redisService.getValues(captchaId) } returns input
+        every { redisService.deleteValues(captchaId) } returns Unit
 
         val request = CaptchaVerifyRequest(captchaId, input)
 
@@ -65,7 +72,7 @@ class CaptchaControllerTest {
     fun `captcha 검증 실패`() {
         val captchaId = "captcha:test"
 
-        whenever(redisService.getValues(captchaId)).thenReturn(null)
+        every { redisService.getValues(captchaId) } returns null
 
         val request = CaptchaVerifyRequest(captchaId, "WRONG1")
 
@@ -75,6 +82,4 @@ class CaptchaControllerTest {
                 .content(objectMapper.writeValueAsString(request))
         ).andExpect(status().isForbidden)
     }
-
-
 }
