@@ -5,6 +5,8 @@ import com.fifo.ticketing.domain.book.dto.BookCreateRequest
 import com.fifo.ticketing.domain.book.service.BookService
 import com.fifo.ticketing.domain.user.dto.SessionUser
 import com.fifo.ticketing.domain.user.entity.Role
+import com.fifo.ticketing.domain.user.entity.User
+import com.fifo.ticketing.domain.user.repository.UserRepository
 import com.fifo.ticketing.global.service.MailService
 import jakarta.servlet.http.HttpSession
 import kotlinx.coroutines.test.runTest
@@ -19,15 +21,21 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.returnResult
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
 class TestSessionController {
-    @PostMapping("/test-session")
-    fun setTestSession(session: HttpSession): ResponseEntity<Void> {
-        val mockUser = SessionUser(1L, "테스트", Role.USER)
-        session.setAttribute("loginUser", mockUser)
+
+    @Autowired
+    lateinit var userRepository: UserRepository
+
+    @PostMapping("/test-session/{id}")
+    fun setTestSession(@PathVariable id: Long, session: HttpSession): ResponseEntity<Void> {
+        val user = userRepository.findById(id).orElseThrow()
+
+        session.setAttribute("loginUser", SessionUser(user.id!!, user.username, user.role))
         return ResponseEntity.ok().build()
     }
 }
@@ -55,10 +63,11 @@ class BookControllerTests {
         val request = BookCreateRequest(seatIds)
 
         val sessionCookie = webTestClient.post()
-            .uri("/test-session")
+            .uri("/test-session/$userId")
             .exchange()
             .returnResult<Void>()
             .responseCookies["JSESSIONID"]?.first()
+
         `when`(bookService.createBook(performanceId, userId, request))
             .thenReturn(bookId)
 

@@ -14,7 +14,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes
 import org.springframework.web.servlet.view.RedirectView
 
 @Controller
-@RequiredArgsConstructor
 @RequestMapping("/performances/{performanceId}/book")
 class BookController(
     private val bookService: BookService,
