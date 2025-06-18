@@ -5,8 +5,6 @@ import com.fifo.ticketing.domain.book.dto.BookCreateRequest
 import com.fifo.ticketing.domain.book.service.BookService
 import com.fifo.ticketing.domain.user.dto.SessionUser
 import com.fifo.ticketing.domain.user.entity.Role
-import com.fifo.ticketing.domain.user.repository.UserRepository
-import com.fifo.ticketing.global.service.MailService
 import jakarta.servlet.http.HttpSession
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
@@ -20,21 +18,15 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.returnResult
-import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
 class TestSessionController {
-    @Autowired
-    lateinit var userRepository: UserRepository
-
-    @PostMapping("/test-session/{id}")
-    fun setTestSession(@PathVariable id: Long, session: HttpSession): ResponseEntity<Void> {
-        val user = userRepository.findById(id).orElseThrow()
-
-        session.setAttribute("loginUser", SessionUser(user.id!!, user.username, user.role))
-
+    @PostMapping("/test-session")
+    fun setTestSession(session: HttpSession): ResponseEntity<Void> {
+        val mockUser = SessionUser(1L, "테스트", Role.USER)
+        session.setAttribute("loginUser", mockUser)
         return ResponseEntity.ok().build()
     }
 }
@@ -50,6 +42,9 @@ class BookControllerTests {
     @MockitoBean
     lateinit var bookService: BookService
 
+    @Autowired
+    lateinit var om: ObjectMapper
+
     @Test
     fun `createBook - 예매 생성 요청을 보내면 createBook 메서드가 정상적으로 실행된다`() = runTest {
 
@@ -62,7 +57,7 @@ class BookControllerTests {
         val request = BookCreateRequest(seatIds)
 
         val sessionCookie = webTestClient.post()
-            .uri("/test-session/$userId")
+            .uri("/test-session")
             .exchange()
             .returnResult<Void>()
             .responseCookies["JSESSIONID"]?.first()
