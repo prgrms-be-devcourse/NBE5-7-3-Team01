@@ -1,18 +1,15 @@
-package com.fifo.ticketing;
+package com.fifo.ticketing
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.scheduling.annotation.EnableAsync;
-import org.springframework.scheduling.annotation.EnableScheduling;
-
+import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.boot.runApplication
+import org.springframework.scheduling.annotation.EnableAsync
+import org.springframework.scheduling.annotation.EnableScheduling
 
 @EnableAsync
 @EnableScheduling
 @SpringBootApplication
-public class TicketingApplication {
+class TicketingApplication
 
-    public static void main(String[] args) {
-        SpringApplication.run(TicketingApplication.class, args);
-    }
-
+fun main(args: Array<String>) {
+    runApplication<TicketingApplication>(*args)
 }
