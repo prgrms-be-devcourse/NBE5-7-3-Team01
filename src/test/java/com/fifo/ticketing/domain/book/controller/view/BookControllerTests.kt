@@ -5,7 +5,6 @@ import com.fifo.ticketing.domain.book.dto.BookCreateRequest
 import com.fifo.ticketing.domain.book.service.BookService
 import com.fifo.ticketing.domain.user.dto.SessionUser
 import com.fifo.ticketing.domain.user.entity.Role
-import com.fifo.ticketing.global.service.MailService
 import jakarta.servlet.http.HttpSession
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
@@ -43,6 +42,9 @@ class BookControllerTests {
     @MockitoBean
     lateinit var bookService: BookService
 
+    @Autowired
+    lateinit var om: ObjectMapper
+
     @Test
     fun `createBook - 예매 생성 요청을 보내면 createBook 메서드가 정상적으로 실행된다`() = runTest {
 
@@ -59,6 +61,7 @@ class BookControllerTests {
             .exchange()
             .returnResult<Void>()
             .responseCookies["JSESSIONID"]?.first()
+
         `when`(bookService.createBook(performanceId, userId, request))
             .thenReturn(bookId)
 

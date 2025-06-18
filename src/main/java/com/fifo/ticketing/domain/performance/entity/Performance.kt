@@ -43,7 +43,7 @@ class Performance(
     var reservationStartTime: LocalDateTime,
 
     @Setter
-    @OneToOne(fetch = FetchType.EAGER, cascade = [CascadeType.PERSIST])
+    @OneToOne(fetch = FetchType.EAGER, cascade = [CascadeType.MERGE])
     @JoinColumn(name = "file_id", foreignKey = ForeignKey(name = "fk_performance_to_file"))
     var file: File? = null,
 
