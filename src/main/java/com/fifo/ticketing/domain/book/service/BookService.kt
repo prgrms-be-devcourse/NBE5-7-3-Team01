@@ -89,7 +89,7 @@ class BookService(
             "예매 정보가 존재하지 않습니다.",
         )
 
-        val bookSeats: List<BookSeat> = bookSeatRepository.findAllByBookId(book.id)
+        val bookSeats: List<BookSeat> = bookSeatRepository.findAllByBookId(book.id!!)
 
         book.canceled()
 
@@ -154,7 +154,7 @@ class BookService(
         val book = bookRepository.findById(bookId)
             .orElseThrow { ErrorException(ErrorCode.NOT_FOUND_BOOK) }
 
-        val bookSeats = bookSeatRepository.findAllByBookId(book.id)
+        val bookSeats = bookSeatRepository.findAllByBookId(book.id!!)
 
         book.payed()
 
