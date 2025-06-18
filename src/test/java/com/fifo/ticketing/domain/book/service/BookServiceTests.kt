@@ -147,7 +147,6 @@ class BookServiceTests {
             bookService.cancelBookByAdmin(bookId)
         }
 
-
         error.errorCode shouldBe ErrorCode.NOT_FOUND_BOOK
 
     }

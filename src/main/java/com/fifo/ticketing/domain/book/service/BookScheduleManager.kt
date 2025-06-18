@@ -35,12 +35,9 @@ class BookScheduleManager(
 
     @Transactional
     suspend fun scheduleCancelTask(bookId: Long, runTime: LocalDateTime) {
+
         bookScheduleRepository.save(bookId.toBookScheduledTask(runTime))
 
-        log.info { "${bookId}번 예매 생성됨 | ${LocalDateTime.now()}" }
-
-
-        // 레포지토리에 작업이 저장되면 실행됨
         coroutineScope.launch {
             // 10분동안 대기했다가
             delay(600000)

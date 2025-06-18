@@ -37,6 +37,7 @@ import org.springframework.mock.web.MockHttpSession
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.bean.override.mockito.MockitoBean
+import org.springframework.test.util.ReflectionTestUtils
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
@@ -55,14 +56,15 @@ class BookMockMvcTests {
     @Autowired
     lateinit var bookRepository: BookRepository
 
-    @MockitoBean
-    lateinit var bookService: BookService
 
     @Autowired
     lateinit var performanceRepository: PerformanceRepository
 
     @Autowired
     lateinit var userRepository: UserRepository
+
+    @Autowired
+    lateinit var bookService: BookService
 
     @Autowired
     lateinit var seatRepository: SeatRepository
@@ -79,6 +81,8 @@ class BookMockMvcTests {
     @MockitoBean
     lateinit var mailServiceMock: MailService
 
+
+
     private lateinit var user: User
     private lateinit var place: Place
     private lateinit var file: File
@@ -93,6 +97,7 @@ class BookMockMvcTests {
     @BeforeEach
     fun setUp() {
         urlPrefix = "https://picsum.photos/200"
+        ReflectionTestUtils.setField(bookService, "urlPrefix", urlPrefix)
 
         user = userRepository.saveAndFlush(
             User(
@@ -107,7 +112,6 @@ class BookMockMvcTests {
 
 
         place = placeRepository.saveAndFlush(Place(null, "서울특별시 서초구 서초동 1307", "강남아트홀", 100))
-
         file = fileRepository.saveAndFlush(File(null, "poster.jpg", "sample.jpg"))
 
         performance = performanceRepository.saveAndFlush(
@@ -157,7 +161,6 @@ class BookMockMvcTests {
     }
 
     @Test
-    @Transactional
     fun `예매 결제 완료 후 리다이렉트 및 메일 전송`() {
 
         mockMvc.perform(
@@ -178,8 +181,7 @@ class BookMockMvcTests {
     fun `예매 완료 화면 진입시 정보가 담긴 모델이 전달된다`() {
 
         val bookCompleteInfo = book.toBookCompleteDto(urlPrefix)
-
-        `when`(book.id?.let { bookService.getBookCompleteInfo(it) }).thenReturn(bookCompleteInfo)
+        bookCompleteInfo.paymentCompleted = true
 
         val session = MockHttpSession()
         session.setAttribute("loginUser", SessionUser(user.id!!, user.username, user.role))
@@ -194,7 +196,5 @@ class BookMockMvcTests {
             .andExpect(model().attribute("book", bookCompleteInfo))
             .andExpect(model().attribute("bookId", book.id))
 
-        assertTrue(bookCompleteInfo.paymentCompleted)
-        book.id?.let { verify(bookService).getBookCompleteInfo(it) }
     }
 }

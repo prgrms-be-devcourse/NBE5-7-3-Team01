@@ -14,6 +14,7 @@ import com.fifo.ticketing.domain.seat.repository.SeatRepository
 import com.fifo.ticketing.global.entity.File
 import com.fifo.ticketing.global.exception.ErrorCode
 import com.fifo.ticketing.global.exception.ErrorException
+import com.fifo.ticketing.global.repository.FileRepository
 import com.fifo.ticketing.global.service.ImageFileService
 import jakarta.persistence.EntityManager
 import org.assertj.core.api.Assertions.assertThat
@@ -65,6 +66,9 @@ class PerformanceApiControllerKotlinTests {
     private lateinit var seatRepository: SeatRepository
 
     @Autowired
+    private lateinit var fileRepository: FileRepository
+
+    @Autowired
     private lateinit var entityManager: EntityManager
 
     @MockitoBean
@@ -85,15 +89,15 @@ class PerformanceApiControllerKotlinTests {
         val gradeS = Grade(null, place, "S", 120000, 20)
         val gradeA = Grade(null, place, "A", 90000, 30)
 
-        mockFile = File(null, "poster.jpg", "sample.jpg")
+        mockFile = fileRepository.save(File(null, "poster.jpg", "sample.jpg"))
 
         gradeRepository.saveAll(listOf(gradeS, gradeA))
         whenever(imageFileService.uploadFile(any())).thenReturn(
-            File(
+            fileRepository.save(File(
                 null,
                 "encoded.webp",
                 "test.webp"
-            )
+            ))
         )
     }
 
@@ -200,11 +204,11 @@ class PerformanceApiControllerKotlinTests {
         )
 
         whenever(imageFileService.uploadFile(any())).thenReturn(
-            File(
+            fileRepository.save(File(
                 null,
                 "encoded.webp",
-                "default.webp"
-            )
+                "test.webp"
+            ))
         )
 
         mockMvc.perform(
